@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:background="@android:drawable/list_selector_background"
+    android:padding="8dp">
+
+    <!-- Thumbnail Image -->
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+    <ImageView
+        android:id="@+id/activit_list_imgView"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_alignParentLeft="true"
+        android:layout_marginRight="8dp" />
+
+    <!-- Movie Title -->
+    <TextView
+        android:id="@+id/activity_list_textView_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/activit_list_imgView"
+        android:layout_toRightOf="@+id/activit_list_imgView"
+        android:textSize="17dp"
+        android:text="new text"
+        android:textStyle="bold" />
+
+
+    <TextView
+        android:id="@+id/activity_list_textView_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="new text"
+        android:textSize="15dp"
+        android:layout_below="@+id/activity_list_textView_title"
+        android:layout_toRightOf="@+id/activit_list_imgView" />
+
+        </RelativeLayout>
+
+>
+</RelativeLayout>
