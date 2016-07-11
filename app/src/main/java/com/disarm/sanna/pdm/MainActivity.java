@@ -8,6 +8,8 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
+import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
@@ -30,10 +32,10 @@ import android.widget.CompoundButton;
 import android.widget.Toast;
 
 import com.disarm.sanna.pdm.DisarmConnect.MyService;
-import com.disarm.sanna.pdm.GPS.LocationUpdateService;
 
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -47,10 +49,19 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     private SwitchCompat syncTog,connTog,gpsTog ;
     private SyncService syncService;
     private MyService myService;
+    float speed;
+    double latitude, longitude;
+    public LocationManager lm;
+    public Location location;
+    public boolean gps_enabled, network_enabled;
+    public LocationListener locationListener;
     private boolean syncServiceBound = false;
     private boolean myServiceBound = false;
+    String phoneVal="DefaultNode";
+    Logger logger;
     static String root = Environment.getExternalStorageDirectory().toString();
     final static String TARGET_MAP_PATH = root + "/DMS/Map/";
+    final static String TARGET_DMS_PATH = root + "/DMS/";
     public static String [] prgmNameList={"Health","Food","Shelter","Victim"};
     String[] PERMISSIONS = {Manifest.permission.ACCESS_FINE_LOCATION,
                             Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -159,20 +170,84 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
                 break;
 
             case R.id.gpstoggle:
-                if (b){
-                    LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE );
+                if (b) {
+                    LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
                     boolean statusOfGPS = manager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-                    if (statusOfGPS){
-                        startService(new Intent(getBaseContext(), LocationUpdateService.class));
-                    }else{
+                    if (statusOfGPS) {
+                        // Call logger constructor using phoneVal
+                        // Read Device source from ConfigFile.txt
+                        File file = new File(TARGET_DMS_PATH,"source.txt");
+                        FileInputStream fis = null;
+                        try {
+                            fis = new FileInputStream(file);
+                            byte[] data = new byte[(int) file.length()];
+                            fis.read(data);
+                            fis.close();
+
+                            phoneVal = new String(data, "UTF-8");
+                            Toast.makeText(getApplicationContext(), "Phone : " + phoneVal,
+                                    Toast.LENGTH_SHORT).show();
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        logger = new Logger(phoneVal);
+
+
+                        lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                        gps_enabled = false;
+                        network_enabled = false;
+
+                        try {
+                            gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+                            network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+                        } catch (Exception ex) {
+                        }
+
+                        // Check if gps and network provider is on or off
+                        if (!gps_enabled && !network_enabled) {
+
+                            Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                            startActivity(myIntent);
+                        }
+
+                        locationListener = new MyLocationListener(logger,phoneVal);
+                        lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                            // TODO: Consider calling
+                            //    ActivityCompat#requestPermissions
+                            // here to request the missing permissions, and then overriding
+                            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                            //                                          int[] grantResults)
+                            // to handle the case where the user grants the permission. See the documentation
+                            // for ActivityCompat#requestPermissions for more details.
+                            return;
+                        }
+                        lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 3000, 1, locationListener);
+                        //lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,3000,1,locationListener);
+
+                        if (lm != null) {
+                            // Check for lastKnownLocation
+                            location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                            if (location != null) {
+
+                                // Get latitude and longitude values
+                                latitude = location.getLatitude();
+                                longitude = location.getLongitude();
+
+                            }
+                        }
+                    } else {
                         enableGPS();
                     }
-                }else{
-                    stopService(new Intent(getBaseContext(), LocationUpdateService.class));
+                }
+                    else{
+                    lm.removeUpdates(locationListener);
                 }
                 break;
         }
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -321,7 +396,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
                         break;
                     default:
                         Toast.makeText(this, "GPS is now enabled.", Toast.LENGTH_LONG).show();
-                        startService(new Intent(getBaseContext(), LocationUpdateService.class));
+                        //startService(new Intent(getBaseContext(), LocationUpdateService.class));
                         break;
                 }
             }

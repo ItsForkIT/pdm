@@ -5,30 +5,42 @@
     android:fitsSystemWindows="true"
     android:orientation="vertical">
 
-    <com.disarm.sanna.pdm.SplashActivity.KenBurnsView
-        android:id="@+id/ken_burns_images"
+    <com.flaviofaria.kenburnsview.KenBurnsView
+        android:id="@+id/image"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:src="@drawable/road_to" />
 
-    <ImageView
-        android:id="@+id/imagelogo"
+    <android.support.design.widget.TextInputLayout
+        android:id="@+id/input_layout1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:textColorHint="@color/cardview_light_background"
+        android:layout_above="@+id/submitButton"
+        android:layout_alignParentStart="true">
+        <EditText
+            android:id="@+id/phoneText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Phone No."
+            android:textAlignment="center"
+            android:inputType="phone"
+
+            android:ems="10"/>
+    </android.support.design.widget.TextInputLayout>
+
+    <Button
+        style="@style/Widget.AppCompat.Button.Borderless"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="106dp"
-        android:src="@drawable/splash_wallpaper" />
+        android:text="Submit"
+        android:id="@+id/submitButton"
+        android:textColor="@color/cardview_light_background"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true" />
 
-    <com.disarm.sanna.pdm.SplashActivity.RobotoTextView
-        android:id="@+id/welcome_text"
-        style="@style/TextViewAppearance.Headline2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/imagelogo"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="10dp"
-        android:alpha="0.0"
-        android:text="@string/app_name"
-        android:textColor="@color/global_color_primary_light" />
+
 
 </RelativeLayout>
