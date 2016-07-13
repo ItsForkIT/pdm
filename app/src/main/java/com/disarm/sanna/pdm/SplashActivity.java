@@ -69,13 +69,18 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
         if (!checkPermissions(this, PERMISSIONS)) {
             ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
         }
+
+
+        submitButton.setOnClickListener( this);
+    }
+    private  void afterPermissionExecute(){
         if (!dmsFolder.exists() && !workingFolder.exists() && !tmpFolder.exists()) {
             Log.v("File", "creating files");
             dmsFolder.mkdir();
             workingFolder.mkdir();
             tmpFolder.mkdir();
         }
-        /*SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         if (!prefs.getBoolean("firstTime", false)) {
             // <---- run your one time code here
             // Copy files from assets folder
@@ -87,9 +92,7 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
             SharedPreferences.Editor editor = prefs.edit();
             editor.putBoolean("firstTime", true);
             editor.commit();
-        }*/
-
-
+        }
         if (checkAllFolder()){
 
             progress.setMessage("All Folder : OK");
@@ -104,15 +107,10 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
         }else {
             phoneText1.setVisibility(View.VISIBLE);
             submitButton.setVisibility(View.VISIBLE);
-            CopyAssets copy = new CopyAssets(this);
-            copy.copyFileOrDir("");
             progress.dismiss();
         }
 
-
-        submitButton.setOnClickListener( this);
     }
-
     private boolean checkAllFolder() {
         boolean isAllFolderExit = false;
         if (!dmsFolder.exists() && !workingFolder.exists() && !tmpFolder.exists()) {
@@ -214,6 +212,7 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
                     // permission was granted, yay! Do the
                     // contacts-related task you need to do.
                     showRequestPermissionWriteSettings();
+                    afterPermissionExecute();
 
                 } else {
 

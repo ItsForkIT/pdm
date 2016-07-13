@@ -134,7 +134,7 @@ public class MyService extends Service {
                         .setOngoing(true).build();
 
         notificationManager =(NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        notificationManager.notify(0, n);
+       // notificationManager.notify(0, n);
 
         return START_STICKY;
     }
