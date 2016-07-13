@@ -104,7 +104,7 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
             progress.setMessage("Asset : OK");
 
             progress.dismiss();
-            //callMainActivity();
+            callWriteSettingActivity();
         }else {
             phoneText1.setVisibility(View.VISIBLE);
             submitButton.setVisibility(View.VISIBLE);
@@ -131,11 +131,6 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
             isSourceExit = true;
         }
         return isSourceExit;
-    }
-    private void callMainActivity(){
-        Intent iinent = new Intent(this, MainActivity.class);
-        startActivity(iinent);
-        finish();
     }
 
     private void callWriteSettingActivity(){
@@ -220,7 +215,6 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
                     // contacts-related task you need to do.
                     //showRequestPermissionWriteSettings();
                     afterPermissionExecute();
-                    callWriteSettingActivity();
 
                 } else {
 
