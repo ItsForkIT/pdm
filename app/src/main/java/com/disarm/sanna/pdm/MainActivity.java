@@ -45,8 +45,8 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     private SwitchCompat syncTog,connTog,gpsTog ;
-    private SyncService syncService;
-    private MyService myService;
+    SyncService syncService;
+    MyService myService;
     float speed;
     double latitude, longitude;
     LocationManager lm;
@@ -58,9 +58,8 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     String phoneVal="DefaultNode";
     Logger logger;
     static String root = Environment.getExternalStorageDirectory().toString();
-    final static String TARGET_MAP_PATH = root + "/DMS/Map/";
     final static String TARGET_DMS_PATH = root + "/DMS/";
-    public static String [] prgmNameList={"Health","Food","Shelter","Victim","GIS"};
+    public static String [] prgmNameList={"Health","Food","Shelter","Victim"};
 
 
 
@@ -74,14 +73,6 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-
-        File checkMapFolder = new File(TARGET_MAP_PATH);
-        if (!checkMapFolder.exists()) {
-            checkMapFolder.mkdir();
-        }
-
-
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         syncTog = (SwitchCompat) findViewById(R.id.synctoggle);
@@ -161,6 +152,8 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
             case R.id.gpstoggle:
                 if (b) {
                     requestLocation();
+                }else{
+
                 }
                 break;
         }
