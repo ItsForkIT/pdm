@@ -13,12 +13,13 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.disarm.sanna.pdm.Background.FileTask;
+import com.disarm.sanna.pdm.BackgroundProcess.FileTask;
 import com.disarm.sanna.pdm.Capture.AudioCapture;
 import com.disarm.sanna.pdm.Capture.Photo;
 import com.disarm.sanna.pdm.Capture.SmsCaptrue;
 import com.disarm.sanna.pdm.Capture.Text;
 import com.disarm.sanna.pdm.Capture.Video;
+import com.disarm.sanna.pdm.Util.DividerItemDecoration;
 
 
 /**

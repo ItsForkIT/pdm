@@ -1,19 +1,16 @@
-package com.disarm.sanna.pdm.GPS;
+package com.disarm.sanna.pdm;
 
 import android.os.Environment;
-import android.text.format.Time;
 import android.util.Log;
-import android.widget.Toast;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.FilenameFilter;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.logging.FileHandler;
-import java.io.*;
 
 public class Logger {
 
@@ -25,11 +22,11 @@ public class Logger {
     public static int flag1 = 1;
     public static String logFileName;
     static String state = Environment.getExternalStorageState();
-    public static String phoneID = "9888844036";
+    public static String phoneID ;
 
-    /*public Logger(String phoneVal) {
+    public Logger(String phoneVal) {
         this.phoneID = phoneVal;
-    }*/
+    }
 
     public static void addRecordToLog(String message) {
 

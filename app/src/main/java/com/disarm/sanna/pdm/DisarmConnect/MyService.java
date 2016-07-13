@@ -53,7 +53,7 @@ public class MyService extends Service {
     private static final String TAG2 = "WifiConnect";
     private static final String TAG3 = "Toggler";
     private static final String TAG4 = "Searching DB";
-    private int addIncreasewifi = 5000,wifiIncrease=5000,hpIncrease=5000,addIncreasehp = 0;
+    private int addIncreasewifi = 5000,wifiIncrease=10000,hpIncrease=10000,addIncreasehp = 0;
     private final IBinder myServiceBinder = new MyServiceBinder();
     private BroadcastReceiver mBatInfoReceiver = new BroadcastReceiver(){
         @Override
@@ -127,14 +127,14 @@ public class MyService extends Service {
 
         Notification n =
                 new NotificationCompat.Builder(this)
-                        .setSmallIcon(R.drawable.notification_icon)
+                        //.setSmallIcon(R.drawable.notification_icon)
                         .setContentTitle("DisarmConnect Service")
                         .setContentText("Service Started")
                         .setAutoCancel(false)
                         .setOngoing(true).build();
 
         notificationManager =(NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        notificationManager.notify(0, n);
+       // notificationManager.notify(0, n);
 
         return START_STICKY;
     }
@@ -357,7 +357,7 @@ public class MyService extends Service {
         }
         //wifiState = false;
         // WifiState - 1 (Is Hotspot) || 0 - (CheckHotspot)
-        if(wifiState <= 0.25 && level > 25 ) {
+        if(wifiState <= 0.50 && level > 10 ) {
             Log.v(TAG1,"hptoggling for " +String.valueOf(addIncreasehp));
             addIncreasehp += hpIncrease;
             wifi.setWifiEnabled(false);
@@ -384,7 +384,7 @@ public class MyService extends Service {
 
         }
 
-        if(addIncreasewifi == 35000 ){
+        if(addIncreasewifi == 20000 ){
             addIncreasewifi = 5000;
         }else if(addIncreasehp == 35000){
             addIncreasehp = 5000;
