@@ -66,6 +66,7 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
         progress.setMessage("Checking All Configuration");
         progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progress.show();
+
         if (!checkPermissions(this, PERMISSIONS)) {
             ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
         }
@@ -103,7 +104,7 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
             progress.setMessage("Asset : OK");
 
             progress.dismiss();
-            callMainActivity();
+            //callMainActivity();
         }else {
             phoneText1.setVisibility(View.VISIBLE);
             submitButton.setVisibility(View.VISIBLE);
@@ -133,6 +134,12 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
     }
     private void callMainActivity(){
         Intent iinent = new Intent(this, MainActivity.class);
+        startActivity(iinent);
+        finish();
+    }
+
+    private void callWriteSettingActivity(){
+        Intent iinent = new Intent(this,WriteSettingActivity.class);
         startActivity(iinent);
         finish();
     }
@@ -197,7 +204,7 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
         } else {
             Intent intent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS,
                     Uri.parse("package:" + getPackageName()));
-            startActivity(intent);
+            startActivityForResult(intent,1);
 
         }
     }
@@ -211,8 +218,9 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
 
                     // permission was granted, yay! Do the
                     // contacts-related task you need to do.
-                    showRequestPermissionWriteSettings();
+                    //showRequestPermissionWriteSettings();
                     afterPermissionExecute();
+                    callWriteSettingActivity();
 
                 } else {
 

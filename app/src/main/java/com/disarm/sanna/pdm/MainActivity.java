@@ -351,6 +351,11 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        stopService(new Intent(getBaseContext(), MyService.class));
+        super.onDestroy();
+    }
 }
 
 

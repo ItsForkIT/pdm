@@ -61,7 +61,12 @@
             android:theme="@style/AppCompatAlertDialogStyle"
             >
         </activity>
-
+        <activity
+            android:label="Allow Write Setting"
+            android:name=".WriteSettingActivity"
+            android:theme="@style/AppTheme"
+            >
+        </activity>
         <service
             android:name=".SyncService"
             android:enabled="true"
