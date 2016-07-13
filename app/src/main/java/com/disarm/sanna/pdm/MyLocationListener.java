@@ -1,21 +1,16 @@
 package com.disarm.sanna.pdm;
 
-import android.content.Context;
 import android.location.Location;
 import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
-import android.view.KeyEvent;
-import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 
 public class MyLocationListener extends MainActivity implements LocationListener {
@@ -28,7 +23,7 @@ public class MyLocationListener extends MainActivity implements LocationListener
     Double distance = 0.0, bearing = 0.0;
 
 
-    public MyLocationListener(Logger logger1,String phoneVal1) {
+    public MyLocationListener(Logger logger1, String phoneVal1) {
         this.logger = logger1;
         this.phoneVal = phoneVal1;
 
@@ -43,7 +38,7 @@ public class MyLocationListener extends MainActivity implements LocationListener
         speed=locFromGps.getSpeed();
 
         // Calculate from GPS
-        inFolder = Environment.getExternalStoragePublicDirectory("DMS/Map/tiles");
+        inFolder = Environment.getExternalStoragePublicDirectory("DMS/Working/");
         File[] foundFiles = inFolder.listFiles(new FilenameFilter() {
             public boolean accept(File dir, String name) {
 

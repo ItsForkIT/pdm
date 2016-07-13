@@ -54,7 +54,7 @@ public class SyncService extends Service {
                 BufferedReader br = new BufferedReader(new FileReader(DirectoryPath));
                 Log.d("AttachAud/Vid", DirectoryPath);
                 if (br.ready()) {
-                    line=br.readLine().substring(3,13);
+                    line=br.readLine();
                 }
                 br.close();
             }

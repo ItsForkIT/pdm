@@ -27,9 +27,7 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".SplashActivity"
-            android:label="@string/app_name"
-            android:launchMode="standard"
-            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden|adjustUnspecified"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -41,14 +39,10 @@
             android:name=".MainActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
-           <!-- <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>-->
         </activity>
         <activity
             android:name=".ActivityList"
+            android:windowSoftInputMode="stateHidden|adjustPan"
             android:theme="@style/Theme.AppCompat.DayNight.NoActionBar">
         </activity>
         <activity
@@ -75,10 +69,7 @@
 
         <service android:name=".DisarmConnect.MyService" />
 
-        <service
-            android:name=".GPS.LocationUpdateService"
-            android:enabled="true"
-            android:exported="false"></service>
+
     </application>
 
 </manifest>
