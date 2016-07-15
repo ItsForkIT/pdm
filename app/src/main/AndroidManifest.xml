@@ -58,7 +58,7 @@
         <activity
             android:label="Record Audio"
             android:name=".Capture.AudioCapture"
-            android:theme="@style/AppCompatAlertDialogStyle"
+            android:theme="@style/Theme.AppCompat.Light.Dialog"
             >
         </activity>
         <activity

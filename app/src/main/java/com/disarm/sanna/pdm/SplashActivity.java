@@ -39,13 +39,12 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
     public File dmsFolder = Environment.getExternalStoragePublicDirectory("DMS/");
     public File workingFolder = Environment.getExternalStoragePublicDirectory("DMS/Working");
     public File tmpFolder = Environment.getExternalStoragePublicDirectory("DMS/tmp");
-    static String root = Environment.getExternalStorageDirectory().toString();
-    final static String TARGET_MAP_PATH = root + "/DMS/Map/";
-    final static String TARGET_DMS_PATH = root + "/DMS/";
+    public File mapFolder = Environment.getExternalStoragePublicDirectory("DMS/Map");
     final File configFile = new File(dmsFolder,"source.txt");
     private ProgressDialog progress;
     private EditText phoneText1;
     private Button submitButton;
+    boolean isAllFolderExit = false;
     String[] PERMISSIONS = {Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.CAMERA,
@@ -67,61 +66,46 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
         progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progress.show();
 
-        if (!checkPermissions(this, PERMISSIONS)) {
-            ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (!checkPermissions(this, PERMISSIONS)) {
+                ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
+            }
+        }else{
+            afterPermissionExecute();
         }
-
 
         submitButton.setOnClickListener( this);
     }
     private  void afterPermissionExecute(){
-        if (!dmsFolder.exists() && !workingFolder.exists() && !tmpFolder.exists()) {
-            Log.v("File", "creating files");
-            dmsFolder.mkdir();
-            workingFolder.mkdir();
-            tmpFolder.mkdir();
-        }
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        if (!prefs.getBoolean("firstTime", false)) {
-            // <---- run your one time code here
-            // Copy files from assets folder
-
-            CopyAssets copy = new CopyAssets(this);
-            copy.copyFileOrDir("");
-
-            // mark first time has runned.
-            SharedPreferences.Editor editor = prefs.edit();
-            editor.putBoolean("firstTime", true);
-            editor.commit();
-        }
-        if (checkAllFolder()){
-
+        if (!isAllFolderExit){
+            checkAllFolder();
             progress.setMessage("All Folder : OK");
         }
 
+        copyingAssets();
+
         if (checkSourceFile()){
             progress.setMessage("Source : OK");
-            progress.setMessage("Asset : OK");
-
             progress.dismiss();
             callWriteSettingActivity();
         }else {
             phoneText1.setVisibility(View.VISIBLE);
             submitButton.setVisibility(View.VISIBLE);
+            copyingAssets();
             progress.dismiss();
         }
 
     }
-    private boolean checkAllFolder() {
-        boolean isAllFolderExit = false;
-        if (!dmsFolder.exists() && !workingFolder.exists() && !tmpFolder.exists()) {
+
+    private void checkAllFolder() {
+        if (!dmsFolder.exists() && !workingFolder.exists() && !tmpFolder.exists() &&!mapFolder.exists()) {
             Log.v("File","creating files");
             dmsFolder.mkdir();
             workingFolder.mkdir();
             tmpFolder.mkdir();
+            mapFolder.mkdir();
             isAllFolderExit = true;
         }
-        return isAllFolderExit;
     }
 
     private boolean checkSourceFile() {
@@ -134,8 +118,8 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private void callWriteSettingActivity(){
-        Intent iinent = new Intent(this,WriteSettingActivity.class);
-        startActivity(iinent);
+        Intent intent = new Intent(this,WriteSettingActivity.class);
+        startActivity(intent);
         finish();
     }
 
@@ -189,21 +173,6 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
         return true;
     }
 
-    public void showRequestPermissionWriteSettings() {
-        boolean hasSelfPermission = false;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-            hasSelfPermission = Settings.System.canWrite(this);
-        }
-        if (hasSelfPermission) {
-
-        } else {
-            Intent intent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS,
-                    Uri.parse("package:" + getPackageName()));
-            startActivityForResult(intent,1);
-
-        }
-    }
-
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
             case PERMISSION_ALL: {
@@ -226,6 +195,21 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
 
             // other 'case' lines to check for other
             // permissions this app might request
+        }
+    }
+    private void copyingAssets(){
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        if (!prefs.getBoolean("firstTime", false)) {
+            // <---- run your one time code here
+            // Copy files from assets folder
+
+            CopyAssets copy = new CopyAssets(this);
+            copy.copyFileOrDir("");
+
+            // mark first time has runned.
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putBoolean("firstTime", true);
+            editor.commit();
         }
     }
 }

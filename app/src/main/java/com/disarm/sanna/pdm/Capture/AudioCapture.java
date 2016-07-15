@@ -47,6 +47,7 @@ public class AudioCapture extends AppCompatActivity implements View.OnClickListe
         Intent myIntent = getIntent();
         type = myIntent.getStringExtra("IntentType");
         record.setOnClickListener(this);
+        play.setVisibility(View.GONE);
         play.setEnabled(false);
         play.setOnClickListener(this);
         back.setOnClickListener(this);

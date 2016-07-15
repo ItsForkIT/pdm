@@ -15,6 +15,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.os.IBinder;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
@@ -60,7 +61,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     static String root = Environment.getExternalStorageDirectory().toString();
     final static String TARGET_DMS_PATH = root + "/DMS/";
     public static String [] prgmNameList={"Health","Food","Shelter","Victim"};
-
+    private boolean doubleBackToExitPressedOnce = false;
 
 
     public interface ClickListener {
@@ -186,6 +187,25 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (doubleBackToExitPressedOnce) {
+            super.onBackPressed();
+            return;
+        }
+
+        this.doubleBackToExitPressedOnce = true;
+        Toast.makeText(this, "Please click BACK again to exit", Toast.LENGTH_SHORT).show();
+
+        new Handler().postDelayed(new Runnable() {
+
+            @Override
+            public void run() {
+                doubleBackToExitPressedOnce=false;
+            }
+        }, 2000);
     }
 
     //Psync
@@ -336,6 +356,11 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
                     // Get latitude and longitude values
                     latitude = location.getLatitude();
                     longitude = location.getLongitude();
+                    Log.v("location",String.valueOf(latitude)+" "+String.valueOf(longitude));
+                    if (latitude != 0.0 && longitude != 0.0 ){
+                        logger.addRecordToLog(String.valueOf(latitude) + "," + String.valueOf(longitude) + "," + String.valueOf(speed) + "," + 0.0 + "," + 0.0);
+                    }
+
 
                 }
             }
