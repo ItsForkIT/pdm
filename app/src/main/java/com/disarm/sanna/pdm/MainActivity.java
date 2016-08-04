@@ -41,7 +41,6 @@ import java.io.FileInputStream;
 
 
 public class MainActivity extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener {
-    private static final int PERMISSION_ALL = 1;
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
@@ -60,7 +59,10 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     Logger logger;
     static String root = Environment.getExternalStorageDirectory().toString();
     final static String TARGET_DMS_PATH = root + "/DMS/";
-    public static String [] prgmNameList={"Health","Food","Shelter","Victim"};
+    public static int [] prgmNameList={R.string.health,
+                                          R.string.food,
+                                          R.string.shelter,
+                                          R.string.victim};
     private boolean doubleBackToExitPressedOnce = false;
 
 
@@ -99,7 +101,15 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
             @Override
             public void onClick(View view, int position) {
                 Intent intent=new Intent(getApplicationContext(), ActivityList.class);
-                intent.putExtra("IntentType",prgmNameList[position]);
+                if (position == 0){
+                    intent.putExtra("IntentType","Health");
+                }else if (position == 1){
+                    intent.putExtra("IntentType","Food");
+                }else if (position == 2){
+                    intent.putExtra("IntentType","Shelter");
+                }else if (position == 3){
+                    intent.putExtra("IntentType","Victim");
+                }
                 startActivity(intent);
             }
 
@@ -123,7 +133,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
                     bindService(syncServiceIntent, syncServiceConnection, Context.BIND_AUTO_CREATE);
                     startService(syncServiceIntent);
 
-                    Toast.makeText(getApplicationContext(), "Starting to Sync", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), R.string.start_sync, Toast.LENGTH_SHORT).show();
                 }else{
                     final Intent syncServiceIntent = new Intent(getBaseContext(), SyncService.class);
                     if (syncServiceBound) {
@@ -197,7 +207,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         }
 
         this.doubleBackToExitPressedOnce = true;
-        Toast.makeText(this, "Please click BACK again to exit", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, R.string.press_back_to_exit, Toast.LENGTH_SHORT).show();
 
         new Handler().postDelayed(new Runnable() {
 
@@ -247,9 +257,9 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     public void enableGPS(){
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
         alertDialogBuilder
-                .setMessage("GPS is disabled in your device. Enable it?")
+                .setMessage(R.string.gps_msg)
                 .setCancelable(false)
-                .setPositiveButton("Enable GPS",
+                .setPositiveButton(R.string.enable_gps,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,
                                                 int id) {
@@ -259,7 +269,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
                                 startActivityForResult(callGPSSettingIntent, 5);
                             }
                         });
-        alertDialogBuilder.setNegativeButton("Cancel",
+        alertDialogBuilder.setNegativeButton(R.string.cancel,
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dialog.cancel();
@@ -278,7 +288,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
                         //GPS still not enabled..
                         break;
                     default:
-                        Toast.makeText(this, "GPS is now enabled.", Toast.LENGTH_LONG).show();
+                        Toast.makeText(this, R.string.enabled_gps, Toast.LENGTH_LONG).show();
                         //startService(new Intent(getBaseContext(), LocationUpdateService.class));
                         break;
                 }
@@ -303,9 +313,6 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
                 fis.close();
 
                 phoneVal = new String(data, "UTF-8");
-                Toast.makeText(getApplicationContext(), "Phone : " + phoneVal,
-                        Toast.LENGTH_SHORT).show();
-
             } catch (Exception e) {
                 e.printStackTrace();
             }

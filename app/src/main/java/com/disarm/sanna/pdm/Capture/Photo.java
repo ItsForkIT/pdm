@@ -22,7 +22,6 @@ public class Photo extends Activity {
     static String root = Environment.getExternalStorageDirectory().toString();
     static String path =root + "/" + "DMS" + "/" + "tmp",group,type,groupID;
     private Uri fileUri;
-    Intent typeintent = getIntent();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

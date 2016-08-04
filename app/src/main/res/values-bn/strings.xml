@@ -1,0 +1,90 @@
+<resources>
+    <string name="app_name">PDM</string>
+    <string name="action_settings">সেটিংস</string>
+    <string name="text_sync">Sync</string>
+    <string name="text_start_connection">Start Connection</string>
+    <string name="text_GPS">GPS Trail</string>
+    <string name="health">Health</string>
+    <string name="food">Food</string>
+    <string name="shelter">Shelter</string>
+    <string name="victim">Victim</string>
+    <string name="photo">Photo</string>
+    <string name="video">Video</string>
+    <string name="audio">Audio</string>
+    <string name="text">Text</string>
+    <string name="sms">SMS</string>
+    <string name="start_sync">Starting to Sync</string>
+    <string name="press_back_to_exit">Please click BACK again to exit</string>
+    <string name="gps_msg">GPS is disabled in your device. Enable it ?</string>
+    <string name="enable_gps">Enable GPS</string>
+    <string name="cancel">Cancel</string>
+    <string name="enabled_gps">GPS is now enabled..</string>
+    <string name="files_discard_msg">All files taken in this session will be deleted !</string>
+    <string name="discard_files">Discard Files</string>
+    <string name="files_discarded">Files DISCARDED</string>
+    <string name="aud_rec_start">Recording started !</string>
+    <string name="aud_rec_success">Audio Recorded successfully</string>
+    <string name="file_success">File Successfully Saved</string>
+    <string name="sms_edittext_error">Please Give Some Msg!</string>
+    <string name="text_select_appropriately">Select Information Appropriately</string>
+    <string name="phoneNo">Phone Number</string>
+
+
+    <string-array name="health_array">
+        <item>জ্বর</item>
+        <item>টাইফয়েদ</item>
+        <item>জন্ডিস</item>
+        <item>পেট খারাপ</item>
+        <item>ত্বকের সংক্রমণ</item>
+        <item>জলবসন্ত</item>
+        <item>সাধারণ সর্দি-কাশি</item>
+        <item>ডাইরিয়া</item>
+    </string-array>
+
+    <string-array name="food_array">
+        <item>চাল</item>
+        <item>গম</item>
+        <item>ডাল</item>
+        <item>ভুট্টা</item>
+        <item>পানীয় জল</item>
+    </string-array>
+
+    <string-array name="victim_array">
+        <item>আনুমানিক আক্রান্ত জনসংখ্যা</item>
+        <item>আক্রান্ত শিশু (৫ বছর বয়স পর্যন্ত)</item>
+        <item>আক্রান্ত গর্ভবতী মহিলা</item>
+        <item>আক্রান্ত স্তন্যদায়িনী মহিলা</item>
+        <item>মৃত</item>
+        <item>আহত</item>
+        <item>নিখোঁজ</item>
+        <item>গৃহহীন</item>
+        <item>স্থানচ্যুত</item>
+        <item>উদ্বাসিত</item>
+        <item>অনাথ</item>
+        <item>পরিত্যক্ত</item>
+        <item>মানসিক আঘাতগ্রস্ত জনসংখ্যা</item>
+    </string-array>
+
+    <string-array name="shelter_array">
+        <item>গৃহহীনদের আশ্রয়ের স্থান</item>
+        <item>অস্থায়ী আশ্রয়ের প্রাপ্যতা</item>
+        <item>গৃহনির্মাণ সামগ্রীর প্রাপ্যতা</item>
+        <item>স্থানীয় সরকারি সাহায্য</item>
+    </string-array>
+
+    <string-array name="num_array">
+        <item>১</item>
+        <item>২</item>
+        <item>৩</item>
+        <item>৫</item>
+        <item>১০</item>
+        <item>অন্য কিছু</item>
+    </string-array>
+
+    <string-array name="lang_list">
+        <item>English</item>
+        <item>बंगाली</item>
+        <item>हिंदी</item>
+    </string-array>
+
+</resources>

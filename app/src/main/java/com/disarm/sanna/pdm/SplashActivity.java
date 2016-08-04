@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -16,11 +18,15 @@ import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 
@@ -30,6 +36,10 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * Created by disarm on 11/7/16.
@@ -44,12 +54,17 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
     private ProgressDialog progress;
     private EditText phoneText1;
     private Button submitButton;
+    private Spinner spinner2;
     boolean isAllFolderExit = false;
+    public Locale myLocale;
+    private String definedlanguage ;
+    public static final String Lang = "language";
     String[] PERMISSIONS = {Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.CAMERA,
             Manifest.permission.RECORD_AUDIO,
             Manifest.permission.READ_PHONE_STATE};
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,6 +73,8 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
         setContentView(R.layout.activity_splash);
         submitButton = (Button) findViewById(R.id.submitButton);
         phoneText1 = (EditText) findViewById(R.id.phoneText);
+        spinner2 = (Spinner)findViewById(R.id.language);
+        spinner2.setVisibility(View.GONE);
         submitButton.setVisibility(View.GONE);
         phoneText1.setVisibility(View.GONE);
         phoneText1.setCursorVisible(false);
@@ -74,9 +91,47 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
             afterPermissionExecute();
         }
 
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        definedlanguage = prefs.getString(Lang,"");
+        setLocale(definedlanguage);
+
         submitButton.setOnClickListener( this);
+
+        String[] langArray = getResources().getStringArray(R.array.lang_list);
+        List<String> lang = new ArrayList<String>(Arrays.asList(langArray));
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>
+                (this, android.R.layout.simple_spinner_item, lang);
+        adapter.setDropDownViewResource
+                (android.R.layout.simple_spinner_dropdown_item);
+        spinner2.setAdapter(adapter);
+
+        spinner2.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(SplashActivity.this);
+                SharedPreferences.Editor editor = prefs.edit();
+                if (pos == 0) {
+                    setLocale("en");
+                    editor.putString(Lang,"en");
+                    editor.commit();
+                } else if (pos == 1) {
+                    setLocale("bn");
+                    editor.putString(Lang,"bn");
+                    editor.commit();
+                } else if (pos == 2) {
+                    setLocale("hi");
+                    editor.putString(Lang,"hi");
+                    editor.commit();
+                }
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
     }
-    private  void afterPermissionExecute(){
+
+    private void afterPermissionExecute(){
         if (!isAllFolderExit){
             checkAllFolder();
             progress.setMessage("All Folder : OK");
@@ -91,6 +146,7 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
         }else {
             phoneText1.setVisibility(View.VISIBLE);
             submitButton.setVisibility(View.VISIBLE);
+            spinner2.setVisibility(View.VISIBLE);
             copyingAssets();
             progress.dismiss();
         }
@@ -139,8 +195,6 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
                     }
                 }
                 try {
-
-
                     BufferedWriter buf = new BufferedWriter(new FileWriter(configFile, true));
                     buf.write(phoneTextVal);
                     buf.flush();
@@ -150,14 +204,11 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
                     e.printStackTrace();
                 }
 
-                // TODO Auto-generated method stub
-                Intent inent = new Intent(SplashActivity.this, MainActivity.class);
-                startActivity(inent);
-                finish();
+                callWriteSettingActivity();
             }
             else
             {
-                phoneText1.setError("Enter Valid No.");
+                phoneText1.setError("Enter Valid Number");
             }
         }
     }
@@ -179,10 +230,6 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                    // permission was granted, yay! Do the
-                    // contacts-related task you need to do.
-                    //showRequestPermissionWriteSettings();
                     afterPermissionExecute();
 
                 } else {
@@ -197,6 +244,7 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
             // permissions this app might request
         }
     }
+
     private void copyingAssets(){
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         if (!prefs.getBoolean("firstTime", false)) {
@@ -211,5 +259,14 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
             editor.putBoolean("firstTime", true);
             editor.commit();
         }
+    }
+
+    public void setLocale(String lang) {
+        myLocale = new Locale(lang);
+        Resources res = getResources();
+        DisplayMetrics dm = res.getDisplayMetrics();
+        Configuration conf = res.getConfiguration();
+        conf.locale = myLocale;
+        res.updateConfiguration(conf, dm);
     }
 }

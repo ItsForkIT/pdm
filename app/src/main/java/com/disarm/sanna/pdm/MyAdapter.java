@@ -12,7 +12,7 @@ import java.util.List;
  * Created by Sanna on 20-06-2016.
  */
 public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
-    String[] nameContainer;
+    int[] nameContainer;
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
@@ -38,7 +38,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
             title = (TextView) view.findViewById(R.id.title);
         }
     }
-    public MyAdapter(String[] nameResult) {
+    public MyAdapter(int[] nameResult) {
         nameContainer = nameResult;
     }
 }
