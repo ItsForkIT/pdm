@@ -12,7 +12,7 @@ import android.widget.TextView;
  */
 public class MyAdapterActivityList extends RecyclerView.Adapter<MyAdapterActivityList.MyViewHolder> {
     int[] imgConatiner;
-    String[] nameContainer;
+    int[] nameContainer;
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
@@ -23,7 +23,7 @@ public class MyAdapterActivityList extends RecyclerView.Adapter<MyAdapterActivit
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
         holder.head.setText(nameContainer[position]);
-        holder.count.setText("Msg Taken" + "");
+        holder.count.setText(R.string.msg_taken);
         holder.img.setImageResource(imgConatiner[position]);
     }
 
@@ -44,7 +44,7 @@ public class MyAdapterActivityList extends RecyclerView.Adapter<MyAdapterActivit
 
         }
     }
-    public MyAdapterActivityList(String[] nameResult,int[] imgResult){
+    public MyAdapterActivityList(int[] nameResult, int[] imgResult){
         nameContainer = nameResult;
         imgConatiner = imgResult;
     }

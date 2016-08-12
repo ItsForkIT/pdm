@@ -15,7 +15,7 @@ import java.io.InputStreamReader;
 
 public class MyLocationListener extends MainActivity implements LocationListener {
     Logger logger;
-    String lastLine = "", sCurrentLine;
+    String sCurrentLine;
     BufferedReader br;
     FileInputStream in;
     String phoneVal;

@@ -15,6 +15,7 @@ import java.io.FilenameFilter;
 public class FileTask extends AsyncTask  {
     String fileType,groupType,timestamp,groupID,ttl,dest,source;
     String[] fileName;
+    public File sourceFile = Environment.getExternalStoragePublicDirectory("DMS/source.txt");
 
     @Override
     protected synchronized void onPreExecute() {
@@ -26,7 +27,7 @@ public class FileTask extends AsyncTask  {
     protected Object doInBackground(Object[] objects) {
         ttl = (String) objects[0];
         dest = (String) objects[1];
-        source = "9888844036";
+        source = ReadLastLine.tail(sourceFile);
         File logFile = null;
 
        String state = Environment.getExternalStorageState();

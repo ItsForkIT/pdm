@@ -210,7 +210,6 @@ public class MyService extends Service {
 
                                 System.out.println("Mac : " + mac + " IP Address : " + splitted[0]);
                                 System.out.println("Mac_Count  " + macCount + " MAC_ADDRESS  " + mac);
-                                Toast.makeText(MyService.this, "maccount = "+ macCount, Toast.LENGTH_SHORT).show();
                                 Log.v(TAG1, "IP Address  " + splitted[0] + "   MAC_ADDRESS  " + mac);
                             }
                         }

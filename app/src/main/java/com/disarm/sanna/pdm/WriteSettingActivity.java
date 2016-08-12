@@ -23,6 +23,8 @@ public class WriteSettingActivity extends AppCompatActivity {
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
             hasSelfPermission = Settings.System.canWrite(this);
+        }else{
+            callMainActivity();
         }
         if (hasSelfPermission) {
             callMainActivity();

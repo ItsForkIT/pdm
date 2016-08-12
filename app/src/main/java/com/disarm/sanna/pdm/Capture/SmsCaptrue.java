@@ -77,15 +77,15 @@ public class SmsCaptrue extends DialogFragment implements View.OnClickListener{
                         bw.write(msgInput);
                         bw.flush();
                         bw.close();
-                        Log.v("FIle", "written");
+                        Log.v("File", "written");
 
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    Toast.makeText(getActivity(), "File Successfully Saved", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), R.string.file_success, Toast.LENGTH_SHORT).show();
                     getDialog().dismiss();
                 }else {
-                    edittextMsg.setError("Please give some msg");
+                    edittextMsg.setError(String.valueOf(R.string.sms_edittext_error));
                 }
 
                 break;

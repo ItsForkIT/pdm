@@ -47,6 +47,7 @@ public class AudioCapture extends AppCompatActivity implements View.OnClickListe
         Intent myIntent = getIntent();
         type = myIntent.getStringExtra("IntentType");
         record.setOnClickListener(this);
+        play.setVisibility(View.GONE);
         play.setEnabled(false);
         play.setOnClickListener(this);
         back.setOnClickListener(this);
@@ -88,7 +89,7 @@ public class AudioCapture extends AppCompatActivity implements View.OnClickListe
                         // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
-                    Toast.makeText(getApplicationContext(), "Recording started", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), R.string.aud_rec_start, Toast.LENGTH_LONG).show();
 
                 }else{
                     mChronometer.stop();
@@ -98,7 +99,7 @@ public class AudioCapture extends AppCompatActivity implements View.OnClickListe
                     flag = true;
                     record.setBackgroundResource(R.drawable.easy_voice_recorder);
                     play.setEnabled(true);
-                    Toast.makeText(AudioCapture.this, "Audio Recorded successfully", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AudioCapture.this, R.string.aud_rec_success, Toast.LENGTH_SHORT).show();
                 }
 
                 break;

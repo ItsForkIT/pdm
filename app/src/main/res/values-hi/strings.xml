@@ -1,0 +1,168 @@
+<resources>
+    <string name="app_name">Surakshit</string>
+    <string name="action_settings">सेटिंग्स</string>
+    <string name="text_sync">सिंक</string>
+    <string name="text_start_connection">कनेक्शन प्रारंभ</string>
+    <string name="text_GPS">जीपीएस ट्रेल</string>
+    <string name="health">स्वास्थ्य</string>
+    <string name="food">भोजन</string>
+    <string name="shelter">आश्रय</string>
+    <string name="victim">पीड़ित</string>
+    <string name="photo">तस्वीर</string>
+    <string name="video">वीडियो</string>
+    <string name="audio">ऑडियो</string>
+    <string name="text">टेक्स्ट</string>
+    <string name="sms">एसएमएस</string>
+    <string name="start_sync">सिंक शुरू हो गया </string>
+    <string name="press_back_to_exit">बाहर निकलने के लिए फिर से वापस क्लिक करें</string>
+    <string name="gps_msg">जीपीएस अपने डिवाइस में अक्षम है। इसे सक्षम करें ?</string>
+    <string name="enable_gps">जीपीएस सक्षम करें</string>
+    <string name="cancel">इसे रद्द करें</string>
+    <string name="enabled_gps">जीपीएस अब सक्षम है ..</string>
+    <string name="files_discard_msg">इस सत्र में उठाए गए सभी फाइलों को हटा दिया जाएगा!</string>
+    <string name="discard_files">हटा दें</string>
+    <string name="files_discarded">फ़ाइलें खारिज</string>
+    <string name="aud_rec_start">शुरू कर दिया रिकॉर्डिंग!</string>
+    <string name="aud_rec_success">ऑडियो सफलतापूर्वक दर्ज</string>
+    <string name="file_success">फ़ाइल सफलतापूर्वक संचित हुआा</string>
+    <string name="sms_edittext_error">कृपया कुछ संदेश दें</string>
+    <string name="text_select_appropriately">उचित सूचना चुनें</string>
+    <string name="phoneNo">फ़ोन नंबर</string>
+    <string name="msg_Imp">संदेश महत्व (डिफ़ॉल्ट 50)</string>
+    <string name="destination">स्थान(डिफ़ॉल्ट एमसीएस)</string>
+    <string name="msg_taken">संदेश लिया</string>
+    <string name="writesetting_msg">एप्लिकेशन को सिस्टम सेटिंग्स को संशोधित करने की अनुमति दें, तो यह कनेक्शन शुरू कर सकते हैं।</string>
+    <string name="writesetting_head">एक और चीज़</string>
+    <string name="allow_setting">सेटिंग्स को बदलने की अनुमति दें</string>
+    <string name="discard">हटा दें</string>
+    <string name="submit">जमा करें</string>
+    <string name="add_text">ऐड टेक्स्ट</string>
+    <string name="back">वापस जाऐं</string>
+    <string name="save">संचय करें</string>
+    <string name="enter_msg">संदेश दर्ज किजीऐ</string>
+    <string name="cus_input">आप नंबर दे</string>
+
+
+    <string-array name="health_array">
+        <item>चयन करें</item>
+        <item>बुखार</item>
+        <item>टायफ़ायड</item>
+        <item>पीलिया</item>
+        <item>पेट खराब</item>
+        <item>त्वचा संक्रमण</item>
+        <item>चेचक</item>
+        <item>सामान्य जुखाम</item>
+        <item>दस्त</item>
+    </string-array>
+
+    <string-array name="food_array">
+        <item>चयन करें</item>
+        <item>चावल</item>
+        <item>गेहूँ</item>
+        <item>दाल</item>
+        <item>मक्का</item>
+        <item>पानी</item>
+    </string-array>
+
+    <string-array name="victim_array">
+        <item>चयन करें</item>
+        <item> प्रभावित लोगो का अनुमान</item>
+        <item>5 वर्ष से कम प्रभावित बच्चे</item>
+        <item> प्रभावित गर्भवती महिलाएं</item>
+        <item>स्तनपान कराने वाली प्रभावित मातायें</item>
+        <item>मृत</item>
+        <item>घायल</item>
+        <item>लापता</item>
+        <item>बेघर</item>
+        <item>विस्थापित</item>
+        <item>खाली</item>
+        <item>अनाथ</item>
+        <item>निराश्रित</item>
+        <item>मातहत लोग</item>
+    </string-array>
+
+    <string-array name="shelter_array">
+        <item>चयन करें</item>
+        <item> विस्थापित कहाँ व्यक्ति शरण ले रहे हैं</item>
+        <item>अस्थायी आश्रय की उपलब्धता</item>
+        <item>घर के निर्माण सामग्री की उपलब्धता</item>
+        <item>स्थानीय प्रशासन से समर्थन</item>
+    </string-array>
+
+    <string-array name="num_array">
+        <item>चयन करें</item>
+        <item>१</item>
+        <item>२</item>
+        <item>३</item>
+        <item>५</item>
+        <item>१०</item>
+        <item>इसके अलावा</item>
+    </string-array>
+
+    <string-array name="lang_list">
+        <item>English</item>
+        <item>বাংলা</item>
+        <item>हिंदी</item>
+    </string-array>
+
+
+    <!--duplicate array for translation-->
+
+
+    <string-array name="trans_health_array">
+        <item>Select</item>
+        <item>Fever</item>
+        <item>Typhoid</item>
+        <item>Jaundice</item>
+        <item>Stomach Upset</item>
+        <item>Skin Infection</item>
+        <item>Chicken Pox</item>
+        <item>Common Cold</item>
+        <item>Diarrhea</item>
+    </string-array>
+
+    <string-array name="trans_food_array">
+        <item>Select</item>
+        <item>Rice</item>
+        <item>Wheat</item>
+        <item>Dal</item>
+        <item>Maize</item>
+        <item>Water</item>
+    </string-array>
+
+    <string-array name="trans_victim_array">
+        <item>Select</item>
+        <item>Population affected estimated</item>
+        <item>Affected children under 5 years</item>
+        <item>Affected pregnant women</item>
+        <item>Affected Lactating mothers</item>
+        <item>Dead</item>
+        <item>Injured</item>
+        <item>Missing</item>
+        <item>Homeless</item>
+        <item>Displaced</item>
+        <item>Evacuated</item>
+        <item>Orphans</item>
+        <item>Destitute</item>
+        <item>Traumatised population</item>
+    </string-array>
+
+    <string-array name="trans_shelter_array">
+        <item>Select</item>
+        <item>Where evacuees are taking shelter</item>
+        <item>Availability of temporary shelter</item>
+        <item>Availability of house building materials</item>
+        <item>Support from local government</item>
+    </string-array>
+
+    <string-array name="trans_num_array">
+        <item>Select</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>5</item>
+        <item>10</item>
+        <item>Custom</item>
+    </string-array>
+
+</resources>

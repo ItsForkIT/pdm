@@ -8,13 +8,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.disarm.sanna.pdm.R;
@@ -29,8 +27,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import javax.security.auth.Destroyable;
-
 /**
  * Created by Sanna on 30-06-2016.
  */
@@ -44,7 +40,11 @@ public class Text extends DialogFragment implements View.OnClickListener, Adapte
     static String root = Environment.getExternalStorageDirectory().toString();
     static String path =root + "/" + "DMS" + "/" + "tmp" + "/",group,groupID;
     private boolean c;
-
+    public String[] trans_health_array ;
+    public String[] trans_food_array ;
+    public String[] trans_victim_array ;
+    public String[] trans_shelter_array ;
+    public String[] trans_num_array ;
     public Text() {
         super();
     }
@@ -60,6 +60,11 @@ public class Text extends DialogFragment implements View.OnClickListener, Adapte
     @Override
     public void onViewCreated(final View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        trans_health_array = getResources().getStringArray(R.array.trans_health_array);
+        trans_food_array = getResources().getStringArray(R.array.trans_food_array);
+        trans_victim_array = getResources().getStringArray(R.array.trans_victim_array);
+        trans_shelter_array = getResources().getStringArray(R.array.trans_shelter_array);
+        trans_num_array = getResources().getStringArray(R.array.trans_num_array);
         variety = (Spinner)view.findViewById(R.id.spinner);
         quantity = (Spinner)view.findViewById(R.id.spinner2);
         save = (Button)view.findViewById(R.id.save);
@@ -121,11 +126,11 @@ public class Text extends DialogFragment implements View.OnClickListener, Adapte
         quantity.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View v, int i, long l) {
-                if (!adapterView.getItemAtPosition(i).toString().equals("Select")){
-                    q = adapterView.getItemAtPosition(i).toString();
+                if (i != 0){
+                    q = trans_num_array[i].toString();
                 }
 
-                if (adapterView.getItemAtPosition(i).toString().equals("Custom")){
+                if (i == 6){
                     custom.setVisibility(v.getVisibility());
                     custom.setEnabled(true) ;
                     c = true;
@@ -138,7 +143,7 @@ public class Text extends DialogFragment implements View.OnClickListener, Adapte
 
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
-
+                q = null;
             }
         });
 
@@ -157,8 +162,8 @@ public class Text extends DialogFragment implements View.OnClickListener, Adapte
                 if (c){
                     q = custom.getText().toString();
                 }
-
-                msgString = new StringBuilder(type+": "+ h + q);
+                if (h != null && q != null){
+                    msgString = new StringBuilder(type + ": " + h + q);
 
                     outputFile = getFilename();
                     File file = new File(outputFile);
@@ -173,20 +178,22 @@ public class Text extends DialogFragment implements View.OnClickListener, Adapte
                     try {
                         FileWriter fw = new FileWriter(file.getAbsoluteFile());
                         BufferedWriter bw = new BufferedWriter(fw);
-                        Log.v("File","Writing "+msgString.toString());
+                        Log.v("File", "Writing " + msgString.toString());
                         bw.write(msgString.toString());
                         bw.flush();
                         bw.close();
-                        Log.v("FIle","written");
+                        Log.v("FIle", "written");
 
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    Toast.makeText(getActivity(), "File Successfully Saved", Toast.LENGTH_SHORT).show();
 
-
-                Log.v("final ", msgString.toString());
-                getDialog().dismiss();
+                    Log.v("final ", msgString.toString());
+                    Toast.makeText(getActivity(), R.string.file_success, Toast.LENGTH_SHORT).show();
+                    getDialog().dismiss();
+                }else{
+                    Toast.makeText(getActivity(), R.string.text_select_appropriately, Toast.LENGTH_SHORT).show();
+                }
                 break;
             case R.id.back:
                 getDialog().dismiss();
@@ -198,23 +205,23 @@ public class Text extends DialogFragment implements View.OnClickListener, Adapte
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
         switch (type){
             case "Health":
-                if (!adapterView.getItemAtPosition(i).toString().equals("Select")) {
-                    h = adapterView.getItemAtPosition(i).toString() + ": ";
+                if (i != 0) {
+                    h = trans_health_array[i].toString() + ": ";
                 }
                 break;
             case "Food":
-                if (!adapterView.getItemAtPosition(i).toString().equals("Select")) {
-                    h = adapterView.getItemAtPosition(i).toString() + ": ";
+                if (i != 0) {
+                    h = trans_food_array[i].toString() + ": ";
                 }
                 break;
             case "Shelter":
-                if (!adapterView.getItemAtPosition(i).toString().equals("Select")) {
-                    h = adapterView.getItemAtPosition(i).toString() + ": ";
+                if (i != 0) {
+                    h = trans_shelter_array[i].toString() + ": ";
                 }
                 break;
             case "Victim":
-                if (!adapterView.getItemAtPosition(i).toString().equals("Select")) {
-                    h = adapterView.getItemAtPosition(i).toString() + ": ";
+                if (i != 0) {
+                    h = trans_victim_array[i].toString() + ": ";
                 }
                 break;
 
@@ -223,7 +230,7 @@ public class Text extends DialogFragment implements View.OnClickListener, Adapte
 
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
-
+        h = null;
     }
     private String getFilename() {
         String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());

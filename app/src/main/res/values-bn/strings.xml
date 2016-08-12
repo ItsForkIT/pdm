@@ -1,0 +1,167 @@
+﻿<resources>
+    <string name="app_name">সুরক্ষিত</string>
+    <string name="action_settings">সেটিংগস</string>
+    <string name="text_sync">আদান-প্রদান</string>
+    <string name="text_start_connection">সংযোগ শুরু করুন</string>
+    <string name="text_GPS">জিপিএস গমনপথ</string>
+    <string name="health">স্বাস্থ্য</string>
+    <string name="food">খাদ্য</string>
+    <string name="shelter">আশ্রয়</string>
+    <string name="victim">আক্রান্ত</string>
+    <string name="photo">ছবি</string>
+    <string name="video">ভিডিও</string>
+    <string name="audio">অডিও</string>
+    <string name="text">লেখা</string>
+    <string name="sms">এসএমএস</string>
+    <string name="start_sync">আদান-প্রদান শুরু করুন</string>
+    <string name="press_back_to_exit">বেরিয়ে যাওয়ার জন্য আবার BACK টিপুন</string>
+    <string name="gps_msg">আপনার ডিভাইসে জিপিএস বন্ধ আছে। চালু করতে চান?</string>
+    <string name="enable_gps">জিপিএস চালু করুন</string>
+    <string name="cancel">বাতিল</string>
+    <string name="enabled_gps">জিপিএস চালু হয়ে গেছে..</string>
+    <string name="files_discard_msg">এবারে সংগৃহিত সমস্ত তথ্যাদি মুছে যাবে!</string>
+    <string name="discard_files">তথ্যাদি মুছুন</string>
+    <string name="files_discarded">তথ্যাদি মুছে গেল</string>
+    <string name="aud_rec_start">রেকর্ডিং শুরু হয়েছে</string>
+    <string name="aud_rec_success">অডিও রেকর্ড হয়েছে</string>
+    <string name="file_success">তথ্য সংগৃহিত হয়েছে</string>
+    <string name="sms_edittext_error">দয়া করে তথ্য প্রদান করুন</string>
+    <string name="text_select_appropriately">যথাযথ তথ্য বেছে নিন</string>
+    <string name="phoneNo">ফোন নম্বর</string>
+    <string name="msg_Imp">তথ্যের গুরুত্ব (ডিফল্ট ৫০)</string>
+    <string name="destination">গন্তব্যস্থল (ডিফল্ট defaultMCS)</string>
+    <string name="msg_taken">তথ্য নেওয়া হল</string>
+    <string name="writesetting_msg">সংযোগ স্থাপনের জন্য অ্যাপটিকে system settings পরিবর্তন করতে দিন</string>
+    <string name="writesetting_head">আরেকটি জিনিস</string>
+    <string name="allow_setting">settings পরিবর্তন করতে দিন</string>
+    <string name="discard">পরিত্যাগ</string>
+    <string name="submit">দাখিল</string>
+    <string name="add_text">লিখুন</string>
+    <string name="back">পূর্ববর্তী</string>
+    <string name="save">সেভ করুন</string>
+    <string name="enter_msg">তথ্য দিন</string>
+    <string name="cus_input">পৃথক তথ্য</string>
+
+
+    <string-array name="health_array">
+        <item>নির্বাচন করুন</item>
+        <item>জ্বর</item>
+        <item>টাইফয়েড</item>
+        <item>জন্ডিস</item>
+        <item>পেট খারাপ</item>
+        <item>ত্বকের সংক্রমণ</item>
+        <item>জলবসন্ত</item>
+        <item>সাধারণ সর্দি-কাশি</item>
+        <item>ডাইরিয়া</item>
+    </string-array>
+
+    <string-array name="food_array">
+        <item>নির্বাচন করুন</item>
+        <item>চাল</item>
+        <item>গম</item>
+        <item>ডাল</item>
+        <item>ভুট্টা</item>
+        <item>পানীয় জল</item>
+    </string-array>
+
+    <string-array name="victim_array">
+        <item>নির্বাচন করুন</item>
+        <item>আক্রান্ত জনসংখ্যা (আনুমানিক)</item>
+        <item>আক্রান্ত শিশু (৫ বছর বয়স পর্যন্ত)</item>
+        <item>আক্রান্ত গর্ভবতী মহিলা</item>
+        <item>আক্রান্ত স্তন্যদায়িনী মহিলা</item>
+        <item>মৃত</item>
+        <item>আহত</item>
+        <item>নিখোঁজ</item>
+        <item>গৃহহীন</item>
+        <item>স্থানচ্যুত</item>
+        <item>উদ্বাসিত</item>
+        <item>অনাথ</item>
+        <item>পরিত্যক্ত</item>
+        <item>মানসিক আঘাতগ্রস্ত জনসংখ্যা</item>
+    </string-array>
+
+    <string-array name="shelter_array">
+        <item>নির্বাচন করুন</item>
+        <item>গৃহহীনদের আশ্রয়ের স্থান</item>
+        <item>অস্থায়ী আশ্রয়ের প্রাপ্যতা</item>
+        <item>গৃহনির্মাণ সামগ্রীর প্রাপ্যতা</item>
+        <item>স্থানীয় সরকারি সাহায্য</item>
+    </string-array>
+
+    <string-array name="num_array">
+        <item>নির্বাচন করুন</item>
+        <item>১</item>
+        <item>২</item>
+        <item>৩</item>
+        <item>৫</item>
+        <item>১০</item>
+        <item>অন্য কিছু</item>
+    </string-array>
+
+    <string-array name="lang_list">
+        <item>English</item>
+        <item>বাংলা</item>
+        <item>हिंदी</item>
+    </string-array>
+
+
+    <!--duplicate array for tranlation-->
+
+
+    <string-array name="trans_health_array">
+        <item>Select</item>
+        <item>Fever</item>
+        <item>Typhoid</item>
+        <item>Jaundice</item>
+        <item>Stomach Upset</item>
+        <item>Skin Infection</item>
+        <item>Chicken Pox</item>
+        <item>Common Cold</item>
+        <item>Diarrhea</item>
+    </string-array>
+
+    <string-array name="trans_food_array">
+        <item>Select</item>
+        <item>Rice</item>
+        <item>Wheat</item>
+        <item>Dal</item>
+        <item>Maize</item>
+        <item>Water</item>
+    </string-array>
+
+    <string-array name="trans_victim_array">
+        <item>Select</item>
+        <item>Population affected estimated</item>
+        <item>Affected children under 5 years</item>
+        <item>Affected pregnant women</item>
+        <item>Affected Lactating mothers</item>
+        <item>Dead</item>
+        <item>Injured</item>
+        <item>Missing</item>
+        <item>Homeless</item>
+        <item>Displaced</item>
+        <item>Evacuated</item>
+        <item>Orphans</item>
+        <item>Destitute</item>
+        <item>Traumatised population</item>
+    </string-array>
+
+    <string-array name="trans_shelter_array">
+        <item>Select</item>
+        <item>Where evacuees are taking shelter</item>
+        <item>Availability of temporary shelter</item>
+        <item>Availability of house building materials</item>
+        <item>Support from local government</item>
+    </string-array>
+
+    <string-array name="trans_num_array">
+        <item>Select</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>5</item>
+        <item>10</item>
+        <item>Custom</item>
+    </string-array>
+</resources>
