@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">PDM</string>
+    <string name="app_name">Surakshit</string>
     <string name="action_settings">सेटिंग्स</string>
     <string name="text_sync">सिंक</string>
     <string name="text_start_connection">कनेक्शन प्रारंभ</string>
@@ -101,12 +101,12 @@
 
     <string-array name="lang_list">
         <item>English</item>
-        <item>बंगाली</item>
+        <item>বাংলা</item>
         <item>हिंदी</item>
     </string-array>
 
 
-    <!--duplicate array for tranlation-->
+    <!--duplicate array for translation-->
 
 
     <string-array name="trans_health_array">
