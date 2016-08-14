@@ -53,7 +53,8 @@ public class MyService extends Service {
     private static final String TAG2 = "WifiConnect";
     private static final String TAG3 = "Toggler";
     private static final String TAG4 = "Searching DB";
-    private int addIncreasewifi = 5000,wifiIncrease=10000,hpIncrease=10000,addIncreasehp = 0;
+    Logger logger;
+    private int addIncreasewifi = 5000,wifiIncrease=10000,hpIncrease=10000,addIncreasehp = 5000;
     private final IBinder myServiceBinder = new MyServiceBinder();
     private BroadcastReceiver mBatInfoReceiver = new BroadcastReceiver(){
         @Override
@@ -99,7 +100,8 @@ public class MyService extends Service {
         registerReceiver(wifiReciever, filter);
         wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
         wifi.startScan();
-
+        logger = new Logger();
+       // logger.addRecordToLog("DisarmConnect Working !!!");
         IntentFilter batfilter = new IntentFilter();
         batfilter.addAction(Intent.ACTION_BATTERY_CHANGED);
         registerReceiver(mBatInfoReceiver, batfilter);
@@ -115,6 +117,7 @@ public class MyService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         // Let it continue running until it is stopped.
+        logger.addRecordToLog("DisarmConnect Started");
 
         Toast.makeText(this, "Service Started", Toast.LENGTH_LONG).show();
         WakeLockHelper.keepCpuAwake(getApplicationContext(), true);
@@ -156,7 +159,7 @@ public class MyService extends Service {
         handler.removeCallbacks(searchingDisarmDB);
         WakeLockHelper.keepCpuAwake(getApplicationContext(), false);
         WakeLockHelper.keepWiFiOn(getApplicationContext(), false);
-
+        logger.addRecordToLog("DisarmConnect Stopped");
         Toast.makeText(this, "Service Destroyed", Toast.LENGTH_LONG).show();
     }
 
@@ -208,9 +211,10 @@ public class MyService extends Service {
 
                                 IpAddr.add(splitted[0]);
 
-                                System.out.println("Mac : " + mac + " IP Address : " + splitted[0]);
-                                System.out.println("Mac_Count  " + macCount + " MAC_ADDRESS  " + mac);
+                              //  System.out.println("Mac : " + mac + " IP Address : " + splitted[0]);
+                              //  System.out.println("Mac_Count  " + macCount + " MAC_ADDRESS  " + mac);
                                 Log.v(TAG1, "IP Address  " + splitted[0] + "   MAC_ADDRESS  " + mac);
+                                logger.addRecordToLog("Connected Client, IP :" + splitted[0] + ",mac:" + mac);
                             }
                         }
                     }
@@ -244,10 +248,12 @@ public class MyService extends Service {
 
             else if(checkWifiState.contains("DisarmHotspotDB")) {
                 Log.v(TAG1, "DisarmConnectedDB Not Toggling");
+
             }
             else if (checkWifiState.contains("DisarmHotspot")) {
                 handler.post(searchingDisarmDB);
                 Log.v(TAG1, "DisarmConnected Not Toggling");
+
 
             }
 
@@ -277,10 +283,28 @@ public class MyService extends Service {
             Log.v(TAG2, ssidName);
             if(ssidName.contains("DisarmHotspotDB")) {
                 Log.v(TAG2,"Already Connected DB ");
+                logger.addRecordToLog("Already DB Connected");
+
             }
             else if(ssidName.contains("DisarmHotspot")) {
                 Log.v(TAG2,"Already Connected");
+                logger.addRecordToLog("Already DH Connected");
+                try {
+
+                    fr = new FileReader("/proc/net/arp");
+                    br = new BufferedReader(fr);
+                    String line;
+                    IpAddr = new ArrayList<String>();
+                    c = false;
+                    while ((line = br.readLine()) != null) {
+                        String[] splitted = line.split(" +");
+                        Log.v("Splitted:" , Arrays.deepToString(splitted));
+                    }
+                }
+                catch(Exception e)
+                {}
             }
+
             else if(!ssidName.equals("<unknown ssid>")){
                 Log.v(TAG2,"Checking For Disarm Hotspot");
                 // Connecting to DisarmHotspot WIfi on Button Click
@@ -296,6 +320,8 @@ public class MyService extends Service {
                     int res = wifi.addNetwork(wc);
                     boolean b = wifi.enableNetwork(res, true);
                     Log.v(TAG2, "Connected");
+
+                    logger.addRecordToLog("DB Connected Successfully");
                 }
                 else if (allScanResults.toString().contains("DisarmHotspot")) {
                     Log.v(TAG2,"Connecting Disarm");
@@ -307,9 +333,13 @@ public class MyService extends Service {
                     int res = wifi.addNetwork(wc);
                     boolean b = wifi.enableNetwork(res, true);
                     Log.v(TAG2, "Connected");
+
+                    logger.addRecordToLog("DH Connected Successfully");
                 }
                 else{
                     Log.v(TAG2,"Disarm Not Available");
+
+                    logger.addRecordToLog("no DH/DB network available");
 
                 }
 
@@ -358,6 +388,7 @@ public class MyService extends Service {
         // WifiState - 1 (Is Hotspot) || 0 - (CheckHotspot)
         if(wifiState <= 0.50 && level > 10 ) {
             Log.v(TAG1,"hptoggling for " +String.valueOf(addIncreasehp));
+            logger.addRecordToLog("HA : " + addIncreasehp + " secs," + "Random :" + String.format("%.2f", wifiState));
             addIncreasehp += hpIncrease;
             wifi.setWifiEnabled(false);
             b = ApManager.isApOn(MyService.this);
@@ -366,9 +397,11 @@ public class MyService extends Service {
                 ApManager.configApState(MyService.this);
             }
             Log.v(TAG3, "Hotspot Active");
+
         }
         else {
             Log.v(TAG3,"wifitogging for "+ String.valueOf(addIncreasewifi));
+            logger.addRecordToLog("WA : " + addIncreasewifi + " secs," + "Random :" + String.format("%.2f", wifiState));
             addIncreasewifi += wifiIncrease;
             b = ApManager.isApOn(MyService.this);
             if(b)
@@ -379,6 +412,7 @@ public class MyService extends Service {
 
             wifi.setWifiEnabled(true);
             Log.v(TAG3, "Wifi Active");
+
             wifi.startScan();
 
         }
