@@ -15,12 +15,9 @@ import android.os.BatteryManager;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
-import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
-
-import com.disarm.sanna.pdm.R;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -28,18 +25,18 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Timer;
 
 /**
  * Created by Sanna on 16-02-2016.
  */
 public class MyService extends Service {
 
-    WifiManager wifi;
+    public static WifiManager wifi;
     public static String wifis[]={"None"}, checkWifiState="0x";
-    int level;
+    public static int level;
+    public static BatteryLevel bl;
     WifiScanReceiver wifiReciever;
-    boolean b,c;
+    boolean isHotspotOn,c;
     WifiInfo wifiInfo;
     List<String> IpAddr;
     BufferedReader br = null;
@@ -56,29 +53,6 @@ public class MyService extends Service {
     Logger logger;
     private int addIncreasewifi = 5000,wifiIncrease=10000,hpIncrease=10000,addIncreasehp = 5000;
     private final IBinder myServiceBinder = new MyServiceBinder();
-    private BroadcastReceiver mBatInfoReceiver = new BroadcastReceiver(){
-        @Override
-        public void onReceive(Context arg0, Intent intent) {
-            level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
-            //Log.v("BatteryLevel", String.valueOf(level) + "%");
-
-        }
-    };
-    
-    private class WifiScanReceiver extends BroadcastReceiver{
-        public void onReceive(Context c, Intent intent) {
-
-            List<ScanResult> wifiScanList = wifi.getScanResults();
-            wifis = new String[wifiScanList.size()];
-
-            for(int i = 0; i < wifiScanList.size(); i++){
-                wifis[i] = String.valueOf(wifiScanList.get(i));
-                Log.v("networks", wifiScanList.get(i).SSID);
-            }
-
-        }
-    }
-
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -94,18 +68,25 @@ public class MyService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        // WifiScanReceiver registered
         IntentFilter filter = new IntentFilter();
         filter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
         wifiReciever = new WifiScanReceiver();
         registerReceiver(wifiReciever, filter);
+
+        // Start scan for Wifi List
         wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
         wifi.startScan();
+
+        // Logger Initiated
         logger = new Logger();
-       // logger.addRecordToLog("DisarmConnect Working !!!");
+
+        // Battery Level Indicator registered
+        bl = new BatteryLevel();
         IntentFilter batfilter = new IntentFilter();
         batfilter.addAction(Intent.ACTION_BATTERY_CHANGED);
-        registerReceiver(mBatInfoReceiver, batfilter);
-
+        registerReceiver(bl, batfilter);
 
     }
 
@@ -116,28 +97,18 @@ public class MyService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        // Let it continue running until it is stopped.
+        // DisarmConnect Service started
         logger.addRecordToLog("DisarmConnect Started");
 
-        Toast.makeText(this, "Service Started", Toast.LENGTH_LONG).show();
+        // Acquired WakeLock
         WakeLockHelper.keepCpuAwake(getApplicationContext(), true);
         WakeLockHelper.keepWiFiOn(getApplicationContext(), true);
+
+        // Handler started
         handler = new Handler();
         handler.post(Timer_Toggle);
         handler.post(WifiConnect);
         handler.post(searchingDisarmDB);
-
-
-        Notification n =
-                new NotificationCompat.Builder(this)
-                        //.setSmallIcon(R.drawable.notification_icon)
-                        .setContentTitle("DisarmConnect Service")
-                        .setContentText("Service Started")
-                        .setAutoCancel(false)
-                        .setOngoing(true).build();
-
-        notificationManager =(NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-       // notificationManager.notify(0, n);
 
         return START_STICKY;
     }
@@ -145,23 +116,30 @@ public class MyService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+
+        // Unregistering receivers
         unregisterReceiver(wifiReciever);
-        // unregister receiver
-        unregisterReceiver(this.mBatInfoReceiver);
-        b = ApManager.isApOn(MyService.this);
-        if(b){
+        unregisterReceiver(bl);
+
+        // Disabling hotspot and enabling WiFi Mode on app destroy
+        isHotspotOn = ApManager.isApOn(MyService.this);
+        if(isHotspotOn){
             ApManager.configApState(MyService.this);
             wifi.setWifiEnabled(true);
         }
-        notificationManager.cancelAll();
+
+        // Removing Callbacks from Handler
         handler.removeCallbacks(WifiConnect);
         handler.removeCallbacks(Timer_Toggle);
         handler.removeCallbacks(searchingDisarmDB);
+
+        // Release lock
         WakeLockHelper.keepCpuAwake(getApplicationContext(), false);
         WakeLockHelper.keepWiFiOn(getApplicationContext(), false);
+
+        // Adding stop record to log
         logger.addRecordToLog("DisarmConnect Stopped");
-        Toast.makeText(this, "Service Destroyed", Toast.LENGTH_LONG).show();
-    }
+     }
 
     private Runnable Timer_Toggle = new Runnable() {
 
@@ -386,14 +364,15 @@ public class MyService extends Service {
         }
         //wifiState = false;
         // WifiState - 1 (Is Hotspot) || 0 - (CheckHotspot)
+        Log.v("Level:", String.valueOf(level));
         if(wifiState <= 0.50 && level > 10 ) {
             Log.v(TAG1,"hptoggling for " +String.valueOf(addIncreasehp));
             logger.addRecordToLog("HA : " + addIncreasehp + " secs," + "Random :" + String.format("%.2f", wifiState));
             addIncreasehp += hpIncrease;
             wifi.setWifiEnabled(false);
-            b = ApManager.isApOn(MyService.this);
+            isHotspotOn = ApManager.isApOn(MyService.this);
 
-            if (!b) {
+            if (!isHotspotOn) {
                 ApManager.configApState(MyService.this);
             }
             Log.v(TAG3, "Hotspot Active");
@@ -403,13 +382,11 @@ public class MyService extends Service {
             Log.v(TAG3,"wifitogging for "+ String.valueOf(addIncreasewifi));
             logger.addRecordToLog("WA : " + addIncreasewifi + " secs," + "Random :" + String.format("%.2f", wifiState));
             addIncreasewifi += wifiIncrease;
-            b = ApManager.isApOn(MyService.this);
-            if(b)
+            isHotspotOn = ApManager.isApOn(MyService.this);
+            if(isHotspotOn)
             {
                 ApManager.configApState(MyService.this);
-
             }
-
             wifi.setWifiEnabled(true);
             Log.v(TAG3, "Wifi Active");
 
