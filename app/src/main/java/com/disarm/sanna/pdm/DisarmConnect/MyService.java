@@ -22,6 +22,7 @@ import android.widget.Toast;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -35,25 +36,26 @@ public class MyService extends Service {
     public static String wifis[]={"None"}, checkWifiState="0x";
     public static int level;
     public static BatteryLevel bl;
-    WifiScanReceiver wifiReciever;
-    boolean isHotspotOn,c;
-    WifiInfo wifiInfo;
-    List<String> IpAddr;
-    BufferedReader br = null;
-    FileReader fr = null;
-    int count=0,startwififirst = 1;
-    Handler handler;
-    double wifiState;
-    int macCount = 0;
-    NotificationManager notificationManager;
-    private static final String TAG1 = "Timer_Toggle";
-    private static final String TAG2 = "WifiConnect";
-    private static final String TAG3 = "Toggler";
-    private static final String TAG4 = "Searching DB";
-    Logger logger;
-    private int addIncreasewifi = 5000,wifiIncrease=10000,hpIncrease=10000,addIncreasehp = 5000;
-    private final IBinder myServiceBinder = new MyServiceBinder();
+    public static WifiScanReceiver wifiReciever;
+    public static boolean isHotspotOn,c;
+    public static WifiInfo wifiInfo;
+    public static List<String> IpAddr;
 
+    public FileReader fr = null;
+    public static int count=0,startwififirst = 1;
+    public static Handler handler;
+    public static double wifiState;
+    public static int macCount = 0;
+    public static String TAG1 = "Timer_Toggle";
+    public static String TAG2 = "WifiConnect";
+    public static String TAG3 = "Toggler";
+    public static String TAG4 = "Searching DB";
+    Logger logger;
+    public Timer_Toggler tt;
+    public SearchingDisarmDB sDDB;
+    public WifiConnect wifiC;
+    private final IBinder myServiceBinder = new MyServiceBinder();
+    public BufferedReader br = null;
     @Override
     public IBinder onBind(Intent intent) {
 
@@ -106,9 +108,12 @@ public class MyService extends Service {
 
         // Handler started
         handler = new Handler();
-        handler.post(Timer_Toggle);
-        handler.post(WifiConnect);
-        handler.post(searchingDisarmDB);
+        tt = new Timer_Toggler(handler,getApplicationContext());
+        //handler.post(Timer_Toggle);
+        wifiC = new WifiConnect(handler,getApplicationContext());
+        //handler.post(WifiConnect);
+        sDDB = new SearchingDisarmDB(handler,getApplicationContext());
+        //  handler.post(searchingDisarmDB);
 
         return START_STICKY;
     }
@@ -129,9 +134,9 @@ public class MyService extends Service {
         }
 
         // Removing Callbacks from Handler
-        handler.removeCallbacks(WifiConnect);
-        handler.removeCallbacks(Timer_Toggle);
-        handler.removeCallbacks(searchingDisarmDB);
+        //handler.removeCallbacks(WifiConnect);
+//        handler.removeCallbacks(Timer_Toggle);
+        //handler.removeCallbacks(searchingDisarmDB);
 
         // Release lock
         WakeLockHelper.keepCpuAwake(getApplicationContext(), false);
@@ -139,115 +144,8 @@ public class MyService extends Service {
 
         // Adding stop record to log
         logger.addRecordToLog("DisarmConnect Stopped");
-     }
+    }
 
-    private Runnable Timer_Toggle = new Runnable() {
-
-        public void run() {
-
-
-            wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-            WifiInfo wifiInfo = wifi.getConnectionInfo();
-            checkWifiState = wifiInfo.getSSID();
-            Log.v(TAG1, "Ticking");
-            Log.v(TAG1, checkWifiState);
-            count++;
-
-
-            if (checkWifiState.equals("<unknown ssid>")) {
-                Log.v(TAG1, "Hotspot Mode Detected");
-                boolean isReachable = false;
-                try {
-
-                    fr = new FileReader("/proc/net/arp");
-                    br = new BufferedReader(fr);
-                    String line;
-                    IpAddr = new ArrayList<String>();
-                    c = false;
-                    while ((line = br.readLine()) != null) {
-                        String[] splitted = line.split(" +");
-
-                        if (splitted != null) {
-                            if (splitted[3].matches("..:..:..:..:..:..")) {
-                                Process p1 = Runtime.getRuntime().exec("ping -c 1 -t 1 " + splitted[0]);
-                                int returnVal = p1.waitFor();
-                                isReachable = (returnVal == 0);
-
-                            }
-                            if (isReachable) {
-                                c = true;
-                                Log.v(TAG1, "C IS TRUE !!! ");
-
-                            }
-
-                            // Basic sanity check
-                            String mac = splitted[3];
-                            System.out.println("Mac : Outside If " + mac);
-
-                            if (mac.matches("..:..:..:..:..:..")) {
-                                macCount++;
-
-                                IpAddr.add(splitted[0]);
-
-                              //  System.out.println("Mac : " + mac + " IP Address : " + splitted[0]);
-                              //  System.out.println("Mac_Count  " + macCount + " MAC_ADDRESS  " + mac);
-                                Log.v(TAG1, "IP Address  " + splitted[0] + "   MAC_ADDRESS  " + mac);
-                                logger.addRecordToLog("Connected Client, IP :" + splitted[0] + ",mac:" + mac);
-                            }
-                        }
-                    }
-                    if (c) {
-                        Log.v(TAG1, "Connected!!! ");
-                    } else {
-                        Log.v(TAG1, "Not Connected!!! ");
-
-                    }
-                } catch (Exception e) {
-                    Log.v(TAG1, "exception", e);
-                } finally {
-                    if (fr != null) {
-                        try {
-                            fr.close();
-                            br.close();
-                            IpAddr.clear();
-                        } catch (IOException e) {
-                            // This is unrecoverable. Just report it and move on
-                            e.printStackTrace();
-                        }
-                    }
-                }
-
-                if (!c) {
-                    toggle();
-                }
-
-
-            } //if Completed check
-
-            else if(checkWifiState.contains("DisarmHotspotDB")) {
-                Log.v(TAG1, "DisarmConnectedDB Not Toggling");
-
-            }
-            else if (checkWifiState.contains("DisarmHotspot")) {
-                handler.post(searchingDisarmDB);
-                Log.v(TAG1, "DisarmConnected Not Toggling");
-
-
-            }
-
-            else
-             {
-                toggle();
-            }
-            boolean apOn = ApManager.isApOn(MyService.this);
-            if(apOn){
-                handler.postDelayed(Timer_Toggle,addIncreasehp);
-            }else{
-                handler.postDelayed(Timer_Toggle,addIncreasewifi);
-            }
-        }
-
-    };
 
 
 
@@ -335,7 +233,7 @@ public class MyService extends Service {
             if (allScanResults.toString().contains("DisarmHotspotDB")) {
                 Log.v(TAG4, "Connecting DisarmDB");
                 handler.removeCallbacks(WifiConnect);
-                handler.removeCallbacks(Timer_Toggle);
+                handler.removeCallbacksAndMessages(null);
                 String ssid = "DisarmHotspotDB";
                 WifiConfiguration wc = new WifiConfiguration();
                 wc.SSID = "\"" + ssid + "\""; //IMPORTANT! This should be in Quotes!!
@@ -351,54 +249,5 @@ public class MyService extends Service {
         }
     };
 
-    private void toggle(){
-        Log.v(TAG3, "Toggling randomly!!!");
-        //This method runs in the same thread as the UI.
-        //Do something to the UI thread here
-        if (startwififirst == 1){
-            wifiState= 0.70;
-            startwififirst = 0;
-        }else{
-            wifiState = Math.random()*1.0;
-            Log.v(TAG3, String.valueOf(wifiState));
-        }
-        //wifiState = false;
-        // WifiState - 1 (Is Hotspot) || 0 - (CheckHotspot)
-        Log.v("Level:", String.valueOf(level));
-        if(wifiState <= 0.50 && level > 10 ) {
-            Log.v(TAG1,"hptoggling for " +String.valueOf(addIncreasehp));
-            logger.addRecordToLog("HA : " + addIncreasehp + " secs," + "Random :" + String.format("%.2f", wifiState));
-            addIncreasehp += hpIncrease;
-            wifi.setWifiEnabled(false);
-            isHotspotOn = ApManager.isApOn(MyService.this);
 
-            if (!isHotspotOn) {
-                ApManager.configApState(MyService.this);
-            }
-            Log.v(TAG3, "Hotspot Active");
-
-        }
-        else {
-            Log.v(TAG3,"wifitogging for "+ String.valueOf(addIncreasewifi));
-            logger.addRecordToLog("WA : " + addIncreasewifi + " secs," + "Random :" + String.format("%.2f", wifiState));
-            addIncreasewifi += wifiIncrease;
-            isHotspotOn = ApManager.isApOn(MyService.this);
-            if(isHotspotOn)
-            {
-                ApManager.configApState(MyService.this);
-            }
-            wifi.setWifiEnabled(true);
-            Log.v(TAG3, "Wifi Active");
-
-            wifi.startScan();
-
-        }
-
-        if(addIncreasewifi == 20000 ){
-            addIncreasewifi = 5000;
-        }else if(addIncreasehp == 35000){
-            addIncreasehp = 5000;
-        }
-
-    }
 }
