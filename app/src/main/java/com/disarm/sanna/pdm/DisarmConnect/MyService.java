@@ -40,7 +40,8 @@ public class MyService extends Service {
     public static boolean isHotspotOn,c;
     public static WifiInfo wifiInfo;
     public static List<String> IpAddr;
-
+    public static String mobileAPName = "DisarmHotspot";
+    public static String dbAPName = "DisarmHotspotDB";
     public FileReader fr = null;
     public static int count=0,startwififirst = 1;
     public static Handler handler;
@@ -133,11 +134,6 @@ public class MyService extends Service {
             wifi.setWifiEnabled(true);
         }
 
-        // Removing Callbacks from Handler
-        //handler.removeCallbacks(WifiConnect);
-//        handler.removeCallbacks(Timer_Toggle);
-        //handler.removeCallbacks(searchingDisarmDB);
-
         // Release lock
         WakeLockHelper.keepCpuAwake(getApplicationContext(), false);
         WakeLockHelper.keepWiFiOn(getApplicationContext(), false);
@@ -145,109 +141,5 @@ public class MyService extends Service {
         // Adding stop record to log
         logger.addRecordToLog("DisarmConnect Stopped");
     }
-
-
-
-
-    private Runnable WifiConnect = new Runnable() {
-
-        public void run() {
-
-            Log.v(TAG2,"Running Autoconnector");
-            wifiInfo = wifi.getConnectionInfo();
-            String ssidName = wifiInfo.getSSID();
-            Log.v(TAG2, ssidName);
-            if(ssidName.contains("DisarmHotspotDB")) {
-                Log.v(TAG2,"Already Connected DB ");
-                logger.addRecordToLog("Already DB Connected");
-
-            }
-            else if(ssidName.contains("DisarmHotspot")) {
-                Log.v(TAG2,"Already Connected");
-                logger.addRecordToLog("Already DH Connected");
-                try {
-
-                    fr = new FileReader("/proc/net/arp");
-                    br = new BufferedReader(fr);
-                    String line;
-                    IpAddr = new ArrayList<String>();
-                    c = false;
-                    while ((line = br.readLine()) != null) {
-                        String[] splitted = line.split(" +");
-                        Log.v("Splitted:" , Arrays.deepToString(splitted));
-                    }
-                }
-                catch(Exception e)
-                {}
-            }
-
-            else if(!ssidName.equals("<unknown ssid>")){
-                Log.v(TAG2,"Checking For Disarm Hotspot");
-                // Connecting to DisarmHotspot WIfi on Button Click
-
-                List allScanResults = wifi.getScanResults();
-                if (allScanResults.toString().contains("DisarmHotspotDB")) {
-                    Log.v(TAG2,"Connecting DisarmDB");
-
-                    String ssid = "DisarmHotspotDB";
-                    WifiConfiguration wc = new WifiConfiguration();
-                    wc.SSID = "\"" + ssid + "\""; //IMPORTANT! This should be in Quotes!!
-                    wc.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
-                    int res = wifi.addNetwork(wc);
-                    boolean b = wifi.enableNetwork(res, true);
-                    Log.v(TAG2, "Connected");
-
-                    logger.addRecordToLog("DB Connected Successfully");
-                }
-                else if (allScanResults.toString().contains("DisarmHotspot")) {
-                    Log.v(TAG2,"Connecting Disarm");
-
-                    String ssid = "DisarmHotspot";
-                    WifiConfiguration wc = new WifiConfiguration();
-                    wc.SSID = "\"" + ssid + "\""; //IMPORTANT! This should be in Quotes!!
-                    wc.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
-                    int res = wifi.addNetwork(wc);
-                    boolean b = wifi.enableNetwork(res, true);
-                    Log.v(TAG2, "Connected");
-
-                    logger.addRecordToLog("DH Connected Successfully");
-                }
-                else{
-                    Log.v(TAG2,"Disarm Not Available");
-
-                    logger.addRecordToLog("no DH/DB network available");
-
-                }
-
-            }
-            handler.postDelayed(WifiConnect,10000);
-        }
-
-    };
-
-    private Runnable searchingDisarmDB = new Runnable() {
-        @Override
-        public void run() {
-            Log.v(TAG4,"searching DB");
-            List allScanResults = wifi.getScanResults();
-            if (allScanResults.toString().contains("DisarmHotspotDB")) {
-                Log.v(TAG4, "Connecting DisarmDB");
-                handler.removeCallbacks(WifiConnect);
-                handler.removeCallbacksAndMessages(null);
-                String ssid = "DisarmHotspotDB";
-                WifiConfiguration wc = new WifiConfiguration();
-                wc.SSID = "\"" + ssid + "\""; //IMPORTANT! This should be in Quotes!!
-                wc.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
-                int res = wifi.addNetwork(wc);
-                boolean b = wifi.enableNetwork(res, true);
-                Log.v(TAG4, "Connected to DB");
-            }
-            else {
-                Log.v(TAG4,"DisarmHotspotDB not found");
-            }
-            handler.postDelayed(searchingDisarmDB,5000);
-        }
-    };
-
 
 }

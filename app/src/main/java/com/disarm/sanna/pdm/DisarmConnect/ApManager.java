@@ -14,7 +14,6 @@ import java.lang.reflect.Method;
 public class ApManager {
 
     private static final String TAG = "AP Creation";
-
     //check whether wifi hotspot on or off
     public static boolean isApOn(Context context) {
         WifiManager wifimanager = (WifiManager) context.getSystemService(context.WIFI_SERVICE);
@@ -46,7 +45,7 @@ public class ApManager {
                 wifiConfig.allowedKeyManagement.clear();
                 wifiConfig.allowedPairwiseCiphers.clear();
                 wifiConfig.allowedProtocols.clear();
-                wifiConfig.SSID = "DisarmHotspot";
+                wifiConfig.SSID = MyService.mobileAPName;
                 wifiConfig.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
 
                 Method setWifiApMethod = wifimanager.getClass().getMethod("setWifiApEnabled", WifiConfiguration.class, boolean.class);

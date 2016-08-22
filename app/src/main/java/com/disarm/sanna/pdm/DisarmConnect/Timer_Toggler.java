@@ -76,8 +76,6 @@ public class Timer_Toggler implements Runnable{
 
                             IpAddr.add(splitted[0]);
 
-                            //  System.out.println("Mac : " + mac + " IP Address : " + splitted[0]);
-                            //  System.out.println("Mac_Count  " + macCount + " MAC_ADDRESS  " + mac);
                             Log.v(MyService.TAG1, "IP Address  " + splitted[0] + "   MAC_ADDRESS  " + mac);
                             Logger.addRecordToLog("Connected Client, IP :" + splitted[0] + ",mac:" + mac);
                         }

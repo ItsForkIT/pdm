@@ -1,10 +1,13 @@
 package com.disarm.sanna.pdm.DisarmConnect;
 
 import android.content.Context;
+import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;
+import android.net.wifi.WifiManager;
 import android.util.Log;
 
 import java.util.List;
+import java.util.StringTokenizer;
 
 /**
  * Created by hridoy on 21/8/16.
@@ -12,6 +15,7 @@ import java.util.List;
 public class SearchingDisarmDB implements Runnable {
     private android.os.Handler handler;
     private Context context;
+    private int timerDBSearch = 5000;
 
     public SearchingDisarmDB(android.os.Handler handler, Context context)
     {
@@ -24,12 +28,17 @@ public class SearchingDisarmDB implements Runnable {
     public void run()
     {
         Log.v(MyService.TAG4,"searching DB");
-        List allScanResults = MyService.wifi.getScanResults();
-        if (allScanResults.toString().contains("DisarmHotspotDB")) {
+        List<ScanResult> allScanResults = MyService.wifi.getScanResults();
+        if (allScanResults.toString().contains(MyService.dbAPName)) {
             Log.v(MyService.TAG4, "Connecting DisarmDB");
+
+            // compare signal level
+            int level = compareSignalLevel(allScanResults);
+            Log.v("Level:" , String.valueOf(level));
+
             //handler.removeCallbacks(WifiConnect.class);
             handler.removeCallbacksAndMessages(null);
-            String ssid = "DisarmHotspotDB";
+            String ssid = MyService.dbAPName;
             WifiConfiguration wc = new WifiConfiguration();
             wc.SSID = "\"" + ssid + "\""; //IMPORTANT! This should be in Quotes!!
             wc.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
@@ -40,7 +49,19 @@ public class SearchingDisarmDB implements Runnable {
         else {
             Log.v(MyService.TAG4,"DisarmHotspotDB not found");
         }
-        handler.postDelayed(this,5000);
+        handler.postDelayed(this, timerDBSearch);
+    }
+    public int compareSignalLevel(List<ScanResult> allScanResults)
+    {
+        for (ScanResult scanResult : allScanResults) {
+            if(scanResult.SSID.toString().equals(MyService.dbAPName)) {
+                Log.v("SSID:",scanResult.SSID.toString());
+                int level =  WifiManager.calculateSignalLevel(scanResult.level, 5);
+                return level;
+
+            }
+        }
+        return 0;
     }
 
 }
