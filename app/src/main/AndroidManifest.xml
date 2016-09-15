@@ -38,6 +38,9 @@
         <activity android:name=".SelectCategoryActivity"
             android:label="@string/app_name">
         </activity>
+        <activity android:name=".SocialShareActivity"
+            android:label="@string/app_name">
+        </activity>
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
