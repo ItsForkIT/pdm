@@ -1,7 +1,9 @@
 package com.disarm.sanna.pdm;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -11,6 +13,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -109,9 +112,19 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
     public void onClick(View view) {
     }
 
+    /**
+     * Start Chat and Share Activity based on the position
+     * @param adapterView
+     * @param view
+     * @param position
+     * @param id
+     */
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-        // Start Chat Activity based on the position
+        Intent shareActivityIntent = new Intent(this, ShareActivity.class);
+        Senders sender = senders.get(position);
+        shareActivityIntent.putExtra("SENDER_DATA", sender);
+        startActivity(shareActivityIntent);
     }
 }
 

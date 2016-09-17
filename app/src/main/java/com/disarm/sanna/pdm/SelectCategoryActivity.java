@@ -13,9 +13,10 @@ import android.widget.Button;
 
 /**
  * Created by arka on 14/9/16.
+ * Activity to choose between offline social sharing and disaster management category
  */
 public class SelectCategoryActivity extends AppCompatActivity implements View.OnClickListener {
-    Button categoryXender;
+    Button categorySocialShare;
     Button categoryDisasterManagement;
 
     @Override
@@ -23,10 +24,10 @@ public class SelectCategoryActivity extends AppCompatActivity implements View.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_select_category);
 
-        categoryXender = (Button)findViewById(R.id.b_category_xender);
+        categorySocialShare = (Button)findViewById(R.id.b_category_social_share);
         categoryDisasterManagement = (Button)findViewById(R.id.b_category_disaster_management);
 
-        categoryXender.setOnClickListener(this);
+        categorySocialShare.setOnClickListener(this);
         categoryDisasterManagement.setOnClickListener(this);
     }
 
@@ -34,13 +35,15 @@ public class SelectCategoryActivity extends AppCompatActivity implements View.On
     public void onClick(View view) {
 
         switch (view.getId()) {
-            case R.id.b_category_xender:
+            case R.id.b_category_social_share:
                 // Launch Social App
+                Intent intentSocialShare = new Intent(this, SocialShareActivity.class);
+                startActivity(intentSocialShare);
                 break;
             case R.id.b_category_disaster_management:
                 // Launch Disaster Management Activity
-                Intent intent = new Intent(this, MainActivity.class);
-                startActivity(intent);
+                Intent intentDisasterManagement = new Intent(this, MainActivity.class);
+                startActivity(intentDisasterManagement);
                 break;
         }
     }
@@ -56,15 +59,16 @@ public class SelectCategoryActivity extends AppCompatActivity implements View.On
         Bitmap bitmap;
         Resources r = getResources();
 
-        buttonHeight = categoryXender.getHeight();
-        buttonWidth = categoryXender.getWidth();
+        buttonHeight = categorySocialShare.getHeight();
+        buttonWidth = categorySocialShare.getWidth();
         bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.file_share);
-        categoryXender.setBackground(new BitmapDrawable(r, bitmap));
-
+        bitmap = Bitmap.createScaledBitmap(bitmap, buttonHeight, buttonWidth, true);
+        categorySocialShare.setBackground(new BitmapDrawable(r, bitmap));
 
         buttonHeight = categoryDisasterManagement.getHeight();
         buttonWidth = categoryDisasterManagement.getWidth();
         bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.disaster_management);
+        bitmap = Bitmap.createScaledBitmap(bitmap, buttonHeight, buttonWidth, true);
         categoryDisasterManagement.setBackground(new BitmapDrawable(r, bitmap));
     }
 }
