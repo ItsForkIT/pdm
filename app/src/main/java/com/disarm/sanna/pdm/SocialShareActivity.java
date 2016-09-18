@@ -12,6 +12,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.disarm.sanna.pdm.Util.PathFileObserver;
+
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -23,12 +25,15 @@ import java.util.HashMap;
  */
 public class SocialShareActivity extends AppCompatActivity implements View.OnClickListener,
         AdapterView.OnItemClickListener{
+    private static final String WORKING_DIRECTORY = "/DMS/Working/";
+
     ListView chatList;
     ArrayList<File> allFiles;
     ArrayList<String> senderList;
     HashMap<String, Integer> numberToSenderMap;
     ArrayList<Senders> senders;
 
+    PathFileObserver pathFileObserver;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,6 +48,9 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
         senders = new ArrayList<>();
 
         populateChatList();
+        pathFileObserver = new PathFileObserver(
+                Environment.getExternalStorageDirectory().toString() + WORKING_DIRECTORY);
+        pathFileObserver.startWatching();
     }
 
     /**
@@ -51,7 +59,7 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
     private void findFiles() {
 
         File workingDirectory = new File(Environment.getExternalStorageDirectory().toString() +
-                "/DMS/Working/");
+                WORKING_DIRECTORY);
 
         File[] files = workingDirectory.listFiles();
         if(files==null) {
@@ -125,6 +133,12 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
         Senders sender = senders.get(position);
         shareActivityIntent.putExtra("SENDER_DATA", sender);
         startActivity(shareActivityIntent);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        pathFileObserver.stopWatching();
     }
 }
 
