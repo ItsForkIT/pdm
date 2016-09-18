@@ -82,7 +82,7 @@
             >
         </activity>
         <service
-            android:name=".SyncService"
+            android:name=".Service.SyncService"
             android:enabled="true"
             android:exported="true" />
         <service android:name=".DisarmConnect.MyService" />
