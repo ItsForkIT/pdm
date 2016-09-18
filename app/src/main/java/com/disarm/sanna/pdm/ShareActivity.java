@@ -4,12 +4,19 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
-import android.widget.Toast;
+
+
+import com.disarm.sanna.pdm.Capture.AudioCapture;
+import com.disarm.sanna.pdm.Capture.Photo;
+import com.disarm.sanna.pdm.Capture.Text;
+import com.disarm.sanna.pdm.Capture.Video;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -17,7 +24,8 @@ import java.util.ArrayList;
 /**
  * Created by arka on 16/9/16.
  */
-public class ShareActivity extends AppCompatActivity implements AdapterView.OnItemClickListener{
+public class ShareActivity extends AppCompatActivity implements AdapterView.OnItemClickListener,
+        View.OnClickListener {
     ListView receivedFiles;
     String number;
     ArrayList<File> allFiles;
@@ -33,6 +41,7 @@ public class ShareActivity extends AppCompatActivity implements AdapterView.OnIt
             Senders sender = extra.getParcelable("SENDER_DATA");
             if(sender != null && sender.getNumber() != null) {
                 number = sender.getNumber();
+                setTitle(number);
             }
             if(sender != null && sender.getAllFiles() != null) {
                 allFiles = sender.getAllFiles();
@@ -48,8 +57,26 @@ public class ShareActivity extends AppCompatActivity implements AdapterView.OnIt
                 android.R.layout.simple_list_item_1, allFilesName);
         receivedFiles.setAdapter(chatListAdapter);
         receivedFiles.setOnItemClickListener(this);
+
+        Button sharePhoto, shareVideo, shareText, shareRecording;
+        sharePhoto = (Button)findViewById(R.id.b_share_photo);
+        shareVideo = (Button)findViewById(R.id.b_share_video);
+        shareText = (Button)findViewById(R.id.b_share_text);
+        shareRecording = (Button)findViewById(R.id.b_share_recording);
+
+        sharePhoto.setOnClickListener(this);
+        shareVideo.setOnClickListener(this);
+        shareRecording.setOnClickListener(this);
+        shareText.setOnClickListener(this);
     }
 
+    /**
+     * Open File on click
+     * @param adapterView
+     * @param view
+     * @param position
+     * @param l
+     */
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
 
@@ -71,5 +98,31 @@ public class ShareActivity extends AppCompatActivity implements AdapterView.OnIt
         }
 
         startActivity(openFile);
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.b_share_photo:
+                Intent intent=new Intent(getApplicationContext(), Photo.class);
+                intent.putExtra("IntentType", "SocialShare");
+                startActivity(intent);
+                break;
+            case R.id.b_share_video:
+                Intent intent1=new Intent(getApplicationContext(), Video.class);
+                intent1.putExtra("IntentType", "SocialShare");
+                startActivity(intent1);
+                break;
+            case R.id.b_share_text:
+                FragmentManager fm = getSupportFragmentManager();
+                Text text= Text.newInstance("Add Text", "SocialShare");
+                text.show(fm, "activity_text");
+                break;
+            case R.id.b_share_recording:
+                Intent intent2=new Intent(getApplicationContext(), AudioCapture.class);
+                intent2.putExtra("IntentType", "SocialShare");
+                startActivity(intent2);
+                break;
+        }
     }
 }
