@@ -110,11 +110,9 @@ public class MyService extends Service {
         // Handler started
         handler = new Handler();
         tt = new Timer_Toggler(handler,getApplicationContext());
-        //handler.post(Timer_Toggle);
         wifiC = new WifiConnect(handler,getApplicationContext());
-        //handler.post(WifiConnect);
         sDDB = new SearchingDisarmDB(handler,getApplicationContext());
-        //  handler.post(searchingDisarmDB);
+
 
         return START_STICKY;
     }

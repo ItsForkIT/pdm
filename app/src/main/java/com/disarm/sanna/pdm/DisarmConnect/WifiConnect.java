@@ -64,6 +64,7 @@ public class WifiConnect implements Runnable {
                 Log.v(MyService.TAG2,"Connecting DisarmDB");
 
                 String ssid = "DisarmHotspotDB";
+
                 WifiConfiguration wc = new WifiConfiguration();
                 wc.SSID = "\"" + ssid + "\""; //IMPORTANT! This should be in Quotes!!
                 wc.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
@@ -77,9 +78,12 @@ public class WifiConnect implements Runnable {
                 Log.v(MyService.TAG2,"Connecting Disarm");
 
                 String ssid = "DisarmHotspot";
+                String pass = "password123";
                 WifiConfiguration wc = new WifiConfiguration();
                 wc.SSID = "\"" + ssid + "\""; //IMPORTANT! This should be in Quotes!!
-                wc.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
+                wc.preSharedKey = "\""+ pass +"\"";
+                wc.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
+                //wc.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
                 int res = MyService.wifi.addNetwork(wc);
                 boolean b = MyService.wifi.enableNetwork(res, true);
                 Log.v(MyService.TAG2, "Connected");
