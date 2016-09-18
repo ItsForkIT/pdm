@@ -1,17 +1,25 @@
 package com.disarm.sanna.pdm;
 
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.IBinder;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.disarm.sanna.pdm.DisarmConnect.MyService;
+import com.disarm.sanna.pdm.Service.SyncService;
 import com.disarm.sanna.pdm.Util.PathFileObserver;
 
 import java.io.File;
@@ -34,6 +42,46 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
     ArrayList<Senders> senders;
 
     PathFileObserver pathFileObserver;
+
+    SyncService syncService;
+    private boolean syncServiceBound = false;
+    MyService myService;
+    private boolean myServiceBound = false;
+
+    //Psync
+    private ServiceConnection syncServiceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            SyncService.SyncServiceBinder binder = (SyncService.SyncServiceBinder) service;
+            syncService = binder.getService();
+            syncServiceBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            syncServiceBound = false;
+        }
+    };
+
+    //DisarmConnect
+    private ServiceConnection myServiceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            MyService.MyServiceBinder binder = (MyService.MyServiceBinder) service;
+            myService= binder.getService();
+            myServiceBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            myServiceBound = false;
+        }
+    };
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,9 +96,41 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
         senders = new ArrayList<>();
 
         populateChatList();
+
         pathFileObserver = new PathFileObserver(
                 Environment.getExternalStorageDirectory().toString() + WORKING_DIRECTORY);
         pathFileObserver.startWatching();
+        
+        startServices();
+        Button exit = (Button)findViewById(R.id.b_social_share_exit);
+        exit.setOnClickListener(this);
+    }
+
+    private void startServices() {
+        final Intent syncServiceIntent = new Intent(getBaseContext(), SyncService.class);
+        bindService(syncServiceIntent, syncServiceConnection, Context.BIND_AUTO_CREATE);
+        startService(syncServiceIntent);
+        Toast.makeText(getApplicationContext(), R.string.start_sync, Toast.LENGTH_SHORT).show();
+
+        final Intent myServiceIntent = new Intent(getBaseContext(), MyService.class);
+        bindService(myServiceIntent, myServiceConnection, Context.BIND_AUTO_CREATE);
+        startService(myServiceIntent);
+    }
+
+    private void stopServices() {
+        final Intent syncServiceIntent = new Intent(getBaseContext(), SyncService.class);
+        if (syncServiceBound) {
+            unbindService(syncServiceConnection);
+        }
+        syncServiceBound = false;
+        stopService(syncServiceIntent);
+
+        final Intent myServiceIntent = new Intent(getBaseContext(), MyService.class);
+        if (myServiceBound) {
+            unbindService(myServiceConnection);
+        }
+        myServiceBound = false;
+        stopService(myServiceIntent);
     }
 
     /**
@@ -63,12 +143,13 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
 
         File[] files = workingDirectory.listFiles();
         if(files==null) {
-            Toast.makeText(this, "Working Directory Not Found", Toast.LENGTH_LONG);
+            Toast.makeText(this, "Working Directory Not Found", Toast.LENGTH_LONG).show();
+            Log.d("ERROR", "Working Directory Not Found");
             return;
         }
 
         for(File file:files) {
-            if( !file.isDirectory() && !file.isHidden() ) { // add all files which are not hidden
+            if( !file.isDirectory() && !file.isHidden() ) {
                 allFiles.add(file);
             }
         }
@@ -118,6 +199,11 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
 
     @Override
     public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.b_social_share_exit:
+                stopServices();
+                break;
+        }
     }
 
     /**

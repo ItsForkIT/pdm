@@ -31,6 +31,7 @@ import android.widget.CompoundButton;
 import android.widget.Toast;
 
 import com.disarm.sanna.pdm.DisarmConnect.MyService;
+import com.disarm.sanna.pdm.Service.SyncService;
 import com.disarm.sanna.pdm.Util.DividerItemDecoration;
 
 
