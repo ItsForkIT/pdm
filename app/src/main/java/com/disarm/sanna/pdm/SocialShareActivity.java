@@ -10,6 +10,9 @@ import android.os.IBinder;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -18,8 +21,10 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.disarm.sanna.pdm.Adapters.SocialShareChatlistAdapter;
 import com.disarm.sanna.pdm.DisarmConnect.MyService;
 import com.disarm.sanna.pdm.Service.SyncService;
+import com.disarm.sanna.pdm.Util.DividerItemDecoration;
 import com.disarm.sanna.pdm.Util.PathFileObserver;
 
 import java.io.File;
@@ -31,11 +36,10 @@ import java.util.HashMap;
  * Created by arka on 14/9/16.
  * Offline Social Share Activity
  */
-public class SocialShareActivity extends AppCompatActivity implements View.OnClickListener,
-        AdapterView.OnItemClickListener{
+public class SocialShareActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String WORKING_DIRECTORY = "/DMS/Working/";
 
-    ListView chatList;
+    RecyclerView chatList;
     ArrayList<File> allFiles;
     ArrayList<String> senderList;
     HashMap<String, Integer> numberToSenderMap;
@@ -87,13 +91,15 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_social_share);
 
-        chatList = (ListView)findViewById(R.id.list_social_share_chats);
+        chatList = (RecyclerView)findViewById(R.id.list_social_share_chats);
 
         allFiles = new ArrayList<>();
 
         senderList = new ArrayList<>();
         numberToSenderMap = new HashMap<>();
         senders = new ArrayList<>();
+
+        setTitle("Recent");
 
         populateChatList();
 
@@ -191,10 +197,34 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
             }
         }
 
-        ArrayAdapter<String> chatListAdapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_list_item_1, senderList);
-        chatList.setAdapter(chatListAdapter);
-        chatList.setOnItemClickListener(this);
+        SocialShareChatlistAdapter chatlistAdapter = new SocialShareChatlistAdapter(senderList);
+        chatList.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+        chatList.setItemAnimator(new DefaultItemAnimator());
+        chatList.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
+        chatList.setAdapter(chatlistAdapter);
+        chatList.addOnItemTouchListener(new RecyclerTouchListener(getApplicationContext(),
+                chatList, new MainActivity.ClickListener() {
+            @Override
+            public void onClick(View view, int position) {
+                launchShareActivity(position);
+            }
+
+            @Override
+            public void onLongClick(View view, int position) {
+
+            }
+        }));
+    }
+
+    /**
+     * Launch Chat and Share Activity based on the position
+     * @param position
+     */
+    private void launchShareActivity(int position) {
+        Intent shareActivityIntent = new Intent(this, ShareActivity.class);
+        Senders sender = senders.get(position);
+        shareActivityIntent.putExtra("SENDER_DATA", sender);
+        startActivity(shareActivityIntent);
     }
 
     @Override
@@ -204,21 +234,6 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
                 stopServices();
                 break;
         }
-    }
-
-    /**
-     * Start Chat and Share Activity based on the position
-     * @param adapterView
-     * @param view
-     * @param position
-     * @param id
-     */
-    @Override
-    public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-        Intent shareActivityIntent = new Intent(this, ShareActivity.class);
-        Senders sender = senders.get(position);
-        shareActivityIntent.putExtra("SENDER_DATA", sender);
-        startActivity(shareActivityIntent);
     }
 
     @Override
