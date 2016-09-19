@@ -17,6 +17,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.disarm.sanna.pdm.Adapters.MyAdapterActivityList;
 import com.disarm.sanna.pdm.BackgroundProcess.FileTask;
 import com.disarm.sanna.pdm.Capture.AudioCapture;
 import com.disarm.sanna.pdm.Capture.Photo;
