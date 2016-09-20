@@ -9,6 +9,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.disarm.sanna.pdm.ActivityList;
+import com.disarm.sanna.pdm.ShareActivity;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -24,8 +25,9 @@ public class FileTask extends AsyncTask  {
     public File sourceFile = Environment.getExternalStoragePublicDirectory("DMS/source.txt");
     public static final String GROUPID = "Group No";
     Context applicationContext = ActivityList.getContextOfApplication();
-    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(applicationContext);
-    SharedPreferences.Editor editor = prefs.edit();
+    Context shareActivityContext = ShareActivity.getContextOfApplication();
+    SharedPreferences prefs;
+    SharedPreferences.Editor editor;
     int idNumber,groupID;
     private boolean increaseSession = false;
 
@@ -33,8 +35,15 @@ public class FileTask extends AsyncTask  {
     @Override
     protected synchronized void onPreExecute() {
         super.onPreExecute();
-         idNumber=prefs.getInt(GROUPID, 0);
 
+        if(applicationContext != null) {
+            prefs = PreferenceManager.getDefaultSharedPreferences(applicationContext);
+        } else if (shareActivityContext != null) {
+            prefs = PreferenceManager.getDefaultSharedPreferences(shareActivityContext);
+        }
+
+        editor = prefs.edit();
+        idNumber=prefs.getInt(GROUPID, 0);
     }
 
     @Override
