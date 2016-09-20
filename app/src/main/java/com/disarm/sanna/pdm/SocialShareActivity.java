@@ -3,6 +3,7 @@ package com.disarm.sanna.pdm;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.database.Cursor;
@@ -14,19 +15,25 @@ import android.os.Parcelable;
 import android.provider.BaseColumns;
 import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.FragmentManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import com.disarm.sanna.pdm.Adapters.SocialShareChatlistAdapter;
+import com.disarm.sanna.pdm.Capture.Text;
 import com.disarm.sanna.pdm.DisarmConnect.MyService;
 import com.disarm.sanna.pdm.Service.SyncService;
 import com.disarm.sanna.pdm.Util.DividerItemDecoration;
@@ -125,6 +132,8 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
         startServices();
         Button exit = (Button)findViewById(R.id.b_social_share_exit);
         exit.setOnClickListener(this);
+        FloatingActionButton addChat = (FloatingActionButton) findViewById(R.id.b_social_share_add);
+        addChat.setOnClickListener(this);
     }
 
     private void startServices() {
@@ -167,8 +176,6 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
             BufferedReader br = new BufferedReader(new InputStreamReader(fis));
 
             selfNumber = br.readLine();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -340,7 +347,51 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
             case R.id.b_social_share_exit:
                 stopServices();
                 break;
+            case R.id.b_social_share_add:
+                final AlertDialog.Builder addNewChat = new AlertDialog.Builder(this);
+                addNewChat.setTitle("Add New");
+
+                final EditText input = new EditText(this);
+                input.setInputType(InputType.TYPE_CLASS_NUMBER);
+                addNewChat.setView(input);
+
+                addNewChat.setPositiveButton("Done", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        String inputNumber = input.getText().toString();
+                        if(inputNumber != null && inputNumber.length() == 10) {
+                            addNewSender(inputNumber);
+                        } else {
+                            Toast.makeText(getApplicationContext(),
+                                    "Not a valid Number", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+
+                addNewChat.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.cancel();
+                    }
+                });
+
+                addNewChat.show();
+                break;
         }
+    }
+
+    private void addNewSender(String inputNumber) {
+        if(senderList.contains(inputNumber)) {
+            return;
+        }
+
+        String nameFromContact = findContactNameByNumber(inputNumber);
+        Senders sender = new Senders(inputNumber, nameFromContact);
+
+        senderList.add(inputNumber);
+        senderListNames.add(nameFromContact);
+        senders.add(sender);
+        numberToSenderMap.put(inputNumber, senders.size()-1);
     }
 
     @Override
@@ -349,4 +400,3 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
         pathFileObserver.stopWatching();
     }
 }
-
