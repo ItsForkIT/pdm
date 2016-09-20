@@ -32,7 +32,12 @@ import com.disarm.sanna.pdm.Service.SyncService;
 import com.disarm.sanna.pdm.Util.DividerItemDecoration;
 import com.disarm.sanna.pdm.Util.PathFileObserver;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -50,6 +55,7 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
     ArrayList<String> senderListNames;
     HashMap<String, Integer> numberToSenderMap;
     ArrayList<Senders> senders;
+    Senders myself;
 
     PathFileObserver pathFileObserver;
 
@@ -108,6 +114,8 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
 
         setTitle("Recent");
 
+        myself = new Senders(identifySelf(), "Me");
+        Toast.makeText(this, myself.number, Toast.LENGTH_LONG).show();
         populateChatList();
 
         pathFileObserver = new PathFileObserver(
@@ -147,6 +155,28 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
     }
 
     /**
+     * Identify device's phone number
+     */
+    private String identifySelf() {
+        File sourceTxt = new File(
+                Environment.getExternalStorageDirectory().toString() + "/DMS/Source.txt");
+
+        String selfNumber = null;
+        try {
+            FileInputStream fis = new FileInputStream(sourceTxt);
+            BufferedReader br = new BufferedReader(new InputStreamReader(fis));
+
+            selfNumber = br.readLine();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return selfNumber;
+    }
+
+    /**
      * Find all files in working dirctory
      */
     private void findFiles() {
@@ -182,31 +212,29 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
             }
 
             String number = name.split("_")[3];
+
+            if(number.equals(myself.number)) {
+                addFileToNode(myself, file, name);
+                continue;
+            }
+
             if(senderList.contains(number) == false) {
                 senderList.add(number);
                 String nameFromContact = findContactNameByNumber(name.split("_")[3]);
-                Toast.makeText(this, nameFromContact, Toast.LENGTH_SHORT).show();
                 Senders sender = new Senders(number, nameFromContact);
+
+                addFileToNode(sender, file, name);
                 senderListNames.add(nameFromContact);
                 senders.add(sender);
                 numberToSenderMap.put(number, senders.size()-1);
+
             } else if(number.indexOf(".") == -1){ // hack to avoid unwanted files
                 Senders sender = senders.get(numberToSenderMap.get(number));
-
-                sender.addFile(file);
-                if(name.startsWith("IMG")) {
-                    sender.addImage(file);
-                } else if(name.startsWith("VID")) {
-                    sender.addVideo(file);
-                } else  if(name.startsWith("TXT")) {
-                    sender.addText(file);
-                } else if(name.startsWith("SVS")) {
-                    sender.addRecording(file);
-                } else if(name.startsWith("SMS")) {
-                    sender.addSms(file);
-                }
+                addFileToNode(sender, file, name);
             }
         }
+
+        addSentFilesToSenderNodes();
 
         SocialShareChatlistAdapter chatlistAdapter = new
                 SocialShareChatlistAdapter(senderList, senderListNames);
@@ -229,6 +257,44 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
     }
 
     /**
+     * Add files to their corresponding node
+     * @param node
+     * @param file : the file belonging to the node
+     */
+    private void addFileToNode(Senders node, File file, String fileName) {
+        node.addFile(file);
+        if(fileName.startsWith("IMG")) {
+            node.addImage(file);
+        } else if(fileName.startsWith("VID")) {
+            node.addVideo(file);
+        } else  if(fileName.startsWith("TXT")) {
+            node.addText(file);
+        } else if(fileName.startsWith("SVS")) {
+            node.addRecording(file);
+        } else if(fileName.startsWith("SMS")) {
+            node.addSms(file);
+        }
+    }
+
+    /**
+     * Add sent files to corresponding senders
+     */
+    private void addSentFilesToSenderNodes() {
+        for(File file:myself.getAllFiles()) {
+
+            String fileName = file.getName();
+            String sentNodeNumber = fileName.split("_")[4];
+
+            if(numberToSenderMap.get(sentNodeNumber) != null) {
+                Senders sender = senders.get(numberToSenderMap.get(sentNodeNumber));
+                if (sender != null) {
+                    addFileToNode(sender, file, fileName);
+                }
+            }
+        }
+    }
+
+    /**
      * Find the name of contact from phone book
      * @param number : The contact number
      * @return : Corresponding Contact name
@@ -247,7 +313,6 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
                 contactLookup.moveToNext();
                 name = contactLookup.getString(contactLookup
                         .getColumnIndex(ContactsContract.Data.DISPLAY_NAME));
-                //String contactId = contactLookup.getString(contactLookup.getColumnIndex(BaseColumns._ID));
             }
         } finally {
             if (contactLookup != null) {
