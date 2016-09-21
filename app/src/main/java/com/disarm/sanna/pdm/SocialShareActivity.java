@@ -11,12 +11,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.IBinder;
-import android.os.Parcelable;
 import android.provider.BaseColumns;
 import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -25,15 +23,11 @@ import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import com.disarm.sanna.pdm.Adapters.SocialShareChatlistAdapter;
-import com.disarm.sanna.pdm.Capture.Text;
 import com.disarm.sanna.pdm.DisarmConnect.MyService;
 import com.disarm.sanna.pdm.Service.SyncService;
 import com.disarm.sanna.pdm.Util.DividerItemDecoration;
@@ -42,10 +36,8 @@ import com.disarm.sanna.pdm.Util.PathFileObserver;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -261,6 +253,7 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
 
             }
         }));
+        chatlistAdapter.notifyDataSetChanged();
     }
 
     /**
