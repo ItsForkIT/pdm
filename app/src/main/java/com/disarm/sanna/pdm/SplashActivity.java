@@ -63,7 +63,8 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.CAMERA,
             Manifest.permission.RECORD_AUDIO,
-            Manifest.permission.READ_PHONE_STATE};
+            Manifest.permission.READ_PHONE_STATE,
+            Manifest.permission.READ_CONTACTS};
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
