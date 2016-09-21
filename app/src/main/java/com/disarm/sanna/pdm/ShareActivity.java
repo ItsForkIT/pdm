@@ -23,6 +23,7 @@ import android.widget.Toast;
 import com.disarm.sanna.pdm.BackgroundProcess.FileTask;
 import com.disarm.sanna.pdm.Capture.AudioCapture;
 import com.disarm.sanna.pdm.Capture.Photo;
+import com.disarm.sanna.pdm.Capture.SmsCaptrue;
 import com.disarm.sanna.pdm.Capture.Text;
 import com.disarm.sanna.pdm.Capture.Video;
 
@@ -34,8 +35,7 @@ import static com.disarm.sanna.pdm.ShareActivity.applicationContext;
 /**
  * Created by arka on 16/9/16.
  */
-public class ShareActivity extends AppCompatActivity implements AdapterView.OnItemClickListener,
-        View.OnClickListener {
+public class ShareActivity extends AppCompatActivity implements AdapterView.OnItemClickListener{
     ListView receivedFiles;
     String number;
     ArrayList<File> allFiles;
@@ -66,12 +66,13 @@ public class ShareActivity extends AppCompatActivity implements AdapterView.OnIt
         ArrayList<String> allFilesName = new ArrayList<>();
         for(File file: allFiles) {
             allFilesName.add(file.getName());
+            //Log.v("fileName",allFilesName.toString());
         }
 
-        ArrayAdapter<String> chatListAdapter = new ArrayAdapter<>(this,
+        /*ArrayAdapter<String> chatListAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_list_item_1, allFilesName);
         receivedFiles.setAdapter(chatListAdapter);
-        receivedFiles.setOnItemClickListener(this);
+        receivedFiles.setOnItemClickListener(this);*/
 
        /* Button sharePhoto, shareVideo, shareText, shareRecording, shareSend;
         sharePhoto = (Button)findViewById(R.id.b_share_photo);
@@ -131,35 +132,6 @@ public class ShareActivity extends AppCompatActivity implements AdapterView.OnIt
         startActivity(Intent.createChooser(openFile, null));
     }
 
-    @Override
-    public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.b_share_photo:
-                Toast.makeText(applicationContext, "clicked", Toast.LENGTH_SHORT).show();
-                Intent intent=new Intent(getApplicationContext(), Photo.class);
-                intent.putExtra("IntentType", "SocialShare");
-                startActivity(intent);
-                break;
-            case R.id.b_share_video:
-                Intent intent1=new Intent(getApplicationContext(), Video.class);
-                intent1.putExtra("IntentType", "SocialShare");
-                startActivity(intent1);
-                break;
-            case R.id.b_share_text:
-                FragmentManager fm = getSupportFragmentManager();
-                Text text= Text.newInstance("Add Text", "SocialShare");
-                text.show(fm, "activity_text");
-                break;
-            case R.id.b_share_recording:
-                Intent intent2=new Intent(getApplicationContext(), AudioCapture.class);
-                intent2.putExtra("IntentType", "SocialShare");
-                startActivity(intent2);
-                break;
-            case R.id.b_share_send:
-                new FileTask().execute("50", "defaultMcs", null); // Set dest as MCS for now
-                break;
-        }
-    }
 
     public static Context getContextOfApplication(){
         return applicationContext;
@@ -168,8 +140,9 @@ public class ShareActivity extends AppCompatActivity implements AdapterView.OnIt
 
 
 class PlaceholderFragment extends Fragment implements View.OnClickListener {
-
-    public PlaceholderFragment() {
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
     }
 
     @Override
@@ -186,6 +159,7 @@ class PlaceholderFragment extends Fragment implements View.OnClickListener {
         rootView.findViewById(R.id.b_share_text).setOnClickListener(this);
         rootView.findViewById(R.id.b_share_sms).setOnClickListener(this);
         rootView.findViewById(R.id.b_share_send).setOnClickListener(this);
+        rootView.findViewById(R.id.b_share_recording).setOnClickListener(this);
 
 
         return rootView;
@@ -193,10 +167,8 @@ class PlaceholderFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public void onClick(View view) {
-        Toast.makeText(getActivity(), "Button clicked", Toast.LENGTH_SHORT).show();
         switch (view.getId()) {
             case R.id.b_share_photo:
-                Toast.makeText(applicationContext, "clicked", Toast.LENGTH_SHORT).show();
                 Intent intent=new Intent(applicationContext, Photo.class);
                 intent.putExtra("IntentType", "SocialShare");
                 startActivity(intent);
@@ -207,17 +179,24 @@ class PlaceholderFragment extends Fragment implements View.OnClickListener {
                 startActivity(intent1);
                 break;
             case R.id.b_share_text:
-               /* FragmentManager fm = getSupportFragmentManager();
+                FragmentManager fm = getFragmentManager();
                 Text text= Text.newInstance("Add Text", "SocialShare");
-                text.show(fm, "activity_text");*/
+                text.show(fm, "activity_text");
                 break;
             case R.id.b_share_recording:
+                Toast.makeText(applicationContext, "audio clicked", Toast.LENGTH_SHORT).show();
                 Intent intent2=new Intent(applicationContext, AudioCapture.class);
                 intent2.putExtra("IntentType", "SocialShare");
                 startActivity(intent2);
                 break;
             case R.id.b_share_send:
                 new FileTask().execute("50", "defaultMcs", null); // Set dest as MCS for now
+                break;
+            case R.id.b_share_sms:
+                FragmentManager fm1 = getFragmentManager();
+                SmsCaptrue smsCaptrue = new SmsCaptrue();
+                smsCaptrue.newInstance("SocialShare");
+                smsCaptrue.show(fm1,"activity_sms");
                 break;
         }
     }
