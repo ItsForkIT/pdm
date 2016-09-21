@@ -63,6 +63,8 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
     MyService myService;
     private boolean myServiceBound = false;
 
+    SocialShareChatlistAdapter chatlistAdapter;
+
     //Psync
     private ServiceConnection syncServiceConnection = new ServiceConnection() {
 
@@ -235,8 +237,7 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
 
         addSentFilesToSenderNodes();
 
-        SocialShareChatlistAdapter chatlistAdapter = new
-                SocialShareChatlistAdapter(senderList, senderListNames);
+        chatlistAdapter = new SocialShareChatlistAdapter(senderList, senderListNames);
         chatList.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
         chatList.setItemAnimator(new DefaultItemAnimator());
         chatList.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
@@ -385,6 +386,7 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
         senderListNames.add(nameFromContact);
         senders.add(sender);
         numberToSenderMap.put(inputNumber, senders.size()-1);
+        chatlistAdapter.notifyDataSetChanged();
     }
 
     @Override
