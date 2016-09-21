@@ -5,10 +5,13 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -26,6 +29,8 @@ import com.disarm.sanna.pdm.Capture.Video;
 import java.io.File;
 import java.util.ArrayList;
 
+import static com.disarm.sanna.pdm.ShareActivity.applicationContext;
+
 /**
  * Created by arka on 16/9/16.
  */
@@ -40,6 +45,9 @@ public class ShareActivity extends AppCompatActivity implements AdapterView.OnIt
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.share_activity);
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction().add(R.id.container, new PlaceholderFragment()).commit();
+        }
         applicationContext = getApplicationContext();
 
         receivedFiles = (ListView)findViewById(R.id.share_received_files);
@@ -65,7 +73,7 @@ public class ShareActivity extends AppCompatActivity implements AdapterView.OnIt
         receivedFiles.setAdapter(chatListAdapter);
         receivedFiles.setOnItemClickListener(this);
 
-        Button sharePhoto, shareVideo, shareText, shareRecording, shareSend;
+       /* Button sharePhoto, shareVideo, shareText, shareRecording, shareSend;
         sharePhoto = (Button)findViewById(R.id.b_share_photo);
         shareVideo = (Button)findViewById(R.id.b_share_video);
         shareText = (Button)findViewById(R.id.b_share_text);
@@ -76,7 +84,7 @@ public class ShareActivity extends AppCompatActivity implements AdapterView.OnIt
         shareVideo.setOnClickListener(this);
         shareRecording.setOnClickListener(this);
         shareText.setOnClickListener(this);
-        shareSend.setOnClickListener(this);
+        shareSend.setOnClickListener(this);*/
     }
 
     /**
@@ -127,6 +135,7 @@ public class ShareActivity extends AppCompatActivity implements AdapterView.OnIt
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.b_share_photo:
+                Toast.makeText(applicationContext, "clicked", Toast.LENGTH_SHORT).show();
                 Intent intent=new Intent(getApplicationContext(), Photo.class);
                 intent.putExtra("IntentType", "SocialShare");
                 startActivity(intent);
@@ -156,3 +165,61 @@ public class ShareActivity extends AppCompatActivity implements AdapterView.OnIt
         return applicationContext;
     }
 }
+
+
+class PlaceholderFragment extends Fragment implements View.OnClickListener {
+
+    public PlaceholderFragment() {
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        final View rootView = inflater.inflate(R.layout.share_activity, container, false);
+
+        rootView.findViewById(R.id.sh_photo).setOnClickListener(this);
+        rootView.findViewById(R.id.sh_video).setOnClickListener(this);
+        rootView.findViewById(R.id.sh_audio).setOnClickListener(this);
+        rootView.findViewById(R.id.sh_text).setOnClickListener(this);
+        rootView.findViewById(R.id.sh_sms).setOnClickListener(this);
+        rootView.findViewById(R.id.b_share_photo).setOnClickListener(this);
+        rootView.findViewById(R.id.b_share_video).setOnClickListener(this);
+        rootView.findViewById(R.id.b_share_text).setOnClickListener(this);
+        rootView.findViewById(R.id.b_share_sms).setOnClickListener(this);
+        rootView.findViewById(R.id.b_share_send).setOnClickListener(this);
+
+
+        return rootView;
+    }
+
+    @Override
+    public void onClick(View view) {
+        Toast.makeText(getActivity(), "Button clicked", Toast.LENGTH_SHORT).show();
+        switch (view.getId()) {
+            case R.id.b_share_photo:
+                Toast.makeText(applicationContext, "clicked", Toast.LENGTH_SHORT).show();
+                Intent intent=new Intent(applicationContext, Photo.class);
+                intent.putExtra("IntentType", "SocialShare");
+                startActivity(intent);
+                break;
+            case R.id.b_share_video:
+                Intent intent1=new Intent(applicationContext, Video.class);
+                intent1.putExtra("IntentType", "SocialShare");
+                startActivity(intent1);
+                break;
+            case R.id.b_share_text:
+               /* FragmentManager fm = getSupportFragmentManager();
+                Text text= Text.newInstance("Add Text", "SocialShare");
+                text.show(fm, "activity_text");*/
+                break;
+            case R.id.b_share_recording:
+                Intent intent2=new Intent(applicationContext, AudioCapture.class);
+                intent2.putExtra("IntentType", "SocialShare");
+                startActivity(intent2);
+                break;
+            case R.id.b_share_send:
+                new FileTask().execute("50", "defaultMcs", null); // Set dest as MCS for now
+                break;
+        }
+    }
+}
+

@@ -1,69 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:weightSum="100">
+    android:id="@+id/container"
+    android:weightSum="100"
+    android:baselineAligned="false">
 
-    <!--
-    <TabHost
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/share_activity_tabhost">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <TabWidget
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/share_activity_tabwidget">
-            </TabWidget>
-        </LinearLayout>
-
-    </TabHost>
-    -->
+    <include layout="@layout/frag_choose_cat_bar"/>
 
     <ListView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="90"
-        android:id="@+id/share_received_files">
+        android:layout_height="wrap_content"
+        android:id="@+id/share_received_files"
+        android:layout_below="@+id/cat_but"
+        android:layout_alignParentStart="true">
     </ListView>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="10"
-        android:weightSum="100"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:background="#BABABA"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true">
 
-        <Button
+        <include layout="@layout/frag_send_bar"/>
+       <!-- <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Photo"
-            android:layout_weight="20"
+            android:layout_weight="10"
             android:id="@+id/b_share_photo"/>
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Video"
-            android:layout_weight="20"
+            android:layout_weight="10"
             android:id="@+id/b_share_video"/>
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Text"
-            android:layout_weight="20"
+            android:layout_weight="10"
             android:id="@+id/b_share_text"/>
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Record"
-            android:layout_weight="20"
+            android:layout_weight="10"
             android:id="@+id/b_share_recording"/>
 
         <Button
@@ -71,6 +59,8 @@
             android:layout_height="match_parent"
             android:background="@drawable/send"
             android:layout_weight="20"
-            android:id="@+id/b_share_send"/>
+            android:id="@+id/b_share_send"/>   -->
     </LinearLayout>
-</LinearLayout>
+
+
+</RelativeLayout>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:id="@+id/cat_but"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:weightSum="1">
+
+        <at.markushi.ui.CircleButton
+            android:layout_width="64dip"
+            android:layout_height="64dip"
+            android:id="@+id/sh_photo"
+            android:src="@drawable/camera_burst"
+            app:cb_color="#BABABA"
+            app:cb_pressedRingWidth="8dip"
+            android:adjustViewBounds="true"
+            android:layout_weight="0.21" />
+        <at.markushi.ui.CircleButton
+            android:layout_width="64dip"
+            android:layout_height="64dip"
+            android:id="@+id/sh_video"
+            android:src="@drawable/message_video"
+            app:cb_color="#BABABA"
+            app:cb_pressedRingWidth="8dip"
+            android:layout_weight="0.21" />
+        <at.markushi.ui.CircleButton
+            android:layout_width="64dip"
+            android:layout_height="64dip"
+            android:id="@+id/sh_audio"
+            android:src="@drawable/audiobook"
+            app:cb_color="#BABABA"
+            app:cb_pressedRingWidth="8dip"
+            android:layout_weight="0.21" />
+        <at.markushi.ui.CircleButton
+            android:layout_width="64dip"
+            android:layout_height="64dip"
+            android:id="@+id/sh_text"
+            android:src="@drawable/format_text"
+            app:cb_color="#BABABA"
+            app:cb_pressedRingWidth="8dip"
+            android:layout_weight="0.21" />
+        <at.markushi.ui.CircleButton
+            android:layout_width="64dip"
+            android:layout_height="64dip"
+            android:id="@+id/sh_sms"
+            android:src="@drawable/tooltip_text"
+            app:cb_color="#BABABA"
+            app:cb_pressedRingWidth="8dip" />
+    </LinearLayout>
+
+    <TextView
+        android:text="All Option Are For Categorization (Alpha Build)"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textView8" />
+
+</FrameLayout>
