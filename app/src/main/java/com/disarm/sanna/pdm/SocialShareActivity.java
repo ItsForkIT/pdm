@@ -3,6 +3,7 @@ package com.disarm.sanna.pdm;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.database.Cursor;
@@ -10,20 +11,20 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.IBinder;
-import android.os.Parcelable;
 import android.provider.BaseColumns;
 import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.InputType;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ListView;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.disarm.sanna.pdm.Adapters.SocialShareChatlistAdapter;
@@ -32,8 +33,11 @@ import com.disarm.sanna.pdm.Service.SyncService;
 import com.disarm.sanna.pdm.Util.DividerItemDecoration;
 import com.disarm.sanna.pdm.Util.PathFileObserver;
 
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.Serializable;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -50,6 +54,7 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
     ArrayList<String> senderListNames;
     HashMap<String, Integer> numberToSenderMap;
     ArrayList<Senders> senders;
+    Senders myself;
 
     PathFileObserver pathFileObserver;
 
@@ -57,6 +62,8 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
     private boolean syncServiceBound = false;
     MyService myService;
     private boolean myServiceBound = false;
+
+    SocialShareChatlistAdapter chatlistAdapter;
 
     //Psync
     private ServiceConnection syncServiceConnection = new ServiceConnection() {
@@ -108,6 +115,8 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
 
         setTitle("Recent");
 
+        myself = new Senders(identifySelf(), "Me");
+        Toast.makeText(this, myself.number, Toast.LENGTH_LONG).show();
         populateChatList();
 
         pathFileObserver = new PathFileObserver(
@@ -117,6 +126,8 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
         startServices();
         Button exit = (Button)findViewById(R.id.b_social_share_exit);
         exit.setOnClickListener(this);
+        FloatingActionButton addChat = (FloatingActionButton) findViewById(R.id.b_social_share_add);
+        addChat.setOnClickListener(this);
     }
 
     private void startServices() {
@@ -144,6 +155,26 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
         }
         myServiceBound = false;
         stopService(myServiceIntent);
+    }
+
+    /**
+     * Identify device's phone number
+     */
+    private String identifySelf() {
+        File sourceTxt = new File(
+                Environment.getExternalStorageDirectory().toString() + "/DMS/Source.txt");
+
+        String selfNumber = null;
+        try {
+            FileInputStream fis = new FileInputStream(sourceTxt);
+            BufferedReader br = new BufferedReader(new InputStreamReader(fis));
+
+            selfNumber = br.readLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return selfNumber;
     }
 
     /**
@@ -182,34 +213,31 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
             }
 
             String number = name.split("_")[3];
+
+            if(number.equals(myself.number)) {
+                addFileToNode(myself, file, name);
+                continue;
+            }
+
             if(senderList.contains(number) == false) {
                 senderList.add(number);
                 String nameFromContact = findContactNameByNumber(name.split("_")[3]);
-                Toast.makeText(this, nameFromContact, Toast.LENGTH_SHORT).show();
                 Senders sender = new Senders(number, nameFromContact);
+
+                addFileToNode(sender, file, name);
                 senderListNames.add(nameFromContact);
                 senders.add(sender);
                 numberToSenderMap.put(number, senders.size()-1);
+
             } else if(number.indexOf(".") == -1){ // hack to avoid unwanted files
                 Senders sender = senders.get(numberToSenderMap.get(number));
-
-                sender.addFile(file);
-                if(name.startsWith("IMG")) {
-                    sender.addImage(file);
-                } else if(name.startsWith("VID")) {
-                    sender.addVideo(file);
-                } else  if(name.startsWith("TXT")) {
-                    sender.addText(file);
-                } else if(name.startsWith("SVS")) {
-                    sender.addRecording(file);
-                } else if(name.startsWith("SMS")) {
-                    sender.addSms(file);
-                }
+                addFileToNode(sender, file, name);
             }
         }
 
-        SocialShareChatlistAdapter chatlistAdapter = new
-                SocialShareChatlistAdapter(senderList, senderListNames);
+        addSentFilesToSenderNodes();
+
+        chatlistAdapter = new SocialShareChatlistAdapter(senderList, senderListNames);
         chatList.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
         chatList.setItemAnimator(new DefaultItemAnimator());
         chatList.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
@@ -226,6 +254,45 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
 
             }
         }));
+        chatlistAdapter.notifyDataSetChanged();
+    }
+
+    /**
+     * Add files to their corresponding node
+     * @param node
+     * @param file : the file belonging to the node
+     */
+    private void addFileToNode(Senders node, File file, String fileName) {
+        node.addFile(file);
+        if(fileName.startsWith("IMG")) {
+            node.addImage(file);
+        } else if(fileName.startsWith("VID")) {
+            node.addVideo(file);
+        } else  if(fileName.startsWith("TXT")) {
+            node.addText(file);
+        } else if(fileName.startsWith("SVS")) {
+            node.addRecording(file);
+        } else if(fileName.startsWith("SMS")) {
+            node.addSms(file);
+        }
+    }
+
+    /**
+     * Add sent files to corresponding senders
+     */
+    private void addSentFilesToSenderNodes() {
+        for(File file:myself.getAllFiles()) {
+
+            String fileName = file.getName();
+            String sentNodeNumber = fileName.split("_")[4];
+
+            if(numberToSenderMap.get(sentNodeNumber) != null) {
+                Senders sender = senders.get(numberToSenderMap.get(sentNodeNumber));
+                if (sender != null) {
+                    addFileToNode(sender, file, fileName);
+                }
+            }
+        }
     }
 
     /**
@@ -247,7 +314,6 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
                 contactLookup.moveToNext();
                 name = contactLookup.getString(contactLookup
                         .getColumnIndex(ContactsContract.Data.DISPLAY_NAME));
-                //String contactId = contactLookup.getString(contactLookup.getColumnIndex(BaseColumns._ID));
             }
         } finally {
             if (contactLookup != null) {
@@ -275,7 +341,52 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
             case R.id.b_social_share_exit:
                 stopServices();
                 break;
+            case R.id.b_social_share_add:
+                final AlertDialog.Builder addNewChat = new AlertDialog.Builder(this);
+                addNewChat.setTitle("Add New");
+
+                final EditText input = new EditText(this);
+                input.setInputType(InputType.TYPE_CLASS_NUMBER);
+                addNewChat.setView(input);
+
+                addNewChat.setPositiveButton("Done", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        String inputNumber = input.getText().toString();
+                        if(inputNumber != null && inputNumber.length() == 10) {
+                            addNewSender(inputNumber);
+                        } else {
+                            Toast.makeText(getApplicationContext(),
+                                    "Not a valid Number", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+
+                addNewChat.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.cancel();
+                    }
+                });
+
+                addNewChat.show();
+                break;
         }
+    }
+
+    private void addNewSender(String inputNumber) {
+        if(senderList.contains(inputNumber)) {
+            return;
+        }
+
+        String nameFromContact = findContactNameByNumber(inputNumber);
+        Senders sender = new Senders(inputNumber, nameFromContact);
+
+        senderList.add(inputNumber);
+        senderListNames.add(nameFromContact);
+        senders.add(sender);
+        numberToSenderMap.put(inputNumber, senders.size()-1);
+        chatlistAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -284,4 +395,3 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
         pathFileObserver.stopWatching();
     }
 }
-
