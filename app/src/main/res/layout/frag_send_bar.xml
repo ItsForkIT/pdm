@@ -65,6 +65,7 @@
             android:src="@drawable/tooltip_text"
             app:elevation="3dp"
             app:backgroundTint="@android:color/darker_gray" />
+
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/b_share_send"
             android:layout_width="wrap_content"
