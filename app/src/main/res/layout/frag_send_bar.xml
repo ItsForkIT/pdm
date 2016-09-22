@@ -7,70 +7,74 @@
     android:layout_height="wrap_content">
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:weightSum="1"
         android:elevation="5dp">
 
-        <at.markushi.ui.CircleButton
-            android:layout_width="64dip"
-            android:layout_height="64dip"
+        <android.support.design.widget.FloatingActionButton
             android:id="@+id/b_share_photo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            app:fabSize="normal"
             android:src="@drawable/camera_burst"
-            app:cb_color="#BABABA"
-            app:cb_pressedRingWidth="8dip"
-            android:adjustViewBounds="true"
-            android:layout_weight="0.21"
-            />
-        <at.markushi.ui.CircleButton
-            android:layout_width="64dip"
-            android:layout_height="64dip"
-            android:id="@+id/b_share_video"
-            android:src="@drawable/message_video"
-            app:cb_color="#BABABA"
-            app:cb_pressedRingWidth="8dip"
-            android:layout_weight="0.21"
-            />
-        <at.markushi.ui.CircleButton
-            android:layout_width="64dip"
-            android:layout_height="64dip"
-            android:id="@+id/b_share_recording"
-            android:src="@drawable/audiobook"
-            app:cb_color="#BABABA"
-            app:cb_pressedRingWidth="8dip"
-            android:layout_weight="0.21"
-            />
-        <at.markushi.ui.CircleButton
-            android:layout_width="64dip"
-            android:layout_height="64dip"
-            android:id="@+id/b_share_text"
-            android:src="@drawable/format_text"
-            app:cb_color="#BABABA"
-            app:cb_pressedRingWidth="8dip"
-            android:layout_weight="0.21"
-            />
-        <at.markushi.ui.CircleButton
-            android:layout_width="64dip"
-            android:layout_height="64dip"
-            android:id="@+id/b_share_sms"
-            android:src="@drawable/tooltip_text"
-            app:cb_color="#BABABA"
-            app:cb_pressedRingWidth="8dip"
-            android:layout_weight="0.21" />
-        <at.markushi.ui.CircleButton
-            android:layout_width="64dip"
-            android:layout_height="64dip"
-            android:id="@+id/b_share_send"
-            android:src="@drawable/send"
-            app:cb_color="#BABABA"
-            app:cb_pressedRingWidth="8dip"
-            android:paddingRight="5dp"/>
-    </LinearLayout>
+            app:elevation="3dp"
+            app:backgroundTint="@android:color/darker_gray"
+            android:layout_weight="0.21"/>
 
-    <TextView
-        android:text="All Option Are For Sending (Alpha Build)"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/textView2" />
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/b_share_video"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            app:fabSize="normal"
+            android:src="@drawable/message_video"
+            app:elevation="3dp"
+            app:backgroundTint="@android:color/darker_gray"
+            android:layout_weight="0.21"/>
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/b_share_audio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            app:fabSize="normal"
+            android:src="@drawable/audiobook"
+            app:elevation="3dp"
+            app:backgroundTint="@android:color/darker_gray"
+            android:layout_weight="0.21"/>
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/b_share_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            app:fabSize="normal"
+            android:src="@drawable/format_text"
+            app:elevation="3dp"
+            app:backgroundTint="@android:color/darker_gray"
+            android:layout_weight="0.21"/>
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/b_share_sms"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            app:fabSize="normal"
+            android:src="@drawable/tooltip_text"
+            app:elevation="3dp"
+            app:backgroundTint="@android:color/darker_gray" />
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/b_share_send"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            app:fabSize="normal"
+            android:src="@drawable/send"
+            app:elevation="3dp"
+            app:backgroundTint="@android:color/darker_gray" />
+
+    </LinearLayout>
 
 </FrameLayout>

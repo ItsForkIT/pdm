@@ -5,8 +5,11 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringDef;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.ListFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,6 +18,7 @@ import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -29,28 +33,47 @@ import com.disarm.sanna.pdm.Capture.Video;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 
-import static com.disarm.sanna.pdm.ShareActivity.applicationContext;
 
 /**
  * Created by arka on 16/9/16.
  */
-public class ShareActivity extends AppCompatActivity implements AdapterView.OnItemClickListener{
-    ListView receivedFiles;
+public class ShareActivity extends AppCompatActivity implements AdapterView.OnItemClickListener,FloatingActionButton.OnClickListener{
+    ListView listview;
     String number;
-    ArrayList<File> allFiles;
+    ArrayList<File> allFiles,imagefiles,videofiles,recordingfiles,textfiles,smsfiles;
     static Context applicationContext;
-
+    ArrayList<String> category = new ArrayList();
+    ArrayList<String> allFilesName = new ArrayList<>();
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.share_activity);
-        if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction().add(R.id.container, new PlaceholderFragment()).commit();
-        }
         applicationContext = getApplicationContext();
-
-        receivedFiles = (ListView)findViewById(R.id.share_received_files);
+        final FloatingActionButton showPhoto = (FloatingActionButton)findViewById(R.id.sh_photo);
+        showPhoto.setOnClickListener(this);
+        final FloatingActionButton showVideo = (FloatingActionButton)findViewById(R.id.sh_video);
+        showVideo.setOnClickListener(this);
+        final FloatingActionButton showAudio = (FloatingActionButton)findViewById(R.id.sh_audio);
+        showAudio.setOnClickListener(this);
+        final FloatingActionButton showText = (FloatingActionButton)findViewById(R.id.sh_text);
+        showText.setOnClickListener(this);
+        final FloatingActionButton showSms = (FloatingActionButton)findViewById(R.id.sh_sms);
+        showSms.setOnClickListener(this);
+        final FloatingActionButton sharePhoto = (FloatingActionButton)findViewById(R.id.b_share_photo);
+        sharePhoto.setOnClickListener(this);
+        final FloatingActionButton shareVideo = (FloatingActionButton)findViewById(R.id.b_share_video);
+        shareVideo.setOnClickListener(this);
+        final FloatingActionButton shareAudio = (FloatingActionButton)findViewById(R.id.b_share_audio);
+        shareAudio.setOnClickListener(this);
+        final FloatingActionButton shareText = (FloatingActionButton)findViewById(R.id.b_share_text);
+        shareText.setOnClickListener(this);
+        final FloatingActionButton shareSms = (FloatingActionButton)findViewById(R.id.b_share_text);
+        shareSms.setOnClickListener(this);
+        final FloatingActionButton send = (FloatingActionButton)findViewById(R.id.b_share_send);
+        send.setOnClickListener(this);
+        listview = (ListView)findViewById(R.id.share_received_files);
         Bundle extra = getIntent().getExtras();
         if(extra != null) {
             Senders sender = extra.getParcelable("SENDER_DATA");
@@ -60,34 +83,25 @@ public class ShareActivity extends AppCompatActivity implements AdapterView.OnIt
             }
             if(sender != null && sender.getAllFiles() != null) {
                 allFiles = sender.getAllFiles();
+                imagefiles = sender.getImageFiles();
+                videofiles = sender.getVideoFiles();
+                recordingfiles = sender.getRecordingFiles();
+                textfiles = sender.getTextFiles();
+                smsfiles = sender.getSmsFiles();
             }
         }
 
-        ArrayList<String> allFilesName = new ArrayList<>();
+
         for(File file: allFiles) {
             allFilesName.add(file.getName());
-            //Log.v("fileName",allFilesName.toString());
-        }
-
-        /*ArrayAdapter<String> chatListAdapter = new ArrayAdapter<>(this,
+            }
+        //Log.v("allfilelist", allFilesName.toString());
+        ArrayAdapter<String> chatListAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_list_item_1, allFilesName);
-        receivedFiles.setAdapter(chatListAdapter);
-        receivedFiles.setOnItemClickListener(this);*/
+        listview.setAdapter(chatListAdapter);
+        listview.setOnItemClickListener(this);
 
-       /* Button sharePhoto, shareVideo, shareText, shareRecording, shareSend;
-        sharePhoto = (Button)findViewById(R.id.b_share_photo);
-        shareVideo = (Button)findViewById(R.id.b_share_video);
-        shareText = (Button)findViewById(R.id.b_share_text);
-        shareRecording = (Button)findViewById(R.id.b_share_recording);
-        shareSend = (Button)findViewById(R.id.b_share_send);
-
-        sharePhoto.setOnClickListener(this);
-        shareVideo.setOnClickListener(this);
-        shareRecording.setOnClickListener(this);
-        shareText.setOnClickListener(this);
-        shareSend.setOnClickListener(this);*/
     }
-
     /**
      * Open File on click
      * @param adapterView
@@ -136,34 +150,6 @@ public class ShareActivity extends AppCompatActivity implements AdapterView.OnIt
     public static Context getContextOfApplication(){
         return applicationContext;
     }
-}
-
-
-class PlaceholderFragment extends Fragment implements View.OnClickListener {
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        final View rootView = inflater.inflate(R.layout.share_activity, container, false);
-
-        rootView.findViewById(R.id.sh_photo).setOnClickListener(this);
-        rootView.findViewById(R.id.sh_video).setOnClickListener(this);
-        rootView.findViewById(R.id.sh_audio).setOnClickListener(this);
-        rootView.findViewById(R.id.sh_text).setOnClickListener(this);
-        rootView.findViewById(R.id.sh_sms).setOnClickListener(this);
-        rootView.findViewById(R.id.b_share_photo).setOnClickListener(this);
-        rootView.findViewById(R.id.b_share_video).setOnClickListener(this);
-        rootView.findViewById(R.id.b_share_text).setOnClickListener(this);
-        rootView.findViewById(R.id.b_share_sms).setOnClickListener(this);
-        rootView.findViewById(R.id.b_share_send).setOnClickListener(this);
-        rootView.findViewById(R.id.b_share_recording).setOnClickListener(this);
-
-
-        return rootView;
-    }
 
     @Override
     public void onClick(View view) {
@@ -179,26 +165,60 @@ class PlaceholderFragment extends Fragment implements View.OnClickListener {
                 startActivity(intent1);
                 break;
             case R.id.b_share_text:
-                FragmentManager fm = getFragmentManager();
+                FragmentManager fm = getSupportFragmentManager();
                 Text text= Text.newInstance("Add Text", "SocialShare");
                 text.show(fm, "activity_text");
                 break;
-            case R.id.b_share_recording:
+            case R.id.b_share_audio:
                 Toast.makeText(applicationContext, "audio clicked", Toast.LENGTH_SHORT).show();
                 Intent intent2=new Intent(applicationContext, AudioCapture.class);
                 intent2.putExtra("IntentType", "SocialShare");
                 startActivity(intent2);
                 break;
             case R.id.b_share_send:
-                new FileTask().execute("50", "defaultMcs", null); // Set dest as MCS for now
+                new FileTask().execute("50", number, null); // Set dest as MCS for now
                 break;
             case R.id.b_share_sms:
-                FragmentManager fm1 = getFragmentManager();
+                FragmentManager fm1 = getSupportFragmentManager();
                 SmsCaptrue smsCaptrue = new SmsCaptrue();
                 smsCaptrue.newInstance("SocialShare");
                 smsCaptrue.show(fm1,"activity_sms");
                 break;
+            case R.id.sh_photo:
+                category.clear();
+                for(File file: imagefiles) {
+                    category.add(file.getName());
+                }
+                listview.setAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, category));
+                break;
+            case R.id.sh_video:
+                category.clear();
+                for(File file: videofiles) {
+                    category.add(file.getName());
+                }
+                listview.setAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, category));
+                break;
+            case R.id.sh_audio:
+                category.clear();
+                for(File file: recordingfiles) {
+                    category.add(file.getName());
+                }
+                listview.setAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, category));
+                break;
+            case R.id.sh_text:
+                category.clear();
+                for(File file: textfiles) {
+                    category.add(file.getName());
+                }
+                listview.setAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, category));
+                break;
+            case R.id.sh_sms:
+                category.clear();
+                for(File file: smsfiles) {
+                    category.add(file.getName());
+                }
+                listview.setAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, category));
+                break;
         }
     }
 }
-

@@ -91,6 +91,11 @@ public class Senders implements Parcelable {
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeString(number);
         parcel.writeList(allFiles);
+        parcel.writeList(imageFiles);
+        parcel.writeList(videoFiles);
+        parcel.writeList(recordingFiles);
+        parcel.writeList(textFiles);
+        parcel.writeList(smsFiles);
     }
 
     public static final Parcelable.Creator<Senders> CREATOR
@@ -109,5 +114,10 @@ public class Senders implements Parcelable {
     private Senders(Parcel parcel) {
         number = parcel.readString();
         allFiles = parcel.readArrayList(null);
+        imageFiles = parcel.readArrayList(null);
+        videoFiles = parcel.readArrayList(null);
+        recordingFiles = parcel.readArrayList(null);
+        textFiles = parcel.readArrayList(null);
+        smsFiles = parcel.readArrayList(null);
     }
 }
