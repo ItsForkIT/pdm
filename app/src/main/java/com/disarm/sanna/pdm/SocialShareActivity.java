@@ -271,7 +271,7 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
      */
     public void findNodeOfFile(String fileName, File file, boolean updateList) {
 
-        if(fileName.startsWith("MapDisarm")) { // ignore GPS trails for now
+        if(fileName.contains("MapDisarm")) { // ignore GPS trails for now
             return;
         }
 
@@ -299,6 +299,7 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
 
         if(updateList) {
             chatlistAdapter.notifyDataSetChanged();
+            Log.d("MOVED", fileName);
         }
     }
 
@@ -310,7 +311,7 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
      */
     private void addFileToNode(Senders node, File file, String fileName) {
 
-        if(node.allFiles.contains(file)) {
+        if(node.allFiles.contains(file) || fileName.contains("MapDisarm")) {
             return;
         }
 
@@ -335,6 +336,10 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
         for(File file:myself.getAllFiles()) {
 
             String fileName = file.getName();
+            if(fileName.contains("MapDisarm")) {
+                continue;
+            }
+
             String sentNodeNumber = fileName.split("_")[4];
 
             if(numberToSenderMap.get(sentNodeNumber) != null) {
