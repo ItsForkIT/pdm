@@ -5,21 +5,11 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.annotation.StringDef;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.ListFragment;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -34,7 +24,6 @@ import com.disarm.sanna.pdm.Capture.Video;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 
 /**
@@ -127,13 +116,13 @@ public class ShareActivity extends AppCompatActivity implements
                 text.show(fm, "activity_text");
                 break;
             case R.id.b_share_audio:
-                Toast.makeText(applicationContext, "audio clicked", Toast.LENGTH_SHORT).show();
                 Intent intent2=new Intent(applicationContext, AudioCapture.class);
                 intent2.putExtra("IntentType", "SocialShare");
                 startActivity(intent2);
                 break;
             case R.id.b_share_send:
-                new FileTask().execute("50", number, null); // Set dest as MCS for now
+                new FileTask().execute("50", number, null);
+                Toast.makeText(this, "Sending : Refresh to see changes", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.b_share_sms:
                 FragmentManager fm1 = getSupportFragmentManager();
@@ -206,10 +195,7 @@ public class ShareActivity extends AppCompatActivity implements
         mimeType = fileMime.getMimeTypeFromExtension(
                 filePath.substring(filePath.lastIndexOf('.') + 1));
         openFile.setDataAndType(Uri.parse("file://" + file.getAbsolutePath()), mimeType);
-
         openFile.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        Toast.makeText(this, "FILE : " + filePath.substring(filePath.lastIndexOf('.') + 1), Toast.LENGTH_LONG).show();
-        Toast.makeText(this, "FILE : " + mimeType, Toast.LENGTH_LONG).show();
 
         startActivity(Intent.createChooser(openFile, null));
     }
