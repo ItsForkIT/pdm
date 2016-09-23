@@ -1,20 +1,26 @@
 package com.disarm.sanna.pdm;
 
+import android.Manifest;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.IBinder;
 import android.provider.BaseColumns;
 import android.provider.ContactsContract;
+import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -41,6 +47,9 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+
+import static com.disarm.sanna.pdm.MainActivity.root;
+
 /**
  * Created by arka on 14/9/16.
  * Offline Social Share Activity
@@ -55,6 +64,12 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
     HashMap<String, Integer> numberToSenderMap;
     ArrayList<Senders> senders;
     Senders myself;
+    LocationManager lm;
+    LocationListener locationListener;
+    boolean gps_enabled, network_enabled;
+    String phoneVal="DefaultNode";
+    final static String TARGET_DMS_PATH = root + "/DMS/";
+    Logger logger;
 
     PathFileObserver pathFileObserver;
 
@@ -128,6 +143,7 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
         exit.setOnClickListener(this);
         FloatingActionButton addChat = (FloatingActionButton) findViewById(R.id.b_social_share_add);
         addChat.setOnClickListener(this);
+        requestLocation();
     }
 
     private void startServices() {
@@ -439,5 +455,110 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
     protected void onDestroy() {
         super.onDestroy();
         pathFileObserver.stopWatching();
+    }
+
+    private void requestLocation(){
+        LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        boolean statusOfGPS = manager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        if (statusOfGPS) {
+            // Call logger constructor using phoneVal
+            // Read Device source from ConfigFile.txt
+            File file = new File(TARGET_DMS_PATH,"source.txt");
+            FileInputStream fis = null;
+            try {
+                fis = new FileInputStream(file);
+                byte[] data = new byte[(int) file.length()];
+                fis.read(data);
+                fis.close();
+
+                phoneVal = new String(data, "UTF-8");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            logger = new Logger(phoneVal);
+
+
+            lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            gps_enabled = false;
+            //network_enabled = false;
+
+            try {
+                gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+                //network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+                Log.v("check","1");
+            } catch (Exception ex) {
+            }
+
+            // Check if gps and network provider is on or off
+            if (!gps_enabled ) {
+
+                Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                startActivity(myIntent);
+            }
+
+            locationListener = new MyLocationListener(logger,phoneVal);
+
+            lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            Log.v("check","2");
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                    ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return;
+            }
+            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 3000, 1, locationListener);
+            //lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,3000,1,locationListener);
+           /* Log.v("check","3");
+            if (lm != null) {
+                // Check for lastKnownLocation
+                location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                if (location != null) {
+
+                    // Get latitude and longitude values
+                    latitude = location.getLatitude();
+                    longitude = location.getLongitude();
+                    Log.v("location",String.valueOf(latitude)+" "+String.valueOf(longitude));
+                    if (latitude != 0.0 && longitude != 0.0 ){
+                        logger.addRecordToLog(String.valueOf(latitude) + "," + String.valueOf(longitude) + "," + String.valueOf(speed) + "," + 0.0 + "," + 0.0);
+                    }
+
+
+                }
+            }*/
+        } else {
+            enableGPS();
+        }
+    }
+
+
+    public void enableGPS(){
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+        alertDialogBuilder
+                .setMessage(R.string.gps_msg)
+                .setCancelable(false)
+                .setPositiveButton(R.string.enable_gps,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog,
+                                                int id) {
+                                Intent callGPSSettingIntent = new Intent(
+                                        android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                                // startActivity(callGPSSettingIntent);
+                                startActivityForResult(callGPSSettingIntent, 5);
+                            }
+                        });
+        alertDialogBuilder.setNegativeButton(R.string.cancel,
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+        AlertDialog alert = alertDialogBuilder.create();
+        alert.show();
     }
 }
