@@ -70,8 +70,9 @@ public class ShareActivity extends AppCompatActivity implements
         final FloatingActionButton shareAudio = (FloatingActionButton)findViewById(R.id.b_share_audio);
         shareAudio.setOnClickListener(this);
         final FloatingActionButton shareText = (FloatingActionButton)findViewById(R.id.b_share_text);
+        shareText.setVisibility(View.INVISIBLE);
         shareText.setOnClickListener(this);
-        final FloatingActionButton shareSms = (FloatingActionButton)findViewById(R.id.b_share_text);
+        final FloatingActionButton shareSms = (FloatingActionButton)findViewById(R.id.b_share_sms);
         shareSms.setOnClickListener(this);
         final FloatingActionButton send = (FloatingActionButton)findViewById(R.id.b_share_send);
         send.setOnClickListener(this);
@@ -198,30 +199,14 @@ public class ShareActivity extends AppCompatActivity implements
         File file = allFiles.get(position);
         Intent openFile = new Intent();
         openFile.setAction(Intent.ACTION_VIEW);
-        //openFile.setAction(Intent.ACTION_GET_CONTENT);
-        //openFile.setData(Uri.parse("" + file));
-        openFile.setData(Uri.fromFile(file));
-
-        /*
-        if(file.getName().startsWith("IMG")) {
-            openFile.setType("image/*");
-        } else if(file.getName().startsWith("VID")) {
-            openFile.setType("video/*");
-        } else  if(file.getName().startsWith("TXT")) {
-            openFile.setType("text/*");
-        } else if(file.getName().startsWith("SVS")) {
-            openFile.setType("audio/*");
-        } else if(file.getName().startsWith("SMS")) {
-            openFile.setType("vnd.android-dir/mms-sm");
-        }
-        */
 
         MimeTypeMap fileMime = MimeTypeMap.getSingleton();
         String filePath = "" + file;
         String mimeType = null;
         mimeType = fileMime.getMimeTypeFromExtension(
                 filePath.substring(filePath.lastIndexOf('.') + 1));
-        openFile.setType(mimeType);
+        openFile.setDataAndType(Uri.parse("file://" + file.getAbsolutePath()), mimeType);
+
         openFile.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         Toast.makeText(this, "FILE : " + filePath.substring(filePath.lastIndexOf('.') + 1), Toast.LENGTH_LONG).show();
         Toast.makeText(this, "FILE : " + mimeType, Toast.LENGTH_LONG).show();
