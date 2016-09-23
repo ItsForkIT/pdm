@@ -131,7 +131,6 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
         setTitle("Recent");
 
         myself = new Senders(identifySelf(), "Me");
-        Toast.makeText(this, myself.number, Toast.LENGTH_LONG).show();
         populateChatList();
 
         pathFileObserver = new PathFileObserver(this,
@@ -300,7 +299,6 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
 
         if(updateList) {
             chatlistAdapter.notifyDataSetChanged();
-            Log.d("MOVE SUCCESS", "YALLA SAI");
         }
     }
 
@@ -415,7 +413,7 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         String inputNumber = input.getText().toString();
-                        if(inputNumber != null && inputNumber.length() == 10) {
+                        if(inputNumber.length() == 10) {
                             addNewSender(inputNumber);
                         } else {
                             Toast.makeText(getApplicationContext(),
@@ -501,8 +499,10 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
 
             lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
             Log.v("check","2");
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                    ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.checkSelfPermission(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                    && ActivityCompat.checkSelfPermission(this,
+                    Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 // TODO: Consider calling
                 //    ActivityCompat#requestPermissions
                 // here to request the missing permissions, and then overriding
