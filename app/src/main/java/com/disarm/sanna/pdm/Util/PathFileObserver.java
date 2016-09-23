@@ -4,6 +4,8 @@ import android.os.FileObserver;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.disarm.sanna.pdm.SocialShareActivity;
+
 import java.io.File;
 
 /**
@@ -16,6 +18,7 @@ public class PathFileObserver extends FileObserver {
      * should be end with File.separator
      */
     String rootPath;
+    SocialShareActivity socialShareActivity;
     static final int mask = (FileObserver.CREATE |
             FileObserver.DELETE |
             FileObserver.DELETE_SELF |
@@ -24,12 +27,14 @@ public class PathFileObserver extends FileObserver {
             FileObserver.MOVED_TO |
             FileObserver.MOVE_SELF);
 
-    public PathFileObserver(String path) {
+    public PathFileObserver(SocialShareActivity activity, String path) {
         super(path, mask);
         if (! path.endsWith(File.separator)){
             path += File.separator;
         }
         rootPath = path;
+
+        socialShareActivity = activity;
     }
 
     @Override
@@ -52,6 +57,9 @@ public class PathFileObserver extends FileObserver {
                 break;
             case FileObserver.MOVED_TO:
                 Log.d(TAG, "MOVED_TO:" + path);
+
+                File file = new File(rootPath + path);
+                socialShareActivity.refreshList(rootPath + path, file);
                 break;
             case FileObserver.MOVE_SELF:
                 Log.d(TAG, "MOVE_SELF:" + path);

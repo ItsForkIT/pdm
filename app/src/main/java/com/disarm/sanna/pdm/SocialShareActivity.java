@@ -119,7 +119,7 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
         Toast.makeText(this, myself.number, Toast.LENGTH_LONG).show();
         populateChatList();
 
-        pathFileObserver = new PathFileObserver(
+        pathFileObserver = new PathFileObserver(this,
                 Environment.getExternalStorageDirectory().toString() + WORKING_DIRECTORY);
         pathFileObserver.startWatching();
         
@@ -208,31 +208,7 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
         for(File file:allFiles) {
             String name = file.getName();
 
-            if(name.startsWith("MapDisarm")) { // ignore GPS trails for now
-                continue;
-            }
-
-            String number = name.split("_")[3];
-
-            if(number.equals(myself.number)) {
-                addFileToNode(myself, file, name);
-                continue;
-            }
-
-            if(senderList.contains(number) == false) {
-                senderList.add(number);
-                String nameFromContact = findContactNameByNumber(name.split("_")[3]);
-                Senders sender = new Senders(number, nameFromContact);
-
-                addFileToNode(sender, file, name);
-                senderListNames.add(nameFromContact);
-                senders.add(sender);
-                numberToSenderMap.put(number, senders.size()-1);
-
-            } else if(number.indexOf(".") == -1){ // hack to avoid unwanted files
-                Senders sender = senders.get(numberToSenderMap.get(number));
-                addFileToNode(sender, file, name);
-            }
+            findNodeOfFile(name, file, false);
         }
 
         addSentFilesToSenderNodes();
@@ -258,11 +234,72 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
     }
 
     /**
+     * Handle event triggered by File Observer
+     * @param fileName
+     * @param file
+     */
+    public void refreshList(final String fileName, final File file) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                findNodeOfFile(fileName, file, true);
+                addSentFilesToSenderNodes();
+            }
+        });
+    }
+
+    /**
+     * Assign file to its corresponding node
+     * @param fileName
+     * @param file
+     * @param updateList
+     */
+    public void findNodeOfFile(String fileName, File file, boolean updateList) {
+
+        if(fileName.startsWith("MapDisarm")) { // ignore GPS trails for now
+            return;
+        }
+
+        String number = fileName.split("_")[3];
+
+        if(number.equals(myself.number)) {
+            addFileToNode(myself, file, fileName);
+            return;
+        }
+
+        if(senderList.contains(number) == false) {
+            senderList.add(number);
+            String nameFromContact = findContactNameByNumber(fileName.split("_")[3]);
+            Senders sender = new Senders(number, nameFromContact);
+
+            addFileToNode(sender, file, fileName);
+            senderListNames.add(nameFromContact);
+            senders.add(sender);
+            numberToSenderMap.put(number, senders.size()-1);
+
+        } else if(number.indexOf(".") == -1){ // hack to avoid unwanted files
+            Senders sender = senders.get(numberToSenderMap.get(number));
+            addFileToNode(sender, file, fileName);
+        }
+
+        if(updateList) {
+            chatlistAdapter.notifyDataSetChanged();
+            Log.d("MOVE SUCCESS", "YALLA SAI");
+        }
+    }
+
+
+    /**
      * Add files to their corresponding node
      * @param node
      * @param file : the file belonging to the node
      */
     private void addFileToNode(Senders node, File file, String fileName) {
+
+        if(node.allFiles.contains(file)) {
+            return;
+        }
+
         node.addFile(file);
         if(fileName.startsWith("IMG")) {
             node.addImage(file);
@@ -291,6 +328,15 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
                 if (sender != null) {
                     addFileToNode(sender, file, fileName);
                 }
+            } else {
+                senderList.add(sentNodeNumber);
+                String nameFromContact = findContactNameByNumber(fileName.split("_")[3]);
+                Senders sender = new Senders(sentNodeNumber, nameFromContact);
+
+                addFileToNode(sender, file, fileName);
+                senderListNames.add(nameFromContact);
+                senders.add(sender);
+                numberToSenderMap.put(sentNodeNumber, senders.size()-1);
             }
         }
     }
