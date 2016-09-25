@@ -1,9 +1,7 @@
-package com.disarm.sanna.pdm;
+package com.disarm.sanna.pdm.Service;
 
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
-import android.content.res.AssetManager;
 import android.os.Binder;
 import android.os.Environment;
 import android.os.IBinder;
@@ -119,7 +117,7 @@ public class SyncService extends Service {
     }
 
     public class SyncServiceBinder extends Binder {
-        SyncService getService() {
+        public SyncService getService() {
             // Return this instance of SyncService so activity can call public methods
             return SyncService.this;
         }
