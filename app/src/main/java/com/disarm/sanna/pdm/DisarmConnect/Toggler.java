@@ -15,7 +15,7 @@ public class Toggler extends Activity{
     // Randomly value less than 0.50 will make HotspotActive else WifiActive
     private static double toggleBetweenHotspotWifi = 0.50;
 
-    public static  int addIncreasewifi = 5000,wifiIncrease=10000,hpIncrease=10000,addIncreasehp = 5000;
+    public static  int addIncreasewifi = 5000,wifiIncrease= 5000,hpIncrease=5000,addIncreasehp = 5000;
 
     // max increase of Wifi and HP Value
     private static int maxWifiIncrease = 20000;
@@ -83,10 +83,10 @@ public class Toggler extends Activity{
         }
 
         if(addIncreasewifi == maxWifiIncrease){
-            addIncreasewifi = 5000;
+            addIncreasewifi = 10000;
         }
         else if(addIncreasehp == maxHPIncrease){
-            addIncreasehp = 5000;
+            addIncreasehp = 10000;
         }
 
     }
