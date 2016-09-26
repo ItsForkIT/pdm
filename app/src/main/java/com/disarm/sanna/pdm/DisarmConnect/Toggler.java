@@ -18,8 +18,8 @@ public class Toggler extends Activity{
     public static  int addIncreasewifi = 5000,wifiIncrease= 5000,hpIncrease=5000,addIncreasehp = 5000;
 
     // max increase of Wifi and HP Value
-    private static int maxWifiIncrease = 20000;
-    private static int maxHPIncrease = 20000;
+    private static int maxWifiIncrease = 25000;
+    private static int maxHPIncrease = 25000;
     // Set hotspot creation minimum battery level
     private static double minimumBatteryLevel = 10;
 

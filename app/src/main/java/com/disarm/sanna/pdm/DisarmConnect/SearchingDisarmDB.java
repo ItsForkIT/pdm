@@ -15,7 +15,7 @@ import java.util.StringTokenizer;
 public class SearchingDisarmDB implements Runnable {
     private android.os.Handler handler;
     private Context context;
-    private int timerDBSearch = 3000;
+    private int timerDBSearch = 5000;
     public int minDBLevel = 3;
 
 
@@ -32,17 +32,6 @@ public class SearchingDisarmDB implements Runnable {
         Log.v(MyService.TAG4,"searching DB");
         List<ScanResult> allScanResults = MyService.wifi.getScanResults();
         if (allScanResults.toString().contains(MyService.dbAPName)) {
-            Log.v(MyService.TAG4, "Connecting DisarmDB");
-
-            handler.removeCallbacksAndMessages(null);
-            String ssid = MyService.dbAPName;
-            WifiConfiguration wc = new WifiConfiguration();
-            wc.SSID = "\"" + ssid + "\""; //IMPORTANT! This should be in Quotes!!
-            wc.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
-            int res = MyService.wifi.addNetwork(wc);
-            boolean b = MyService.wifi.enableNetwork(res, true);
-            Log.v(MyService.TAG4, "Connected to DB");
-
             // compare signal level
             int level = findDBSignalLevel(allScanResults);
             if (level < minDBLevel)
@@ -52,6 +41,19 @@ public class SearchingDisarmDB implements Runnable {
                     Log.v(MyService.TAG1,"DB Disconnected as Level = " + level);
                 }
             }
+            else {
+                Log.v(MyService.TAG4, "Connecting DisarmDB");
+
+              //  handler.removeCallbacksAndMessages(null); !-- Dont use it all other handler will be closed
+                String ssid = MyService.dbAPName;
+                WifiConfiguration wc = new WifiConfiguration();
+                wc.SSID = "\"" + ssid + "\""; //IMPORTANT! This should be in Quotes!!
+                wc.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
+                int res = MyService.wifi.addNetwork(wc);
+                boolean b = MyService.wifi.enableNetwork(res, true);
+                Log.v(MyService.TAG4, "Connected to DB");
+            }
+
         }
         else {
             Log.v(MyService.TAG4,"DisarmHotspotDB not found");
