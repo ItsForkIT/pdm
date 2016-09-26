@@ -78,6 +78,9 @@ public class MyService extends Service {
     public void onCreate() {
         super.onCreate();
 
+        // DisarmConnect Started
+        Log.v("MyService:", "DisarmConnect Started");
+
         // WifiScanReceiver registered
         IntentFilter filter = new IntentFilter();
         filter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
@@ -154,12 +157,16 @@ public class MyService extends Service {
             wifi.setWifiEnabled(true);
         }
 
+        // Stopping all services
+        handler.removeCallbacksAndMessages(null);
+
         // Release lock
         WakeLockHelper.keepCpuAwake(getApplicationContext(), false);
         WakeLockHelper.keepWiFiOn(getApplicationContext(), false);
 
         // Adding stop record to log
         logger.addRecordToLog("DisarmConnect Stopped");
+        Log.v("MyService:", "DisarmConnect Stooped");
     }
 
 }

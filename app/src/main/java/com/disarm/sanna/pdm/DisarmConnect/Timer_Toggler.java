@@ -119,9 +119,6 @@ public class Timer_Toggler implements Runnable{
         else if(MyService.checkWifiState.contains("DisarmHotspotDB")) {
             Log.v(MyService.TAG1, "DisarmHotspotDB Not Toggling");
 
-
-
-
         }
         else if (MyService.checkWifiState.contains("DH-")) {
             /////////////////////////
@@ -138,6 +135,7 @@ public class Timer_Toggler implements Runnable{
         }
         boolean apOn = ApManager.isApOn(context);
         if(apOn){
+
             this.handler.postDelayed(this,Toggler.addIncreasehp);
         }else{
             this.handler.postDelayed(this,Toggler.addIncreasewifi);

@@ -3,6 +3,7 @@ package com.disarm.sanna.pdm.DisarmConnect;
 import android.content.Context;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;
+import android.net.wifi.WifiManager;
 import android.util.Log;
 
 import java.io.BufferedReader;
@@ -23,6 +24,7 @@ public class WifiConnect implements Runnable {
     private Context context;
     private FileReader fr= null;
     private BufferedReader br = null;
+    public int minDBLevel = 2;
     public WifiConnect(android.os.Handler handler, Context context) {
         this.handler = handler;
         this.context = context;
@@ -66,17 +68,21 @@ public class WifiConnect implements Runnable {
             // Connecting to DisarmHotspot WIfi on Button Click
 
             if (allScanResults.toString().contains("DisarmHotspotDB")) {
-                Log.v(MyService.TAG2,"Connecting DisarmDB");
+                int level = findDBSignalLevel(allScanResults);
+                if (level > minDBLevel)
+                {
+                    Log.v(MyService.TAG2, "Connecting DisarmDB");
 
-                String ssid = "DisarmHotspotDB";
-                WifiConfiguration wc = new WifiConfiguration();
-                wc.SSID = "\"" + ssid + "\""; //IMPORTANT! This should be in Quotes!!
-                wc.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
-                int res = MyService.wifi.addNetwork(wc);
-                boolean b = MyService.wifi.enableNetwork(res, true);
-                Log.v(MyService.TAG2, "Connected");
+                    String ssid = "DisarmHotspotDB";
+                    WifiConfiguration wc = new WifiConfiguration();
+                    wc.SSID = "\"" + ssid + "\""; //IMPORTANT! This should be in Quotes!!
+                    wc.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
+                    int res = MyService.wifi.addNetwork(wc);
+                    boolean b = MyService.wifi.enableNetwork(res, true);
+                    Log.v(MyService.TAG2, "Connected");
 
-                Logger.addRecordToLog("DB Connected Successfully");
+                    Logger.addRecordToLog("DB Connected Successfully");
+                }
             }
             else if (allScanResults.toString().contains("DH-")) {
                 // Store all DH available in allDHAvailable
@@ -130,5 +136,16 @@ public class WifiConnect implements Runnable {
 
         }
         handler.postDelayed(this,10000);
+    }
+    public int findDBSignalLevel(List<ScanResult> allScanResults)
+    {
+        for (ScanResult scanResult : allScanResults) {
+            if(scanResult.SSID.toString().equals(MyService.dbAPName)) {
+                Log.v("SSID:",scanResult.SSID.toString());
+                int level =  WifiManager.calculateSignalLevel(scanResult.level, 5);
+                return level;
+            }
+        }
+        return 0;
     }
 }
