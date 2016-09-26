@@ -137,7 +137,7 @@ public class ShareChatsAdapter extends BaseAdapter {
     private Bitmap getThumbnail(String path) {
         Bitmap imgThumbnail = null;
         try {
-            final int THUMBNAIL_SIZE = 512;
+            final int THUMBNAIL_SIZE = 256;
 
             FileInputStream fis = new FileInputStream(path);
             imgThumbnail = BitmapFactory.decodeStream(fis);
@@ -175,6 +175,6 @@ public class ShareChatsAdapter extends BaseAdapter {
     }
 
     public interface ShareChatsInterface {
-        public void onClick(View row, int position);
+        void onClick(View row, int position);
     }
 }
