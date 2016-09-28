@@ -19,7 +19,11 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.disarm.sanna.pdm.MainActivity;
+
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.sql.Time;
@@ -40,9 +44,11 @@ public class MyService extends Service {
     public static boolean isHotspotOn,c;
     public static WifiInfo wifiInfo;
     public static List<String> IpAddr;
-    public static String mobileAPName = "DisarmHotspot";
+    public static String mobileAPName = "DH";
     public static String dbAPName = "DisarmHotspotDB";
+    public static String dbPass = "DisarmDB";
     public FileReader fr = null;
+
     public static int count=0,startwififirst = 1;
     public static Handler handler;
     public static double wifiState;
@@ -57,6 +63,7 @@ public class MyService extends Service {
     private final IBinder myServiceBinder = new MyServiceBinder();
     public BufferedReader br = null;
     private Logger logger;
+    public static String phoneVal;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -72,6 +79,9 @@ public class MyService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        // DisarmConnect Started
+        Log.v("MyService:", "DisarmConnect Started");
 
         // WifiScanReceiver registered
         IntentFilter filter = new IntentFilter();
@@ -91,6 +101,20 @@ public class MyService extends Service {
         IntentFilter batfilter = new IntentFilter();
         batfilter.addAction(Intent.ACTION_BATTERY_CHANGED);
         registerReceiver(bl, batfilter);
+
+        // Read Source
+        File file = new File(MainActivity.TARGET_DMS_PATH,"source.txt");
+        FileInputStream fis = null;
+        try {
+            fis = new FileInputStream(file);
+            byte[] data = new byte[(int) file.length()];
+            fis.read(data);
+            fis.close();
+
+            phoneVal = new String(data, "UTF-8");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
 
@@ -135,12 +159,16 @@ public class MyService extends Service {
             wifi.setWifiEnabled(true);
         }
 
+        // Stopping all services
+        handler.removeCallbacksAndMessages(null);
+
         // Release lock
         WakeLockHelper.keepCpuAwake(getApplicationContext(), false);
         WakeLockHelper.keepWiFiOn(getApplicationContext(), false);
 
         // Adding stop record to log
         logger.addRecordToLog("DisarmConnect Stopped");
+        Log.v("MyService:", "DisarmConnect Stooped");
     }
 
 }
