@@ -52,6 +52,7 @@ public class SearchingDisarmDB implements Runnable {
                 wc.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
 
                 //  wc.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
+
                 int res = MyService.wifi.addNetwork(wc);
                 boolean b = MyService.wifi.enableNetwork(res, true);
                 Log.v(MyService.TAG4, "Connected to DB");

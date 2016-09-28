@@ -76,6 +76,7 @@ public class WifiConnect implements Runnable {
                     String ssid = "DisarmHotspotDB";
                     WifiConfiguration wc = new WifiConfiguration();
                     wc.SSID = "\"" + ssid + "\""; //IMPORTANT! This should be in Quotes!!
+
                     wc.preSharedKey = "\""+ MyService.dbPass +"\"";
                     wc.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
 
