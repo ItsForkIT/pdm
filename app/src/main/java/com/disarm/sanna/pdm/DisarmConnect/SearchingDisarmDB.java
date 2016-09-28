@@ -48,7 +48,10 @@ public class SearchingDisarmDB implements Runnable {
                 String ssid = MyService.dbAPName;
                 WifiConfiguration wc = new WifiConfiguration();
                 wc.SSID = "\"" + ssid + "\""; //IMPORTANT! This should be in Quotes!!
-                wc.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
+                wc.preSharedKey = "\""+ MyService.dbPass +"\"";
+                wc.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
+
+                //  wc.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
                 int res = MyService.wifi.addNetwork(wc);
                 boolean b = MyService.wifi.enableNetwork(res, true);
                 Log.v(MyService.TAG4, "Connected to DB");

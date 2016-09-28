@@ -46,7 +46,9 @@ public class MyService extends Service {
     public static List<String> IpAddr;
     public static String mobileAPName = "DH";
     public static String dbAPName = "DisarmHotspotDB";
+    public static String dbPass = "DisarmDB";
     public FileReader fr = null;
+
     public static int count=0,startwififirst = 1;
     public static Handler handler;
     public static double wifiState;
