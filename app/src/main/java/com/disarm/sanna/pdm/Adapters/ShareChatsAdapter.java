@@ -134,6 +134,11 @@ public class ShareChatsAdapter extends BaseAdapter {
         return rowView;
     }
 
+    /**
+     * Get thumbnail of an image from its path
+     * @param path
+     * @return
+     */
     private Bitmap getThumbnail(String path) {
         Bitmap imgThumbnail = null;
         try {
