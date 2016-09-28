@@ -3,7 +3,9 @@ package com.disarm.sanna.pdm.Adapters;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.ThumbnailUtils;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -64,7 +66,7 @@ public class ShareChatsAdapter extends BaseAdapter {
 
     @Override
     public int getItemViewType(int position) {
-        if(msg.get(position).startsWith("IMG")) {
+        if(msg.get(position).startsWith("IMG") || msg.get(position).startsWith("VID")) {
             return TYPE_THUMBNAIL;
         }
         return TYPE_TEXT;
@@ -97,15 +99,23 @@ public class ShareChatsAdapter extends BaseAdapter {
                 if(rowView == null) {
                     LayoutInflater inflater = (LayoutInflater) context.getSystemService(
                             Context.LAYOUT_INFLATER_SERVICE);
-                    rowView = inflater.inflate(R.layout.share_activity_row_thumbnail, viewGroup, false);
+                    rowView = inflater.inflate(R.layout.share_activity_row_thumbnail,
+                            viewGroup, false);
                     holderThumbnail = new ViewHolderThumbnail(rowView);
                     rowView.setTag(holderThumbnail);
                 } else {
                     holderThumbnail = (ViewHolderThumbnail) rowView.getTag();
                 }
 
-                Bitmap thumbnail = getThumbnail(Environment.getExternalStorageDirectory().toString() +
-                        SocialShareActivity.WORKING_DIRECTORY + msg.get(position));
+                Bitmap thumbnail = null;
+                if(msg.get(position).startsWith("IMG")) {
+                    thumbnail = getThumbnail(Environment.getExternalStorageDirectory().toString() +
+                            SocialShareActivity.WORKING_DIRECTORY + msg.get(position));
+                } else if(msg.get(position).startsWith("VID")) {
+                    thumbnail = getThumbnailOfVideo(
+                            Environment.getExternalStorageDirectory().toString() +
+                            SocialShareActivity.WORKING_DIRECTORY + msg.get(position));
+                }
                 holderThumbnail.msgThumbnail.setImageBitmap(thumbnail);
                 break;
         }
@@ -157,6 +167,13 @@ public class ShareChatsAdapter extends BaseAdapter {
             Log.d("ERROR", "FILE NOT FOUND AT : " + path);
         }
         return imgThumbnail;
+    }
+
+    private Bitmap getThumbnailOfVideo(String path) {
+        Bitmap videothumbnail = null;
+        videothumbnail =  ThumbnailUtils.createVideoThumbnail(path,
+                MediaStore.Video.Thumbnails.MINI_KIND);
+        return videothumbnail;
     }
 
     private class ViewHolder {
