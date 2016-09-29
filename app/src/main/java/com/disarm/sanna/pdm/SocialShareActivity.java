@@ -55,7 +55,7 @@ import static com.disarm.sanna.pdm.MainActivity.root;
  * Offline Social Share Activity
  */
 public class SocialShareActivity extends AppCompatActivity implements View.OnClickListener {
-    private static final String WORKING_DIRECTORY = "/DMS/Working/";
+    public static final String WORKING_DIRECTORY = "/DMS/Working/";
 
     RecyclerView chatList;
     ArrayList<File> allFiles;

@@ -1,16 +1,27 @@
 package com.disarm.sanna.pdm.Adapters;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.ThumbnailUtils;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.disarm.sanna.pdm.R;
+import com.disarm.sanna.pdm.SocialShareActivity;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
 /**
@@ -18,6 +29,10 @@ import java.util.ArrayList;
  */
 
 public class ShareChatsAdapter extends BaseAdapter {
+    private static final int TYPE_TEXT = 0;
+    private static final int TYPE_THUMBNAIL = 1;
+    private static final int TYPE_MAX_COUNT = 2;
+
     private ArrayList<String> msg;
     private Context context;
     private String sender;
@@ -45,24 +60,67 @@ public class ShareChatsAdapter extends BaseAdapter {
     }
 
     @Override
+    public int getViewTypeCount() {
+        return TYPE_MAX_COUNT;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if(msg.get(position).startsWith("IMG") || msg.get(position).startsWith("VID")) {
+            return TYPE_THUMBNAIL;
+        }
+        return TYPE_TEXT;
+    }
+
+    @Override
     public View getView(final int position, View view, ViewGroup viewGroup) {
         View rowView = view;
-        ViewHolder holder;
+        int type = getItemViewType(position);
 
-        if(rowView == null) {
-            LayoutInflater inflater = (LayoutInflater)context.getSystemService(
-                    Context.LAYOUT_INFLATER_SERVICE);
-            rowView = inflater.inflate(R.layout.share_activity_row, viewGroup, false);
-            holder = new ViewHolder(rowView);
-            rowView.setTag(holder);
-        } else {
-            holder = (ViewHolder)rowView.getTag();
+        switch (type) {
+            case TYPE_TEXT:
+                ViewHolder holder;
+
+                if (rowView == null) {
+                    LayoutInflater inflater = (LayoutInflater) context.getSystemService(
+                            Context.LAYOUT_INFLATER_SERVICE);
+                    rowView = inflater.inflate(R.layout.share_activity_row, viewGroup, false);
+                    holder = new ViewHolder(rowView);
+                    rowView.setTag(holder);
+                } else {
+                    holder = (ViewHolder) rowView.getTag();
+                }
+
+                holder.msgText.setText(msg.get(position));
+                break;
+            case TYPE_THUMBNAIL:
+                ViewHolderThumbnail holderThumbnail;
+
+                if(rowView == null) {
+                    LayoutInflater inflater = (LayoutInflater) context.getSystemService(
+                            Context.LAYOUT_INFLATER_SERVICE);
+                    rowView = inflater.inflate(R.layout.share_activity_row_thumbnail,
+                            viewGroup, false);
+                    holderThumbnail = new ViewHolderThumbnail(rowView);
+                    rowView.setTag(holderThumbnail);
+                } else {
+                    holderThumbnail = (ViewHolderThumbnail) rowView.getTag();
+                }
+
+                Bitmap thumbnail = null;
+                if(msg.get(position).startsWith("IMG")) {
+                    thumbnail = getThumbnail(Environment.getExternalStorageDirectory().toString() +
+                            SocialShareActivity.WORKING_DIRECTORY + msg.get(position));
+                } else if(msg.get(position).startsWith("VID")) {
+                    thumbnail = getThumbnailOfVideo(
+                            Environment.getExternalStorageDirectory().toString() +
+                            SocialShareActivity.WORKING_DIRECTORY + msg.get(position));
+                }
+                holderThumbnail.msgThumbnail.setImageBitmap(thumbnail);
+                break;
         }
 
-        holder.msgText.setText(msg.get(position));
-
-        LinearLayout layout = (LinearLayout)rowView.findViewById(
-                R.id.share_bubble_layout);
+        LinearLayout layout = (LinearLayout)rowView.findViewById(R.id.share_bubble_layout);
         LinearLayout layoutParent = (LinearLayout)rowView.findViewById(
                 R.id.share_bubble_layout_parent);
 
@@ -86,11 +144,51 @@ public class ShareChatsAdapter extends BaseAdapter {
         return rowView;
     }
 
-    public class ViewHolder {
-        public TextView msgText;
+    /**
+     * Get thumbnail of an image from its path
+     * @param path
+     * @return
+     */
+    private Bitmap getThumbnail(String path) {
+        Bitmap imgThumbnail = null;
+        try {
+            final int THUMBNAIL_SIZE = 256;
 
-        public ViewHolder(View item) {
+            FileInputStream fis = new FileInputStream(path);
+            imgThumbnail = BitmapFactory.decodeStream(fis);
+
+            imgThumbnail = Bitmap.createScaledBitmap(imgThumbnail,
+                    THUMBNAIL_SIZE, THUMBNAIL_SIZE, false);
+
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            imgThumbnail.compress(Bitmap.CompressFormat.PNG, 100, out);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            Log.d("ERROR", "FILE NOT FOUND AT : " + path);
+        }
+        return imgThumbnail;
+    }
+
+    private Bitmap getThumbnailOfVideo(String path) {
+        Bitmap videothumbnail = null;
+        videothumbnail =  ThumbnailUtils.createVideoThumbnail(path,
+                MediaStore.Video.Thumbnails.MINI_KIND);
+        return videothumbnail;
+    }
+
+    private class ViewHolder {
+        private TextView msgText;
+
+        private ViewHolder(View item) {
             msgText = (TextView)item.findViewById(R.id.share_row_message_text);
+        }
+    }
+
+    private class ViewHolderThumbnail {
+        private ImageView msgThumbnail;
+
+        private ViewHolderThumbnail(View item) {
+            msgThumbnail = (ImageView)item.findViewById(R.id.share_row_message_thumbnail);
         }
     }
 
@@ -99,6 +197,6 @@ public class ShareChatsAdapter extends BaseAdapter {
     }
 
     public interface ShareChatsInterface {
-        public void onClick(View row, int position);
+        void onClick(View row, int position);
     }
 }
