@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
-    private SwitchCompat syncTog,connTog,gpsTog ;
+    private SwitchCompat syncTog, connTog, gpsTog;
     SyncService syncService;
     MyService myService;
     float speed;
@@ -61,14 +61,14 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     LocationListener locationListener;
     private boolean syncServiceBound = false;
     private boolean myServiceBound = false;
-    String phoneVal="DefaultNode";
+    String phoneVal = "DefaultNode";
     Logger logger;
     static String root = Environment.getExternalStorageDirectory().toString();
     public final static String TARGET_DMS_PATH = root + "/DMS/";
-    public static int [] prgmNameList={R.string.health,
-                                          R.string.food,
-                                          R.string.shelter,
-                                          R.string.victim};
+    public static int[] prgmNameList = {R.string.health,
+            R.string.food,
+            R.string.shelter,
+            R.string.victim};
     private boolean doubleBackToExitPressedOnce = false;
 
 
@@ -106,15 +106,15 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         mRecyclerView.addOnItemTouchListener(new RecyclerTouchListener(getApplicationContext(), mRecyclerView, new ClickListener() {
             @Override
             public void onClick(View view, int position) {
-                Intent intent=new Intent(getApplicationContext(), ActivityList.class);
-                if (position == 0){
-                    intent.putExtra("IntentType","Health");
-                }else if (position == 1){
-                    intent.putExtra("IntentType","Food");
-                }else if (position == 2){
-                    intent.putExtra("IntentType","Shelter");
-                }else if (position == 3){
-                    intent.putExtra("IntentType","Victim");
+                Intent intent = new Intent(getApplicationContext(), ActivityList.class);
+                if (position == 0) {
+                    intent.putExtra("IntentType", "Health");
+                } else if (position == 1) {
+                    intent.putExtra("IntentType", "Food");
+                } else if (position == 2) {
+                    intent.putExtra("IntentType", "Shelter");
+                } else if (position == 3) {
+                    intent.putExtra("IntentType", "Victim");
                 }
                 startActivity(intent);
             }
@@ -127,20 +127,33 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         syncTog.setOnCheckedChangeListener(this);
         connTog.setOnCheckedChangeListener(this);
         gpsTog.setOnCheckedChangeListener(this);
-        //startService(new Intent(this, LocationUpdateService.class));
+
+        boolean c = isMyServiceRunning(bishakh.psync.SyncService.class);
+        if (c)
+            syncTog.setChecked(true);
+        else
+            syncTog.setChecked(false);
+
+        boolean d = isMyServiceRunning(MyService.class);
+        if (d)
+            connTog.setChecked(true);
+        else
+            connTog.setChecked(false);
+
+
     }
+
     @Override
     public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
         switch (compoundButton.getId()) {
             case R.id.synctoggle:
-                Log.i("switch_compat", b + "");
-                if(b){
+                if (b) {
                     final Intent syncServiceIntent = new Intent(getBaseContext(), SyncService.class);
                     bindService(syncServiceIntent, syncServiceConnection, Context.BIND_AUTO_CREATE);
                     startService(syncServiceIntent);
 
                     Toast.makeText(getApplicationContext(), R.string.start_sync, Toast.LENGTH_SHORT).show();
-                }else{
+                } else {
                     final Intent syncServiceIntent = new Intent(getBaseContext(), SyncService.class);
                     if (syncServiceBound) {
                         unbindService(syncServiceConnection);
@@ -152,11 +165,11 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
 
             case R.id.conntoggle:
                 Log.i("switch_compat", b + "");
-                if (b){
+                if (b) {
                     final Intent myServiceIntent = new Intent(getBaseContext(), MyService.class);
                     bindService(myServiceIntent, myServiceConnection, Context.BIND_AUTO_CREATE);
                     startService(myServiceIntent);
-                }else{
+                } else {
                     final Intent myServiceIntent = new Intent(getBaseContext(), MyService.class);
                     if (myServiceBound) {
                         unbindService(myServiceConnection);
@@ -169,8 +182,18 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
             case R.id.gpstoggle:
                 if (b) {
                     requestLocation();
-                }else{
-
+                } else {
+                    if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        // TODO: Consider calling
+                        //    ActivityCompat#requestPermissions
+                        // here to request the missing permissions, and then overriding
+                        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                        //                                          int[] grantResults)
+                        // to handle the case where the user grants the permission. See the documentation
+                        // for ActivityCompat#requestPermissions for more details.
+                        return;
+                    }
+                    lm.removeUpdates(locationListener);
                 }
                 break;
         }
@@ -456,6 +479,16 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     protected void onDestroy() {
         stopService(new Intent(getBaseContext(), MyService.class));
         super.onDestroy();
+    }
+
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
     }
 }
 
