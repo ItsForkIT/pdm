@@ -21,7 +21,7 @@
             android:src="@drawable/camera_burst"
             app:elevation="3dp"
             app:backgroundTint="@android:color/darker_gray"
-            android:layout_weight="0.21"/>
+            android:layout_weight="0.2"/>
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/sh_video"
@@ -32,7 +32,7 @@
             android:src="@drawable/message_video"
             app:elevation="3dp"
             app:backgroundTint="@android:color/darker_gray"
-            android:layout_weight="0.21"/>
+            android:layout_weight="0.2"/>
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/sh_audio"
@@ -43,7 +43,7 @@
             android:src="@drawable/audiobook"
             app:elevation="3dp"
             app:backgroundTint="@android:color/darker_gray"
-            android:layout_weight="0.21"/>
+            android:layout_weight="0.2"/>
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/sh_text"
@@ -54,7 +54,7 @@
             android:src="@drawable/format_text"
             app:elevation="3dp"
             app:backgroundTint="@android:color/darker_gray"
-            android:layout_weight="0.21"/>
+            android:layout_weight="0.2"/>
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/sh_sms"
@@ -65,7 +65,7 @@
             android:src="@drawable/tooltip_text"
             app:elevation="3dp"
             app:backgroundTint="@android:color/darker_gray"
-            />
+            android:layout_weight="0.2"/>
 
     </LinearLayout>
 
