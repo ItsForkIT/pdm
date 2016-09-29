@@ -43,13 +43,15 @@ public class Timer_Toggler implements Runnable{
         MyService.wifi = (WifiManager) context.getSystemService(context.WIFI_SERVICE);
         WifiInfo wifiInfo = MyService.wifi.getConnectionInfo();
         MyService.checkWifiState = wifiInfo.getSSID();
-        Log.v(MyService.TAG1, "Ticking");
+        Log.v(MyService.TAG1, "Ticking Random Function");
+        Logger.addRecordToLog("Ticking");
         Log.v(MyService.TAG1, MyService.checkWifiState);
         MyService.count++;
         List<ScanResult> allScanResults = MyService.wifi.getScanResults();
 
         if (MyService.checkWifiState.equals("<unknown ssid>")) {
             Log.v(MyService.TAG1, "Hotspot Mode Detected");
+            Logger.addRecordToLog("Hotspot Mode Detected");
             boolean isReachable = false;
             try {
 
@@ -125,6 +127,7 @@ public class Timer_Toggler implements Runnable{
            // this.handler.post(searchingDisarmDB);
             Log.v(MyService.TAG1, "DisarmHotspot Not Toggling");
             Log.v(MyService.TAG1,"Trying to find better DH");
+            //Logger.addRecordToLog("Connected to DH");
             // Trying to search for better DH
             findBetterDHAvailable(allScanResults);
         }

@@ -40,6 +40,7 @@ public class Toggler extends Activity{
 
         Log.v("Battery Level:", String.valueOf(MyService.level));
 
+
         if(MyService.wifiState <= toggleBetweenHotspotWifi && MyService.level > minimumBatteryLevel ) {
 
             // Hotspot Mode Activated

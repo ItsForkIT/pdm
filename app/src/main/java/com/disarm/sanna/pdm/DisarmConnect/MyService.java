@@ -102,7 +102,7 @@ public class MyService extends Service {
         batfilter.addAction(Intent.ACTION_BATTERY_CHANGED);
         registerReceiver(bl, batfilter);
 
-        // Read Source
+        // Read Source to generate DH
         File file = new File(MainActivity.TARGET_DMS_PATH,"source.txt");
         FileInputStream fis = null;
         try {
@@ -111,6 +111,7 @@ public class MyService extends Service {
             fis.read(data);
             fis.close();
 
+            // phoneVal storing the source from source.txt
             phoneVal = new String(data, "UTF-8");
         } catch (Exception e) {
             e.printStackTrace();
@@ -118,13 +119,13 @@ public class MyService extends Service {
 
     }
 
-
     private void runOnUiThread(Runnable runnable) {
         handler.post(runnable);
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+
         // DisarmConnect Service started
         logger.addRecordToLog("DisarmConnect Started");
 
@@ -135,11 +136,8 @@ public class MyService extends Service {
         // Handler started
         handler = new Handler();
         tt = new Timer_Toggler(handler,getApplicationContext());
-        //handler.post(Timer_Toggle);
         wifiC = new WifiConnect(handler,getApplicationContext());
-        //handler.post(WifiConnect);
         sDDB = new SearchingDisarmDB(handler,getApplicationContext());
-        //  handler.post(searchingDisarmDB);
 
         return START_STICKY;
     }
@@ -157,6 +155,7 @@ public class MyService extends Service {
         if(isHotspotOn){
             ApManager.configApState(MyService.this);
             wifi.setWifiEnabled(true);
+            Logger.addRecordToLog("Stopping DisarmConnect Hotspot Disabled");
         }
 
         // Stopping all services
