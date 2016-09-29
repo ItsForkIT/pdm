@@ -143,8 +143,7 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
         pathFileObserver.startWatching();
         
         startServices();
-        Button exit = (Button)findViewById(R.id.b_social_share_exit);
-        exit.setOnClickListener(this);
+
         FloatingActionButton addChat = (FloatingActionButton) findViewById(R.id.b_social_share_add);
         addChat.setOnClickListener(this);
         requestLocation();
@@ -408,9 +407,6 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.b_social_share_exit:
-                stopServices();
-                break;
             case R.id.b_social_share_add:
                 final AlertDialog.Builder addNewChat = new AlertDialog.Builder(this);
                 addNewChat.setTitle("Add New");
