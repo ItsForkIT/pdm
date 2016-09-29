@@ -32,6 +32,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.disarm.sanna.pdm.Adapters.MyAdapter;
@@ -56,13 +57,13 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     float speed;
     double latitude, longitude;
     LocationManager lm;
-    Location location;
-    boolean gps_enabled, network_enabled;
+    boolean gps_enabled;
     LocationListener locationListener;
     private boolean syncServiceBound = false;
     private boolean myServiceBound = false;
     String phoneVal = "DefaultNode";
     Logger logger;
+    public static ImageView img_wifi_state;
     static String root = Environment.getExternalStorageDirectory().toString();
     public final static String TARGET_DMS_PATH = root + "/DMS/";
     public static int[] prgmNameList = {R.string.health,
@@ -84,6 +85,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        img_wifi_state = (ImageView)findViewById(R.id.img_wifi_state);
         syncTog = (SwitchCompat) findViewById(R.id.synctoggle);
         connTog = (SwitchCompat) findViewById(R.id.conntoggle);
         gpsTog = (SwitchCompat) findViewById(R.id.gpstoggle);
