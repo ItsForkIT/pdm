@@ -76,8 +76,13 @@ public class FileTask extends AsyncTask  {
             }
 
         }
-        String[] latlongline = ReadLastLine.tail(logFile).split(",");
-        String latlng = latlongline[0]+"_"+latlongline[1];
+        String latlng;
+        try {
+            String[] latlongline = ReadLastLine.tail(logFile).split(",");
+            latlng = latlongline[0]+"_"+latlongline[1];
+        } catch (Exception e) {
+            latlng = "10000.0000_10000.0000";
+        }
 
         String pathFrom = Environment.getExternalStorageDirectory().toString()+"/DMS/tmp";
         String pathTo = Environment.getExternalStorageDirectory().toString()+"/DMS/Working";
