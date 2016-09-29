@@ -14,6 +14,7 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.os.IBinder;
 import android.provider.BaseColumns;
 import android.provider.ContactsContract;
@@ -80,6 +81,8 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
 
     SocialShareChatlistAdapter chatlistAdapter;
 
+    private boolean doubleBackToExitPressedOnce;
+
     //Psync
     private ServiceConnection syncServiceConnection = new ServiceConnection() {
 
@@ -129,6 +132,8 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
         senders = new ArrayList<>();
 
         setTitle("Recent");
+
+        doubleBackToExitPressedOnce = false;
 
         myself = new Senders(identifySelf(), "Me");
         populateChatList();
@@ -458,6 +463,7 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
     protected void onDestroy() {
         super.onDestroy();
         pathFileObserver.stopWatching();
+        stopServices();
     }
 
     private void requestLocation(){
@@ -565,5 +571,25 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
                 });
         AlertDialog alert = alertDialogBuilder.create();
         alert.show();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(doubleBackToExitPressedOnce) {
+            super.onBackPressed();
+            stopServices();
+            return;
+        }
+
+        doubleBackToExitPressedOnce = true;
+        Toast.makeText(this, R.string.press_back_to_exit, Toast.LENGTH_SHORT).show();
+
+        new Handler().postDelayed(new Runnable() {
+
+            @Override
+            public void run() {
+                doubleBackToExitPressedOnce=false;
+            }
+        }, 2000);
     }
 }
