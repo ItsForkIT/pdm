@@ -17,6 +17,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.disarm.sanna.pdm.MainActivity;
@@ -37,7 +38,7 @@ import java.util.List;
 public class MyService extends Service {
 
     public static WifiManager wifi;
-    public static String wifis[]={"None"}, checkWifiState="0x";
+    public static String checkWifiState="0x";
     public static int level;
     public static BatteryLevel bl;
     public static WifiScanReceiver wifiReciever;
@@ -48,7 +49,6 @@ public class MyService extends Service {
     public static String dbAPName = "DisarmHotspotDB";
     public static String dbPass = "DisarmDB";
     public FileReader fr = null;
-
     public static int count=0,startwififirst = 1;
     public static Handler handler;
     public static double wifiState;
@@ -117,10 +117,6 @@ public class MyService extends Service {
             e.printStackTrace();
         }
 
-    }
-
-    private void runOnUiThread(Runnable runnable) {
-        handler.post(runnable);
     }
 
     @Override
