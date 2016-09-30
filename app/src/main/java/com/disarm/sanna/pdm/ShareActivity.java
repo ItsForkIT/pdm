@@ -38,8 +38,7 @@ public class ShareActivity extends AppCompatActivity implements
     String number;
     ArrayList<File> allFiles,imagefiles,videofiles,recordingfiles,textfiles,smsfiles;
     static Context applicationContext;
-    ArrayList<String> category = new ArrayList();
-    ArrayList<String> allFilesName = new ArrayList<>();
+    ArrayList<String> category = new ArrayList<>();
 
     PathFileObserver pathFileObserver;
     private String category_active;
@@ -90,10 +89,10 @@ public class ShareActivity extends AppCompatActivity implements
 
 
         for(File file: allFiles) {
-            allFilesName.add(file.getName());
+            category.add(file.getName());
         }
 
-        ShareChatsAdapter adapter = new ShareChatsAdapter(allFilesName, number, this);
+        ShareChatsAdapter adapter = new ShareChatsAdapter(category, number, this);
         adapter.setAnInterface(this);
         listview.setAdapter(adapter);
         category_active = "ALL";
@@ -207,13 +206,21 @@ public class ShareActivity extends AppCompatActivity implements
      */
     @Override
     public void onClick(View row, int position) {
-        File file = allFiles.get(position);
+        //File file = allFiles.get(position);
+        File file = null;
+        for(int i = 0; i < allFiles.size(); i++) {
+            if(allFiles.get(i).getName().equals(category.get(position))) {
+                file = allFiles.get(i);
+                break;
+            }
+        }
+
         Intent openFile = new Intent();
         openFile.setAction(Intent.ACTION_VIEW);
 
         MimeTypeMap fileMime = MimeTypeMap.getSingleton();
         String filePath = "" + file;
-        String mimeType = null;
+        String mimeType;
         mimeType = fileMime.getMimeTypeFromExtension(
                 filePath.substring(filePath.lastIndexOf('.') + 1));
         openFile.setDataAndType(Uri.parse("file://" + file.getAbsolutePath()), mimeType);
