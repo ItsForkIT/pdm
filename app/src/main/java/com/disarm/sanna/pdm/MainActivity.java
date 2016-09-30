@@ -61,6 +61,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     LocationListener locationListener;
     private boolean syncServiceBound = false;
     private boolean myServiceBound = false;
+    private boolean gpsService = false;
     String phoneVal = "DefaultNode";
     Logger logger;
     public static ImageView img_wifi_state;
@@ -85,7 +86,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        img_wifi_state = (ImageView)findViewById(R.id.img_wifi_state);
+        img_wifi_state = (ImageView) findViewById(R.id.img_wifi_state);
         syncTog = (SwitchCompat) findViewById(R.id.synctoggle);
         connTog = (SwitchCompat) findViewById(R.id.conntoggle);
         gpsTog = (SwitchCompat) findViewById(R.id.gpstoggle);
@@ -156,12 +157,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
 
                     Toast.makeText(getApplicationContext(), R.string.start_sync, Toast.LENGTH_SHORT).show();
                 } else {
-                    final Intent syncServiceIntent = new Intent(getBaseContext(), SyncService.class);
-                    if (syncServiceBound) {
-                        unbindService(syncServiceConnection);
-                    }
-                    syncServiceBound = false;
-                    stopService(syncServiceIntent);
+                    unbindSyncService();
                 }
                 break;
 
@@ -172,12 +168,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
                     bindService(myServiceIntent, myServiceConnection, Context.BIND_AUTO_CREATE);
                     startService(myServiceIntent);
                 } else {
-                    final Intent myServiceIntent = new Intent(getBaseContext(), MyService.class);
-                    if (myServiceBound) {
-                        unbindService(myServiceConnection);
-                    }
-                    myServiceBound = false;
-                    stopService(myServiceIntent);
+                    unbindDisarmConnectService();
                 }
                 break;
 
@@ -195,7 +186,10 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
                         // for ActivityCompat#requestPermissions for more details.
                         return;
                     }
-                    lm.removeUpdates(locationListener);
+                    if (gpsService) {
+                        lm.removeUpdates(locationListener);
+                        gpsService = false;
+                    }
                 }
                 break;
         }
@@ -219,13 +213,13 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
-        }else if (id == R.id.webView){
+        } else if (id == R.id.webView) {
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://192.168.43.1:8000"));
             startActivity(browserIntent);
-        }else if (id == R.id.mapView){
+        } else if (id == R.id.mapView) {
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://127.0.0.1:8080/getMapAsset/index.html"));
             startActivity(browserIntent);
-        }else if (id == R.id.reset){
+        } else if (id == R.id.reset) {
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
             alertDialogBuilder
                     .setMessage(R.string.reset_working)
@@ -249,7 +243,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
                     });
             AlertDialog alert = alertDialogBuilder.create();
             alert.show();
-        }else if (id == R.id.resetall){
+        } else if (id == R.id.resetall) {
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
             alertDialogBuilder
                     .setMessage(R.string.reset_all_data)
@@ -272,7 +266,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
                                     editor.commit();
                                     pd.setMessage("Restarting");
                                     Intent i = getBaseContext().getPackageManager()
-                                            .getLaunchIntentForPackage( getBaseContext().getPackageName() );
+                                            .getLaunchIntentForPackage(getBaseContext().getPackageName());
                                     i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                                     finish();
                                     startActivity(i);
@@ -287,7 +281,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
                     });
             AlertDialog alert = alertDialogBuilder.create();
             alert.show();
-        }else if (id == R.id.exit){
+        } else if (id == R.id.exit) {
             Intent intent = new Intent(Intent.ACTION_MAIN);
             intent.addCategory(Intent.CATEGORY_HOME);
             startActivity(intent);
@@ -303,6 +297,17 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     public void onBackPressed() {
         if (doubleBackToExitPressedOnce) {
             super.onBackPressed();
+            unbindSyncService();
+            unbindDisarmConnectService();
+            if (gpsService) {
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                        != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,
+                        Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    return;
+                }
+                lm.removeUpdates(locationListener);
+                gpsService = false;
+            }
             return;
         }
 
@@ -422,12 +427,9 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
 
             lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
             gps_enabled = false;
-            //network_enabled = false;
 
             try {
                 gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
-                //network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-                Log.v("check","1");
             } catch (Exception ex) {
             }
 
@@ -441,46 +443,33 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
             locationListener = new MyLocationListener(logger,phoneVal);
 
             lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-            Log.v("check","2");
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                     ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
                 return;
             }
-            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 3000, 1, locationListener);
-            //lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,3000,1,locationListener);
-           /* Log.v("check","3");
-            if (lm != null) {
-                // Check for lastKnownLocation
-                location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                if (location != null) {
-
-                    // Get latitude and longitude values
-                    latitude = location.getLatitude();
-                    longitude = location.getLongitude();
-                    Log.v("location",String.valueOf(latitude)+" "+String.valueOf(longitude));
-                    if (latitude != 0.0 && longitude != 0.0 ){
-                        logger.addRecordToLog(String.valueOf(latitude) + "," + String.valueOf(longitude) + "," + String.valueOf(speed) + "," + 0.0 + "," + 0.0);
-                    }
-
-
-                }
-            }*/
+            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 5, locationListener);
+            gpsService = true;
         } else {
             enableGPS();
         }
     }
 
-    @Override
-    protected void onDestroy() {
-        stopService(new Intent(getBaseContext(), MyService.class));
-        super.onDestroy();
+    private void unbindSyncService(){
+        final Intent syncServiceIntent = new Intent(getBaseContext(), SyncService.class);
+        if (syncServiceBound) {
+            unbindService(syncServiceConnection);
+        }
+        syncServiceBound = false;
+        stopService(syncServiceIntent);
+    }
+
+    private void unbindDisarmConnectService(){
+        final Intent myServiceIntent = new Intent(getBaseContext(), MyService.class);
+        if (myServiceBound) {
+            unbindService(myServiceConnection);
+        }
+        myServiceBound = false;
+        stopService(myServiceIntent);
     }
 
     private boolean isMyServiceRunning(Class<?> serviceClass) {
