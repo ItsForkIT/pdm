@@ -157,18 +157,28 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
 
                     Toast.makeText(getApplicationContext(), R.string.start_sync, Toast.LENGTH_SHORT).show();
                 } else {
-                    unbindSyncService();
+                    final Intent syncServiceIntent = new Intent(getBaseContext(), SyncService.class);
+                    if (syncServiceBound) {
+                        unbindService(syncServiceConnection);
+                    }
+                    syncServiceBound = false;
+                    stopService(syncServiceIntent);
                 }
                 break;
 
             case R.id.conntoggle:
-                Log.i("switch_compat", b + "");
                 if (b) {
                     final Intent myServiceIntent = new Intent(getBaseContext(), MyService.class);
                     bindService(myServiceIntent, myServiceConnection, Context.BIND_AUTO_CREATE);
                     startService(myServiceIntent);
                 } else {
-                    unbindDisarmConnectService();
+
+                    final Intent myServiceIntent = new Intent(getBaseContext(), MyService.class);
+                    if (myServiceBound) {
+                        unbindService(myServiceConnection);
+                    }
+                    myServiceBound = false;
+                    stopService(myServiceIntent);
                 }
                 break;
 
@@ -176,14 +186,9 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
                 if (b) {
                     requestLocation();
                 } else {
-                    if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        // TODO: Consider calling
-                        //    ActivityCompat#requestPermissions
-                        // here to request the missing permissions, and then overriding
-                        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                        //                                          int[] grantResults)
-                        // to handle the case where the user grants the permission. See the documentation
-                        // for ActivityCompat#requestPermissions for more details.
+                    if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) !=
+                            PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,
+                            Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                         return;
                     }
                     if (gpsService) {
@@ -297,17 +302,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     public void onBackPressed() {
         if (doubleBackToExitPressedOnce) {
             super.onBackPressed();
-            unbindSyncService();
-            unbindDisarmConnectService();
-            if (gpsService) {
-                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                        != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,
-                        Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    return;
-                }
-                lm.removeUpdates(locationListener);
-                gpsService = false;
-            }
+            unbindAllService();
             return;
         }
 
@@ -454,22 +449,30 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         }
     }
 
-    private void unbindSyncService(){
+    private void unbindAllService(){
         final Intent syncServiceIntent = new Intent(getBaseContext(), SyncService.class);
         if (syncServiceBound) {
             unbindService(syncServiceConnection);
         }
         syncServiceBound = false;
         stopService(syncServiceIntent);
-    }
 
-    private void unbindDisarmConnectService(){
         final Intent myServiceIntent = new Intent(getBaseContext(), MyService.class);
         if (myServiceBound) {
             unbindService(myServiceConnection);
         }
         myServiceBound = false;
         stopService(myServiceIntent);
+
+        if (gpsService) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                    != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,
+                    Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+            lm.removeUpdates(locationListener);
+            gpsService = false;
+        }
     }
 
     private boolean isMyServiceRunning(Class<?> serviceClass) {
@@ -480,6 +483,12 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
             }
         }
         return false;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unbindAllService();
     }
 }
 
