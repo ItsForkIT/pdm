@@ -19,9 +19,9 @@ import android.widget.TextView;
 import com.disarm.sanna.pdm.R;
 import com.disarm.sanna.pdm.SocialShareActivity;
 
-import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -29,6 +29,8 @@ import java.util.ArrayList;
  */
 
 public class ShareChatsAdapter extends BaseAdapter {
+    private static final String TAG = "ShareChatsAdapter";
+
     private static final int TYPE_TEXT = 0;
     private static final int TYPE_THUMBNAIL = 1;
     private static final int TYPE_MAX_COUNT = 2;
@@ -152,28 +154,63 @@ public class ShareChatsAdapter extends BaseAdapter {
     private Bitmap getThumbnail(String path) {
         Bitmap imgThumbnail = null;
         try {
-            final int THUMBNAIL_SIZE = 256;
-
-            FileInputStream fis = new FileInputStream(path);
-            imgThumbnail = BitmapFactory.decodeStream(fis);
-
-            imgThumbnail = Bitmap.createScaledBitmap(imgThumbnail,
-                    THUMBNAIL_SIZE, THUMBNAIL_SIZE, false);
-
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            imgThumbnail.compress(Bitmap.CompressFormat.PNG, 100, out);
+            final int THUMBNAIL_SIZE = 128;
+            imgThumbnail = decodeSampledBitmapFromResource(path, THUMBNAIL_SIZE, THUMBNAIL_SIZE);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-            Log.d("ERROR", "FILE NOT FOUND AT : " + path);
+            Log.d(TAG + " ERROR", "FILE NOT FOUND AT : " + path);
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.d(TAG + " ERROR", "IOException : Buffered Input Stream");
         }
         return imgThumbnail;
     }
 
+    private static int calculateInSampleSize(BitmapFactory.Options options,
+                                            int reqWidth, int reqHeight) {
+        // Raw height and width of image
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+
+            /*
+            Calculate the largest inSampleSize value that is a power of 2 and keeps both
+            height and width larger than the requested height and width.
+            */
+            while ((halfHeight / inSampleSize) >= reqHeight
+                    && (halfWidth / inSampleSize) >= reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+
+        Log.d(TAG + "BITMAP", " Sample Size " + inSampleSize);
+        return inSampleSize;
+    }
+
+    private static Bitmap decodeSampledBitmapFromResource(String path, int reqWidth,
+                                                          int reqHeight) throws IOException {
+
+        // First decode with inJustDecodeBounds=true to check dimensions
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeStream(new FileInputStream(path), null, options);
+
+        // Calculate inSampleSize
+        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+
+        // Decode bitmap with inSampleSize set
+        options.inJustDecodeBounds = false;
+        return BitmapFactory.decodeStream(new FileInputStream(path), null, options);
+    }
+
     private Bitmap getThumbnailOfVideo(String path) {
-        Bitmap videothumbnail = null;
-        videothumbnail =  ThumbnailUtils.createVideoThumbnail(path,
+        return ThumbnailUtils.createVideoThumbnail(path,
                 MediaStore.Video.Thumbnails.MINI_KIND);
-        return videothumbnail;
     }
 
     private class ViewHolder {
