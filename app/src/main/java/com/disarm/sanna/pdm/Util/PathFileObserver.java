@@ -79,9 +79,11 @@ public class PathFileObserver extends FileObserver {
 
                 File file = new File(rootPath + path);
                 socialShareActivity.refreshList(rootPath + path, file);
+                /*
                 if(number != null && path.contains(number)) {
                     shareActivity.refreshList(rootPath + path, file);
                 }
+                */
                 break;
             case FileObserver.MOVE_SELF:
                 Log.d(TAG, "MOVE_SELF:" + path);

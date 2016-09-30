@@ -40,7 +40,7 @@ public class ShareActivity extends AppCompatActivity implements
     static Context applicationContext;
     ArrayList<String> category = new ArrayList<>();
 
-    PathFileObserver pathFileObserver;
+    //PathFileObserver pathFileObserver;
     private String category_active;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -97,16 +97,18 @@ public class ShareActivity extends AppCompatActivity implements
         listview.setAdapter(adapter);
         category_active = "ALL";
 
+        /*
         pathFileObserver = new PathFileObserver(this,
                 Environment.getExternalStorageDirectory().toString()
                         + SocialShareActivity.WORKING_DIRECTORY, number);
         pathFileObserver.startWatching();
+        */
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        pathFileObserver.stopWatching();
+        //pathFileObserver.stopWatching();
     }
 
     public static Context getContextOfApplication(){
