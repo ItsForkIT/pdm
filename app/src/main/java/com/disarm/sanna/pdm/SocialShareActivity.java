@@ -67,8 +67,9 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
     Senders myself;
     LocationManager lm;
     LocationListener locationListener;
-    boolean gps_enabled, network_enabled;
-    String phoneVal="DefaultNode";
+    boolean gps_enabled;
+    private boolean gpsService = false;
+    String phoneVal = "DefaultNode";
     final static String TARGET_DMS_PATH = root + "/DMS/";
     Logger logger;
 
@@ -107,7 +108,7 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
         public void onServiceConnected(ComponentName className,
                                        IBinder service) {
             MyService.MyServiceBinder binder = (MyService.MyServiceBinder) service;
-            myService= binder.getService();
+            myService = binder.getService();
             myServiceBound = true;
         }
 
@@ -117,12 +118,13 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
         }
     };
 
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_social_share);
 
-        chatList = (RecyclerView)findViewById(R.id.list_social_share_chats);
+        chatList = (RecyclerView) findViewById(R.id.list_social_share_chats);
 
         allFiles = new ArrayList<>();
 
@@ -141,7 +143,7 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
         pathFileObserver = new PathFileObserver(this,
                 Environment.getExternalStorageDirectory().toString() + WORKING_DIRECTORY);
         pathFileObserver.startWatching();
-        
+
         startServices();
 
         FloatingActionButton addChat = (FloatingActionButton) findViewById(R.id.b_social_share_add);
@@ -174,6 +176,19 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
         }
         myServiceBound = false;
         stopService(myServiceIntent);
+        Log.v("gps","check");
+        if (gpsService) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) !=
+                    PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,
+                    Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+            lm.removeUpdates(locationListener);
+            Log.v("gps","check1");
+
+            gpsService = false;
+        }
+        Log.v("gps","check2");
     }
 
     /**
@@ -486,16 +501,12 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
 
             lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
             gps_enabled = false;
-            //network_enabled = false;
 
             try {
                 gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
-                //network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-                Log.v("check","1");
             } catch (Exception ex) {
             }
 
-            // Check if gps and network provider is on or off
             if (!gps_enabled ) {
 
                 Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
@@ -503,46 +514,19 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
             }
 
             locationListener = new MyLocationListener(logger,phoneVal);
-
             lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-            Log.v("check","2");
             if (ActivityCompat.checkSelfPermission(this,
                     Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                     && ActivityCompat.checkSelfPermission(this,
                     Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
                 return;
             }
-            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 3000, 1, locationListener);
-            //lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,3000,1,locationListener);
-           /* Log.v("check","3");
-            if (lm != null) {
-                // Check for lastKnownLocation
-                location = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                if (location != null) {
-
-                    // Get latitude and longitude values
-                    latitude = location.getLatitude();
-                    longitude = location.getLongitude();
-                    Log.v("location",String.valueOf(latitude)+" "+String.valueOf(longitude));
-                    if (latitude != 0.0 && longitude != 0.0 ){
-                        logger.addRecordToLog(String.valueOf(latitude) + "," + String.valueOf(longitude) + "," + String.valueOf(speed) + "," + 0.0 + "," + 0.0);
-                    }
-
-
-                }
-            }*/
+            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 5, locationListener);
+            gpsService = true;
         } else {
             enableGPS();
         }
     }
-
 
     public void enableGPS(){
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
