@@ -64,6 +64,7 @@ public class MyService extends Service {
     public BufferedReader br = null;
     private Logger logger;
     public static String phoneVal;
+    public static String presentState="wifi";
 
     @Override
     public IBinder onBind(Intent intent) {
