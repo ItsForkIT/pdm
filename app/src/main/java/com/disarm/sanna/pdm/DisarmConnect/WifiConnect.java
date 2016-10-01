@@ -16,6 +16,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import static com.disarm.sanna.pdm.DisarmConnect.MyService.checkWifiState;
+import static com.disarm.sanna.pdm.DisarmConnect.MyService.wifiInfo;
+
 /**
  * Created by hridoy on 21/8/16.
  */
@@ -25,6 +28,7 @@ public class WifiConnect implements Runnable {
     private FileReader fr= null;
     private BufferedReader br = null;
     public int minDBLevel = 2;
+    public int isDBConnected = 0;
     public WifiConnect(android.os.Handler handler, Context context) {
         this.handler = handler;
         this.context = context;
@@ -36,8 +40,8 @@ public class WifiConnect implements Runnable {
     public void run() {
         List<ScanResult> allScanResults = MyService.wifi.getScanResults();
         Log.v(MyService.TAG2,"Running Autoconnector");
-        MyService.wifiInfo = MyService.wifi.getConnectionInfo();
-        String ssidName = MyService.wifiInfo.getSSID();
+        wifiInfo = MyService.wifi.getConnectionInfo();
+        String ssidName = wifiInfo.getSSID();
         Log.v(MyService.TAG2, ssidName);
         if(ssidName.contains("DisarmHotspotDB")) {
             Log.v(MyService.TAG2,"Already Connected DB ");
@@ -46,7 +50,7 @@ public class WifiConnect implements Runnable {
         }
         else if(ssidName.contains("DH-")) {
             Log.v(MyService.TAG2,"Already Connected");
-            Logger.addRecordToLog("Already DH Connected");
+            Logger.addRecordToLog("DH Connected:" +ssidName);
             try {
 
                 fr = new FileReader("/proc/net/arp");
@@ -86,6 +90,7 @@ public class WifiConnect implements Runnable {
                     Log.v(MyService.TAG2, "Connected");
 
                     Logger.addRecordToLog("DB Connected Successfully");
+                    isDBConnected = 1;
                 }
             }
             else if (allScanResults.toString().contains("DH-")) {

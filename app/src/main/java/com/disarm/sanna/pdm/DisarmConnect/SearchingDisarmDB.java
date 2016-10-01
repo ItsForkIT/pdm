@@ -3,11 +3,14 @@ package com.disarm.sanna.pdm.DisarmConnect;
 import android.content.Context;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;
+import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.util.Log;
 
 import java.util.List;
 import java.util.StringTokenizer;
+
+import static com.disarm.sanna.pdm.DisarmConnect.MyService.wifiInfo;
 
 /**
  * Created by hridoy on 21/8/16.
@@ -15,8 +18,11 @@ import java.util.StringTokenizer;
 public class SearchingDisarmDB implements Runnable {
     private android.os.Handler handler;
     private Context context;
-    private int timerDBSearch = 5000;
+    private int timerDBSearch = 3000;
     public int minDBLevel = 3;
+
+    public String connectedSSID = MyService.wifi.getConnectionInfo().getSSID().toString().replace("\"","");
+    public String lastConnectedSSID = connectedSSID;
 
 
     public SearchingDisarmDB(android.os.Handler handler, Context context)
@@ -29,6 +35,31 @@ public class SearchingDisarmDB implements Runnable {
     @Override
     public void run()
     {
+        connectedSSID = MyService.wifi.getConnectionInfo().getSSID().toString().replace("\"","");
+        lastConnectedSSID.replace("\"","");
+        Log.v("ConnectedSSID:",connectedSSID);
+        if(lastConnectedSSID.startsWith("DH-") && !(lastConnectedSSID.equals(connectedSSID)))
+        {
+            Log.v("Disconnected DH:",lastConnectedSSID);
+            Logger.addRecordToLog("Disconnected : " + lastConnectedSSID);
+            lastConnectedSSID = "";
+        }
+        else if(lastConnectedSSID.contains("DB") && !(lastConnectedSSID.equals(connectedSSID))) {
+            Log.v("Disconnected DB:",lastConnectedSSID);
+            Logger.addRecordToLog("Disconnected : " + lastConnectedSSID);
+            lastConnectedSSID = "";
+        }
+        else if(connectedSSID.startsWith("DH-") || connectedSSID.contains("DB"))
+        {
+            Log.v("Connected SSID:", connectedSSID + "LastConnectedSSID:" + lastConnectedSSID);
+            lastConnectedSSID = connectedSSID;
+        }
+        else
+        {
+            Log.v("Connected SSID:", connectedSSID);
+            lastConnectedSSID = "";
+            connectedSSID = "";
+        }
         Log.v(MyService.TAG4,"searching DB");
         List<ScanResult> allScanResults = MyService.wifi.getScanResults();
         if (allScanResults.toString().contains(MyService.dbAPName)) {

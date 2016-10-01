@@ -11,6 +11,8 @@ import android.util.Log;
 import android.os.Handler;
 import android.view.LayoutInflater;
 
+import com.disarm.sanna.pdm.MainActivity;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -43,13 +45,15 @@ public class Timer_Toggler implements Runnable{
         MyService.wifi = (WifiManager) context.getSystemService(context.WIFI_SERVICE);
         WifiInfo wifiInfo = MyService.wifi.getConnectionInfo();
         MyService.checkWifiState = wifiInfo.getSSID();
-        Log.v(MyService.TAG1, "Ticking");
+        Log.v(MyService.TAG1, "Ticking Random Function");
+        Logger.addRecordToLog("Ticking");
         Log.v(MyService.TAG1, MyService.checkWifiState);
         MyService.count++;
         List<ScanResult> allScanResults = MyService.wifi.getScanResults();
 
         if (MyService.checkWifiState.equals("<unknown ssid>")) {
             Log.v(MyService.TAG1, "Hotspot Mode Detected");
+            Logger.addRecordToLog("Hotspot Mode Detected");
             boolean isReachable = false;
             try {
 
@@ -118,13 +122,17 @@ public class Timer_Toggler implements Runnable{
 
         else if(MyService.checkWifiState.contains("DisarmHotspotDB")) {
             Log.v(MyService.TAG1, "DisarmHotspotDB Not Toggling");
+            MainActivity.textConnect.setText("DB Connected");
 
         }
         else if (MyService.checkWifiState.contains("DH-")) {
             /////////////////////////
            // this.handler.post(searchingDisarmDB);
+            String connectedText = MyService.checkWifiState + " connected";
+            MainActivity.textConnect.setText(connectedText);
             Log.v(MyService.TAG1, "DisarmHotspot Not Toggling");
             Log.v(MyService.TAG1,"Trying to find better DH");
+            //Logger.addRecordToLog("Connected to DH");
             // Trying to search for better DH
             findBetterDHAvailable(allScanResults);
         }

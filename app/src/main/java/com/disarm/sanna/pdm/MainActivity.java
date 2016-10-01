@@ -33,6 +33,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.disarm.sanna.pdm.Adapters.MyAdapter;
@@ -62,9 +63,10 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     private boolean syncServiceBound = false;
     private boolean myServiceBound = false;
     private boolean gpsService = false;
-    String phoneVal = "DefaultNode";
+    public static String phoneVal = "DefaultNode";
     Logger logger;
     public static ImageView img_wifi_state;
+    public static TextView textConnect;
     static String root = Environment.getExternalStorageDirectory().toString();
     public final static String TARGET_DMS_PATH = root + "/DMS/";
     public static int[] prgmNameList = {R.string.health,
@@ -86,12 +88,16 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
         img_wifi_state = (ImageView) findViewById(R.id.img_wifi_state);
         syncTog = (SwitchCompat) findViewById(R.id.synctoggle);
         connTog = (SwitchCompat) findViewById(R.id.conntoggle);
         gpsTog = (SwitchCompat) findViewById(R.id.gpstoggle);
-
         mRecyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
+        textConnect = (TextView) findViewById(R.id.textView12);
+
+        // Set ImageView to Hotspot
+        img_wifi_state.setImageResource(R.drawable.wifi);
 
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
@@ -179,7 +185,9 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
                     }
                     myServiceBound = false;
                     stopService(myServiceIntent);
-                }
+                    img_wifi_state.setImageResource(R.drawable.wifi);
+                    textConnect.setText("");
+             }
                 break;
 
             case R.id.gpstoggle:
