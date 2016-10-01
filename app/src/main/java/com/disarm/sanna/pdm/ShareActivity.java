@@ -4,7 +4,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringDef;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
@@ -21,6 +23,7 @@ import com.disarm.sanna.pdm.Capture.Photo;
 import com.disarm.sanna.pdm.Capture.SmsCaptrue;
 import com.disarm.sanna.pdm.Capture.Text;
 import com.disarm.sanna.pdm.Capture.Video;
+import com.disarm.sanna.pdm.Util.PathFileObserver;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -35,8 +38,10 @@ public class ShareActivity extends AppCompatActivity implements
     String number;
     ArrayList<File> allFiles,imagefiles,videofiles,recordingfiles,textfiles,smsfiles;
     static Context applicationContext;
-    ArrayList<String> category = new ArrayList();
-    ArrayList<String> allFilesName = new ArrayList<>();
+    ArrayList<String> category = new ArrayList<>();
+
+    //PathFileObserver pathFileObserver;
+    private String category_active;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,7 +64,6 @@ public class ShareActivity extends AppCompatActivity implements
         final FloatingActionButton shareAudio = (FloatingActionButton)findViewById(R.id.b_share_audio);
         shareAudio.setOnClickListener(this);
         final FloatingActionButton shareText = (FloatingActionButton)findViewById(R.id.b_share_text);
-        shareText.setVisibility(View.INVISIBLE);
         shareText.setOnClickListener(this);
         final FloatingActionButton shareSms = (FloatingActionButton)findViewById(R.id.b_share_sms);
         shareSms.setOnClickListener(this);
@@ -85,12 +89,26 @@ public class ShareActivity extends AppCompatActivity implements
 
 
         for(File file: allFiles) {
-            allFilesName.add(file.getName());
+            category.add(file.getName());
         }
 
-        ShareChatsAdapter adapter = new ShareChatsAdapter(allFilesName, number, this);
+        ShareChatsAdapter adapter = new ShareChatsAdapter(category, number, this);
         adapter.setAnInterface(this);
         listview.setAdapter(adapter);
+        category_active = "ALL";
+
+        /*
+        pathFileObserver = new PathFileObserver(this,
+                Environment.getExternalStorageDirectory().toString()
+                        + SocialShareActivity.WORKING_DIRECTORY, number);
+        pathFileObserver.startWatching();
+        */
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        //pathFileObserver.stopWatching();
     }
 
     public static Context getContextOfApplication(){
@@ -138,6 +156,7 @@ public class ShareActivity extends AppCompatActivity implements
                 ShareChatsAdapter adapter1 = new ShareChatsAdapter(category, number, this);
                 adapter1.setAnInterface(this);
                 listview.setAdapter(adapter1);
+                category_active = "IMAGE";
                 break;
             case R.id.sh_video:
                 category.clear();
@@ -147,6 +166,7 @@ public class ShareActivity extends AppCompatActivity implements
                 ShareChatsAdapter adapter2 = new ShareChatsAdapter(category, number, this);
                 adapter2.setAnInterface(this);
                 listview.setAdapter(adapter2);
+                category_active = "VIDEO";
                 break;
             case R.id.sh_audio:
                 category.clear();
@@ -156,6 +176,7 @@ public class ShareActivity extends AppCompatActivity implements
                 ShareChatsAdapter adapter5 = new ShareChatsAdapter(category, number, this);
                 adapter5.setAnInterface(this);
                 listview.setAdapter(adapter5);
+                category_active = "AUDIO";
                 break;
             case R.id.sh_text:
                 category.clear();
@@ -165,6 +186,7 @@ public class ShareActivity extends AppCompatActivity implements
                 ShareChatsAdapter adapter3 = new ShareChatsAdapter(category, number, this);
                 adapter3.setAnInterface(this);
                 listview.setAdapter(adapter3);
+                category_active = "TEXT";
                 break;
             case R.id.sh_sms:
                 category.clear();
@@ -174,6 +196,7 @@ public class ShareActivity extends AppCompatActivity implements
                 ShareChatsAdapter adapter4 = new ShareChatsAdapter(category, number, this);
                 adapter4.setAnInterface(this);
                 listview.setAdapter(adapter4);
+                category_active = "SMS";
                 break;
         }
     }
@@ -185,18 +208,93 @@ public class ShareActivity extends AppCompatActivity implements
      */
     @Override
     public void onClick(View row, int position) {
-        File file = allFiles.get(position);
+        //File file = allFiles.get(position);
+        File file = null;
+        for(int i = 0; i < allFiles.size(); i++) {
+            if(allFiles.get(i).getName().equals(category.get(position))) {
+                file = allFiles.get(i);
+                break;
+            }
+        }
+
         Intent openFile = new Intent();
         openFile.setAction(Intent.ACTION_VIEW);
 
         MimeTypeMap fileMime = MimeTypeMap.getSingleton();
         String filePath = "" + file;
-        String mimeType = null;
+        String mimeType;
         mimeType = fileMime.getMimeTypeFromExtension(
                 filePath.substring(filePath.lastIndexOf('.') + 1));
         openFile.setDataAndType(Uri.parse("file://" + file.getAbsolutePath()), mimeType);
         openFile.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
         startActivity(Intent.createChooser(openFile, null));
+    }
+
+    public void refreshList(final String path, final File file) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                addFileToList(path, file);
+                refreshView();
+            }
+        });
+    }
+
+    /**
+     * Add a new file observed by File Observer to list
+     * @param path
+     * @param file
+     */
+    private void addFileToList(String path, File file) {
+        allFiles.add(file);
+        if(path.contains("IMG")) {
+            imagefiles.add(file);
+        } else if(path.contains("VID")) {
+            videofiles.add(file);
+        } else if(path.contains("SVS")) {
+            recordingfiles.add(file);
+        } else if(path.contains("TXT")) {
+            textfiles.add(file);
+        } else if(path.contains("SMS")) {
+            smsfiles.contains(file);
+        }
+    }
+
+    /**
+     * Refresh the list view
+     */
+    private void refreshView() {
+        category.clear();
+
+        if(category_active.equals("ALL")) {
+            for(File file: allFiles) {
+                category.add(file.getName());
+            }
+        } else if(category_active.equals("IMAGE")) {
+            for(File file: imagefiles) {
+                category.add(file.getName());
+            }
+        } else if(category_active.equals("VIDEO")) {
+            for(File file: videofiles) {
+                category.add(file.getName());
+            }
+        } else if(category_active.equals("AUDIO")) {
+            for(File file: recordingfiles) {
+                category.add(file.getName());
+            }
+        } else if(category_active.equals("TEXT")) {
+            for(File file: textfiles) {
+                category.add(file.getName());
+            }
+        } else if(category_active.equals("SMS")) {
+            for(File file: smsfiles) {
+                category.add(file.getName());
+            }
+        }
+
+        ShareChatsAdapter adapter2 = new ShareChatsAdapter(category, number, this);
+        adapter2.setAnInterface(this);
+        listview.setAdapter(adapter2);
     }
 }
