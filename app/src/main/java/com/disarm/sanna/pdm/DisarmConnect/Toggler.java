@@ -73,10 +73,10 @@ public class Toggler extends Activity{
             MyService.presentState = "wifi";
 
             // Set ImageView to Wifi
-            MainActivity.img_wifi_state.setImageResource(R.drawable.wifi);
+            //MainActivity.img_wifi_state.setImageResource(R.drawable.wifi);
 
             // Set text to textConnect TextView
-            MainActivity.textConnect.setText("");
+            //MainActivity.textConnect.setText("");
 
             // Wifi Mode Activated
             Log.v(MyService.TAG3,"wifitogging for "+ String.valueOf(addIncreasewifi));
