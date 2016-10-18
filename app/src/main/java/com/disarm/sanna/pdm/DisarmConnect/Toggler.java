@@ -46,11 +46,11 @@ public class Toggler extends Activity{
             MyService.presentState = "hotspot";
 
             // Set ImageView to Hotspot
-            MainActivity.img_wifi_state.setImageResource(R.drawable.hotspot);
+            //MainActivity.img_wifi_state.setImageResource(R.drawable.hotspot);
 
             // Set text to textConnect TextView
             String apHotspotName = "DH" + MyService.phoneVal;
-            MainActivity.textConnect.setText(apHotspotName);
+//            MainActivity.textConnect.setText(apHotspotName);
 
             // Hotspot Mode Activated
             Log.v(MyService.TAG1,"hptoggling for " +String.valueOf(addIncreasehp));
