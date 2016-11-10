@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.disarm.sanna.pdm.MainActivity;
+import com.disarm.sanna.pdm.R;
 
 /**
  * Created by hridoy on 19/8/16.
@@ -15,11 +16,12 @@ public class Toggler extends Activity{
     // Randomly value less than 0.50 will make HotspotActive else WifiActive
     private static double toggleBetweenHotspotWifi = 0.50;
 
-    public static  int addIncreasewifi = 5000,wifiIncrease=10000,hpIncrease=10000,addIncreasehp = 5000;
+    public static  int addIncreasewifi = 5000,wifiIncrease= 5000,hpIncrease=5000,addIncreasehp = 5000;
 
     // max increase of Wifi and HP Value
-    private static int maxWifiIncrease = 20000;
-    private static int maxHPIncrease = 20000;
+    private static int maxWifiIncrease = 35000;
+    private static int maxHPIncrease = 35000;
+
     // Set hotspot creation minimum battery level
     private static double minimumBatteryLevel = 10;
 
@@ -36,10 +38,19 @@ public class Toggler extends Activity{
             MyService.wifiState = Math.random()*1.0;
             Log.v(MyService.TAG3, String.valueOf(MyService.wifiState));
         }
-
         Log.v("Battery Level:", String.valueOf(MyService.level));
+        Log.v("Present State:", MyService.presentState);
 
         if(MyService.wifiState <= toggleBetweenHotspotWifi && MyService.level > minimumBatteryLevel ) {
+            // Present State
+            MyService.presentState = "hotspot";
+
+            // Set ImageView to Hotspot
+            //MainActivity.img_wifi_state.setImageResource(R.drawable.hotspot);
+
+            // Set text to textConnect TextView
+            String apHotspotName = "DH" + MyService.phoneVal;
+//            MainActivity.textConnect.setText(apHotspotName);
 
             // Hotspot Mode Activated
             Log.v(MyService.TAG1,"hptoggling for " +String.valueOf(addIncreasehp));
@@ -59,6 +70,13 @@ public class Toggler extends Activity{
 
         }
         else {
+            MyService.presentState = "wifi";
+
+            // Set ImageView to Wifi
+            //MainActivity.img_wifi_state.setImageResource(R.drawable.wifi);
+
+            // Set text to textConnect TextView
+            //MainActivity.textConnect.setText("");
 
             // Wifi Mode Activated
             Log.v(MyService.TAG3,"wifitogging for "+ String.valueOf(addIncreasewifi));
@@ -83,10 +101,10 @@ public class Toggler extends Activity{
         }
 
         if(addIncreasewifi == maxWifiIncrease){
-            addIncreasewifi = 5000;
+            addIncreasewifi = 10000;
         }
         else if(addIncreasehp == maxHPIncrease){
-            addIncreasehp = 5000;
+            addIncreasehp = 10000;
         }
 
     }

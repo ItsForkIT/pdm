@@ -9,6 +9,8 @@ import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.util.Log;
 
+import com.disarm.sanna.pdm.MainActivity;
+
 import java.lang.reflect.Method;
 
 public class ApManager {
@@ -45,8 +47,15 @@ public class ApManager {
                 wifiConfig.allowedKeyManagement.clear();
                 wifiConfig.allowedPairwiseCiphers.clear();
                 wifiConfig.allowedProtocols.clear();
-                wifiConfig.SSID = MyService.mobileAPName;
-                wifiConfig.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
+                wifiConfig.SSID = "DH-" + MyService.phoneVal;
+
+                wifiConfig.preSharedKey = "password123";
+
+                wifiConfig.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.SHARED);
+                wifiConfig.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
+                wifiConfig.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
+                wifiConfig.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
+
 
                 Method setWifiApMethod = wifimanager.getClass().getMethod("setWifiApEnabled", WifiConfiguration.class, boolean.class);
                 boolean apstatus=(Boolean) setWifiApMethod.invoke(wifimanager, wifiConfig,true);

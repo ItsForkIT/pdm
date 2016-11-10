@@ -2,7 +2,8 @@
     <string name="app_name">Surakshit</string>
     <string name="action_settings">Settings</string>
     <string name="text_sync">Sync</string>
-    <string name="text_start_connection">Start Connection</string>
+    <string name="text_start_connection">Connection</string>
+    <string name="text_connect"></string>
     <string name="text_GPS">GPS Trail</string>
     <string name="health">Health</string>
     <string name="food">Food</string>
@@ -41,6 +42,12 @@
     <string name="save">save</string>
     <string name="enter_msg">Enter Message</string>
     <string name="cus_input">Custom Input</string>
+    <string name="reset">Reset</string>
+    <string name="reset_working">Reset all collected data !</string>
+    <string name="reset_done">Reset Done !</string>
+    <string name="reset_all_data">Reset all App data !</string>
+    <string name="resetall">Reset All</string>
+    <string name="exit">Exit</string>
 
 
     <string-array name="health_array">

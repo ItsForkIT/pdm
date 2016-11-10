@@ -17,9 +17,14 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.disarm.sanna.pdm.MainActivity;
+
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.sql.Time;
@@ -33,15 +38,16 @@ import java.util.List;
 public class MyService extends Service {
 
     public static WifiManager wifi;
-    public static String wifis[]={"None"}, checkWifiState="0x";
+    public static String checkWifiState="0x";
     public static int level;
     public static BatteryLevel bl;
     public static WifiScanReceiver wifiReciever;
     public static boolean isHotspotOn,c;
     public static WifiInfo wifiInfo;
     public static List<String> IpAddr;
-    public static String mobileAPName = "DisarmHotspot";
+    public static String mobileAPName = "DH";
     public static String dbAPName = "DisarmHotspotDB";
+    public static String dbPass = "DisarmDB";
     public FileReader fr = null;
     public static int count=0,startwififirst = 1;
     public static Handler handler;
@@ -51,12 +57,15 @@ public class MyService extends Service {
     public static String TAG2 = "WifiConnect";
     public static String TAG3 = "Toggler";
     public static String TAG4 = "Searching DB";
-    Logger logger;
     public Timer_Toggler tt;
     public SearchingDisarmDB sDDB;
     public WifiConnect wifiC;
     private final IBinder myServiceBinder = new MyServiceBinder();
     public BufferedReader br = null;
+    private Logger logger;
+    public static String phoneVal;
+    public static String presentState="wifi";
+
     @Override
     public IBinder onBind(Intent intent) {
 
@@ -71,6 +80,9 @@ public class MyService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        // DisarmConnect Started
+        Log.v("MyService:", "DisarmConnect Started");
 
         // WifiScanReceiver registered
         IntentFilter filter = new IntentFilter();
@@ -91,15 +103,26 @@ public class MyService extends Service {
         batfilter.addAction(Intent.ACTION_BATTERY_CHANGED);
         registerReceiver(bl, batfilter);
 
-    }
+        // Read Source to generate DH
+        File file = new File(MainActivity.TARGET_DMS_PATH,"source.txt");
+        FileInputStream fis = null;
+        try {
+            fis = new FileInputStream(file);
+            byte[] data = new byte[(int) file.length()];
+            fis.read(data);
+            fis.close();
 
+            // phoneVal storing the source from source.txt
+            phoneVal = new String(data, "UTF-8");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-    private void runOnUiThread(Runnable runnable) {
-        handler.post(runnable);
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+
         // DisarmConnect Service started
         logger.addRecordToLog("DisarmConnect Started");
 
@@ -110,11 +133,8 @@ public class MyService extends Service {
         // Handler started
         handler = new Handler();
         tt = new Timer_Toggler(handler,getApplicationContext());
-        //handler.post(Timer_Toggle);
         wifiC = new WifiConnect(handler,getApplicationContext());
-        //handler.post(WifiConnect);
         sDDB = new SearchingDisarmDB(handler,getApplicationContext());
-        //  handler.post(searchingDisarmDB);
 
         return START_STICKY;
     }
@@ -132,7 +152,11 @@ public class MyService extends Service {
         if(isHotspotOn){
             ApManager.configApState(MyService.this);
             wifi.setWifiEnabled(true);
+            Logger.addRecordToLog("Stopping DisarmConnect Hotspot Disabled");
         }
+
+        // Stopping all services
+        handler.removeCallbacksAndMessages(null);
 
         // Release lock
         WakeLockHelper.keepCpuAwake(getApplicationContext(), false);
@@ -140,6 +164,7 @@ public class MyService extends Service {
 
         // Adding stop record to log
         logger.addRecordToLog("DisarmConnect Stopped");
+        Log.v("MyService:", "DisarmConnect Stooped");
     }
 
 }
