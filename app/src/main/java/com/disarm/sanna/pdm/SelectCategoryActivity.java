@@ -2,24 +2,13 @@ package com.disarm.sanna.pdm;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.Toast;
-
-import com.disarm.sanna.pdm.Util.Reset;
-
-import java.io.File;
 
 /**
  * Created by arka on 14/9/16.
@@ -54,7 +43,7 @@ public class SelectCategoryActivity extends AppCompatActivity implements ImageBu
                 break;
             case R.id.b_category_disaster_management:
                 // Launch Disaster Management Activity
-                Intent intentDisasterManagement = new Intent(this, MainActivity.class);
+                Intent intentDisasterManagement = new Intent(this, SurakshitActivity.class);
                 startActivity(intentDisasterManagement);
                 break;
         }
