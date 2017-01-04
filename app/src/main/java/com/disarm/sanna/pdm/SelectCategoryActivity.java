@@ -15,21 +15,19 @@ import android.widget.ImageButton;
  * Activity to choose between offline social sharing and disaster management category
  */
 public class SelectCategoryActivity extends AppCompatActivity implements ImageButton.OnClickListener {
-    Button categorySocialShare;
-    Button categoryDisasterManagement;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.layout_select_category);
 
-        //categorySocialShare = (Button)findViewById(R.id.b_category_social_share);
-        //categoryDisasterManagement = (Button)findViewById(R.id.b_category_disaster_management);
         ImageButton categorySocialShare = (ImageButton)findViewById(R.id.b_category_social_share);
         ImageButton categoryDisasterManagement = (ImageButton)findViewById(R.id.b_category_disaster_management);
+        ImageButton categoryGIS = (ImageButton)findViewById(R.id.b_category_gis);
 
         categorySocialShare.setOnClickListener(this);
         categoryDisasterManagement.setOnClickListener(this);
+        categoryGIS.setOnClickListener(this);
     }
 
     @Override
@@ -46,6 +44,14 @@ public class SelectCategoryActivity extends AppCompatActivity implements ImageBu
                 Intent intentDisasterManagement = new Intent(this, SurakshitActivity.class);
                 startActivity(intentDisasterManagement);
                 break;
+            case R.id.b_category_gis:
+                Intent intentGIS = null;
+                try {
+                    intentGIS = new Intent(this, Class.forName("com.nextgis.mobile.activity.MainActivity"));
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+                startActivity(intentGIS);
         }
     }
 
