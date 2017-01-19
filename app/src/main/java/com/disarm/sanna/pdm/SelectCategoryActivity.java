@@ -10,6 +10,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 
+import com.disarm.sanna.pdm.Util.SyncGIS;
+import com.nextgis.maplib.util.SettingsConstants;
+
+import java.io.File;
+
 /**
  * Created by arka on 14/9/16.
  * Activity to choose between offline social sharing and disaster management category
@@ -28,6 +33,8 @@ public class SelectCategoryActivity extends AppCompatActivity implements ImageBu
         categorySocialShare.setOnClickListener(this);
         categoryDisasterManagement.setOnClickListener(this);
         categoryGIS.setOnClickListener(this);
+
+        new SyncGIS(getApplicationContext(), new File(SettingsConstants.WORKING_DIR)).syncGisFiles();
     }
 
     @Override
