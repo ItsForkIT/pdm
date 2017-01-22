@@ -125,7 +125,7 @@ public class Timer_Toggler implements Runnable{
             /////////////////////////
            // this.handler.post(searchingDisarmDB);
             String connectedText = MyService.checkWifiState + " connected";
-            SurakshitActivity.textConnect.setText(connectedText);
+//            SurakshitActivity.textConnect.setText(connectedText);
             Log.v(MyService.TAG1, "DisarmHotspot Not Toggling");
             Log.v(MyService.TAG1,"Trying to find better DH");
             //Logger.addRecordToLog("Connected to DH");

@@ -52,7 +52,6 @@
                     android:id="@+id/synctoggle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:checked="false"
                     android:layout_alignTop="@+id/textView"
                     android:layout_alignParentEnd="true" />
 
@@ -89,7 +88,6 @@
                     android:id="@+id/conntoggle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:checked="false"
                     android:layout_alignTop="@+id/textView1"
                     android:layout_alignParentEnd="true" />
                 <View
@@ -148,7 +146,6 @@
                     android:id="@+id/gpstoggle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:checked="false"
                     android:layout_alignParentEnd="true" />
 
             </RelativeLayout>
