@@ -7,10 +7,9 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageButton;
 
-import com.disarm.sanna.pdm.Util.SyncGIS;
+import com.nextgis.mobile.util.SyncGIS;
 import com.nextgis.maplib.util.SettingsConstants;
 
 import java.io.File;
@@ -33,8 +32,6 @@ public class SelectCategoryActivity extends AppCompatActivity implements ImageBu
         categorySocialShare.setOnClickListener(this);
         categoryDisasterManagement.setOnClickListener(this);
         categoryGIS.setOnClickListener(this);
-
-        new SyncGIS(getApplicationContext(), new File(SettingsConstants.WORKING_DIR)).syncGisFiles();
     }
 
     @Override
