@@ -1,68 +1,38 @@
 package com.disarm.sanna.pdm;
 
-import android.Manifest;
-import android.app.ActivityManager;
 import android.app.ProgressDialog;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
-import android.os.IBinder;
 import android.preference.PreferenceManager;
-import android.provider.Settings;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SwitchCompat;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.CompoundButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.disarm.sanna.pdm.Adapters.MyAdapter;
-import com.disarm.sanna.pdm.DisarmConnect.MyService;
-import com.disarm.sanna.pdm.Service.SyncService;
 import com.disarm.sanna.pdm.Util.DividerItemDecoration;
 import com.disarm.sanna.pdm.Util.Reset;
 
 
 import java.io.File;
-import java.io.FileInputStream;
 
 
-public class SurakshitActivity extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener {
+public class SurakshitActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
-    private SwitchCompat syncTog, connTog, gpsTog;
-    SyncService syncService;
-    MyService myService;
     float speed;
     double latitude, longitude;
-    LocationManager lm;
-    boolean gps_enabled;
-    LocationListener locationListener;
-    private boolean syncServiceBound = false;
-    private boolean myServiceBound = false;
-    private boolean gpsService = false;
-    public static String phoneVal = "DefaultNode";
-    Logger logger;
-    public static ImageView img_wifi_state;
     public static TextView textConnect;
     static String root = Environment.getExternalStorageDirectory().toString();
     public final static String TARGET_DMS_PATH = root + "/DMS/";
@@ -70,7 +40,6 @@ public class SurakshitActivity extends AppCompatActivity implements CompoundButt
             R.string.food,
             R.string.shelter,
             R.string.victim};
-    private boolean doubleBackToExitPressedOnce = false;
 
 
     public interface ClickListener {
@@ -86,16 +55,7 @@ public class SurakshitActivity extends AppCompatActivity implements CompoundButt
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        img_wifi_state = (ImageView) findViewById(R.id.img_wifi_state);
-        syncTog = (SwitchCompat) findViewById(R.id.synctoggle);
-        connTog = (SwitchCompat) findViewById(R.id.conntoggle);
-        gpsTog = (SwitchCompat) findViewById(R.id.gpstoggle);
         mRecyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
-        textConnect = (TextView) findViewById(R.id.textView12);
-
-        // Set ImageView to Hotspot
-        img_wifi_state.setImageResource(R.drawable.wifi);
-
         // use this setting to improve performance if you know that changes
         // in content do not change the layout size of the RecyclerView
         mRecyclerView.setHasFixedSize(true);
@@ -130,81 +90,8 @@ public class SurakshitActivity extends AppCompatActivity implements CompoundButt
 
             }
         }));
-        syncTog.setOnCheckedChangeListener(this);
-        connTog.setOnCheckedChangeListener(this);
-        gpsTog.setOnCheckedChangeListener(this);
-
-        boolean c = isMyServiceRunning(bishakh.psync.SyncService.class);
-        if (c)
-            syncTog.setChecked(true);
-        else
-            syncTog.setChecked(false);
-
-        boolean d = isMyServiceRunning(MyService.class);
-        if (d)
-            connTog.setChecked(true);
-        else
-            connTog.setChecked(false);
-
 
     }
-
-    @Override
-    public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-        switch (compoundButton.getId()) {
-            case R.id.synctoggle:
-                if (b) {
-                    final Intent syncServiceIntent = new Intent(getBaseContext(), SyncService.class);
-                    bindService(syncServiceIntent, syncServiceConnection, Context.BIND_AUTO_CREATE);
-                    startService(syncServiceIntent);
-
-                    Toast.makeText(getApplicationContext(), R.string.start_sync, Toast.LENGTH_SHORT).show();
-                } else {
-                    final Intent syncServiceIntent = new Intent(getBaseContext(), SyncService.class);
-                    if (syncServiceBound) {
-                        unbindService(syncServiceConnection);
-                    }
-                    syncServiceBound = false;
-                    stopService(syncServiceIntent);
-                }
-                break;
-
-            case R.id.conntoggle:
-                if (b) {
-                    final Intent myServiceIntent = new Intent(getBaseContext(), MyService.class);
-                    bindService(myServiceIntent, myServiceConnection, Context.BIND_AUTO_CREATE);
-                    startService(myServiceIntent);
-                } else {
-
-                    final Intent myServiceIntent = new Intent(getBaseContext(), MyService.class);
-                    if (myServiceBound) {
-                        unbindService(myServiceConnection);
-                    }
-                    myServiceBound = false;
-                    stopService(myServiceIntent);
-                    img_wifi_state.setImageResource(R.drawable.wifi);
-                    textConnect.setText("");
-             }
-                break;
-
-            case R.id.gpstoggle:
-                if (b) {
-                    requestLocation();
-                } else {
-                    if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) !=
-                            PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,
-                            Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        return;
-                    }
-                    if (gpsService) {
-                        lm.removeUpdates(locationListener);
-                        gpsService = false;
-                    }
-                }
-                break;
-        }
-    }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -301,199 +188,6 @@ public class SurakshitActivity extends AppCompatActivity implements CompoundButt
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (doubleBackToExitPressedOnce) {
-            super.onBackPressed();
-            unbindAllService();
-            return;
-        }
-
-        this.doubleBackToExitPressedOnce = true;
-        Toast.makeText(this, R.string.press_back_to_exit, Toast.LENGTH_SHORT).show();
-
-        new Handler().postDelayed(new Runnable() {
-
-            @Override
-            public void run() {
-                doubleBackToExitPressedOnce=false;
-            }
-        }, 2000);
-    }
-
-    //Psync
-    private ServiceConnection syncServiceConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName className,
-                                       IBinder service) {
-            SyncService.SyncServiceBinder binder = (SyncService.SyncServiceBinder) service;
-            syncService = binder.getService();
-            syncServiceBound = true;
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            syncServiceBound = false;
-        }
-    };
-
-    //DisarmConnect
-    private ServiceConnection myServiceConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName className,
-                                       IBinder service) {
-            MyService.MyServiceBinder binder = (MyService.MyServiceBinder) service;
-            myService= binder.getService();
-            myServiceBound = true;
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            myServiceBound = false;
-        }
-    };
-
-
-
-    public void enableGPS(){
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-        alertDialogBuilder
-                .setMessage(R.string.gps_msg)
-                .setCancelable(false)
-                .setPositiveButton(R.string.enable_gps,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,
-                                                int id) {
-                                Intent callGPSSettingIntent = new Intent(
-                                        android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                                // startActivity(callGPSSettingIntent);
-                                startActivityForResult(callGPSSettingIntent, 5);
-                            }
-                        });
-        alertDialogBuilder.setNegativeButton(R.string.cancel,
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        dialog.cancel();
-                    }
-                });
-        AlertDialog alert = alertDialogBuilder.create();
-        alert.show();
-    }
-
-    protected void onActivityResult(int requestCode, int resultCode, Intent data){
-        if(requestCode == 5 && resultCode == 0){
-            String provider = Settings.Secure.getString(getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
-            if(provider != null){
-                switch(provider.length()){
-                    case 0:
-                        //GPS still not enabled..
-                        break;
-                    default:
-                        Toast.makeText(this, R.string.enabled_gps, Toast.LENGTH_LONG).show();
-                        //startService(new Intent(getBaseContext(), LocationUpdateService.class));
-                        break;
-                }
-            }
-        }
-        else{
-            //the user did not enable his GPS
-        }
-    }
-    private void requestLocation(){
-        LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        boolean statusOfGPS = manager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-        if (statusOfGPS) {
-            // Call logger constructor using phoneVal
-            // Read Device source from ConfigFile.txt
-            File file = new File(TARGET_DMS_PATH,"source.txt");
-            FileInputStream fis = null;
-            try {
-                fis = new FileInputStream(file);
-                byte[] data = new byte[(int) file.length()];
-                fis.read(data);
-                fis.close();
-
-                phoneVal = new String(data, "UTF-8");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            logger = new Logger(phoneVal);
-
-
-            lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-            gps_enabled = false;
-
-            try {
-                gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
-            } catch (Exception ex) {
-            }
-
-            // Check if gps and network provider is on or off
-            if (!gps_enabled ) {
-
-                Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                startActivity(myIntent);
-            }
-
-            locationListener = new MyLocationListener(logger,phoneVal);
-
-            lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                    ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                return;
-            }
-            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 5, locationListener);
-            gpsService = true;
-        } else {
-            enableGPS();
-        }
-    }
-
-    private void unbindAllService(){
-        final Intent syncServiceIntent = new Intent(getBaseContext(), SyncService.class);
-        if (syncServiceBound) {
-            unbindService(syncServiceConnection);
-        }
-        syncServiceBound = false;
-        stopService(syncServiceIntent);
-
-        final Intent myServiceIntent = new Intent(getBaseContext(), MyService.class);
-        if (myServiceBound) {
-            unbindService(myServiceConnection);
-        }
-        myServiceBound = false;
-        stopService(myServiceIntent);
-
-        if (gpsService) {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                    != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,
-                    Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                return;
-            }
-            lm.removeUpdates(locationListener);
-            gpsService = false;
-        }
-    }
-
-    private boolean isMyServiceRunning(Class<?> serviceClass) {
-        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (serviceClass.getName().equals(service.service.getClassName())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        unbindAllService();
     }
 }
 

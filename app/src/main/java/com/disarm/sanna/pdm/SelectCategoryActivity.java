@@ -335,4 +335,29 @@ public class SelectCategoryActivity extends AppCompatActivity{
         }
         return false;
     }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data){
+        if(requestCode == 5 && resultCode == 0){
+            String provider = Settings.Secure.getString(getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
+            if(provider != null){
+                switch(provider.length()){
+                    case 0:
+                        //GPS still not enabled..
+                        break;
+                    default:
+                        Toast.makeText(this, R.string.enabled_gps, Toast.LENGTH_LONG).show();
+                        //startService(new Intent(getBaseContext(), LocationUpdateService.class));
+                        break;
+                }
+            }
+        }
+        else{
+            //the user did not enable his GPS
+        }
+    }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unbindAllService();
+    }
 }
