@@ -68,9 +68,9 @@ public class SyncService extends Service {
         source=source1();
         logger =new Logger(databaseDirectory,source);
         discoverer = new Discoverer(BROADCAST_IP,source, PORT,logger);
-        fileManager = new FileManager(databaseName, databaseDirectory,syncDirectory,mapDirectory,logger);
+        fileManager = new FileManager(source, databaseName, databaseDirectory,syncDirectory,mapDirectory,logger);
         fileTransporter = new FileTransporter(syncDirectory,logger);
-        controller = new Controller(discoverer, fileManager, fileTransporter, syncInterval, maxRunningDownloads,logger);
+        controller = new Controller(discoverer, fileManager, fileTransporter, syncInterval, maxRunningDownloads, logger, false);
         webServer = new WebServer(8080, controller,logger);
     }
 
