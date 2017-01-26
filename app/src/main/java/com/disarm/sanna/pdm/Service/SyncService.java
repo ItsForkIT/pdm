@@ -1,11 +1,18 @@
 package com.disarm.sanna.pdm.Service;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Binder;
 import android.os.Environment;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.util.Log;
+
+import com.disarm.sanna.pdm.SelectCategoryActivity;
+import com.disarm.sanna.pdm.Util.PrefUtils;
+import com.nextgis.maplib.util.SettingsConstants;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -43,29 +50,8 @@ public class SyncService extends Service {
     public Logger logger;
     private final IBinder syncServiceBinder = new SyncServiceBinder();
 
-    //Source
-    private static String source1()
-    {
-
-        try {
-            if(f.exists()) {
-                BufferedReader br = new BufferedReader(new FileReader(DirectoryPath));
-                Log.d("AttachAud/Vid", DirectoryPath);
-                if (br.ready()) {
-                    line=br.readLine();
-                }
-                br.close();
-            }
-        }catch(Exception e){
-            Log.d("Error in Aud/Vid Source", e.toString());
-        }
-        Log.d("AttachAud/Vid",line);
-        return line;
-    }
-    /////////////////////
-
     public SyncService() {
-        source=source1();
+        source = SelectCategoryActivity.SOURCE_PHONE_NO;
         logger =new Logger(databaseDirectory,source);
         discoverer = new Discoverer(BROADCAST_IP,source, PORT,logger);
         fileManager = new FileManager(source, databaseName, databaseDirectory,syncDirectory,mapDirectory,logger);
