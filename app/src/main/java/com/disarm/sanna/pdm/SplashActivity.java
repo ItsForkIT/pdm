@@ -32,6 +32,7 @@ import android.widget.Toast;
 
 import com.disarm.sanna.pdm.Util.CopyAssets;
 import com.disarm.sanna.pdm.Util.PrefUtils;
+import com.nextgis.maplib.util.SettingsConstants;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -59,7 +60,6 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
     public Locale myLocale;
     private String definedlanguage ;
     public static final String Lang = "language";
-    public static final String PHONE_NO = "phone_no";
     String[] PERMISSIONS = {Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.CAMERA,
@@ -141,7 +141,7 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
 
     private boolean checkPhoneNo() {
         boolean isSourceExit = false;
-        if (!PrefUtils.getFromPrefs(this, PHONE_NO, "NA").equals("NA")) {
+        if (!PrefUtils.getFromPrefs(this, SettingsConstants.PHONE_NO, "NA").equals("NA")) {
             isSourceExit = true;
         }
         return isSourceExit;
@@ -159,7 +159,7 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
             final String phoneTextVal = phoneText1.getText().toString();
 
             if(phoneTextVal.length() == 10 && phoneTextVal.matches("^[789]\\d{9}$")) {
-                PrefUtils.saveToPrefs(this,PHONE_NO,phoneTextVal);
+                PrefUtils.saveToPrefs(this, SettingsConstants.PHONE_NO, phoneTextVal);
                 callWriteSettingActivity();
             }
             else
