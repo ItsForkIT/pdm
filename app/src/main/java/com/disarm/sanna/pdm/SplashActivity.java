@@ -141,7 +141,7 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
 
     private boolean checkPhoneNo() {
         boolean isSourceExit = false;
-        if (PrefUtils.getFromPrefs(this,PHONE_NO,"NA") != "NA") {
+        if (!PrefUtils.getFromPrefs(this, PHONE_NO, "NA").equals("NA")) {
             isSourceExit = true;
         }
         return isSourceExit;
