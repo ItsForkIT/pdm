@@ -31,6 +31,8 @@ import android.widget.Toast;
 
 
 import com.disarm.sanna.pdm.Util.CopyAssets;
+import com.disarm.sanna.pdm.Util.PrefUtils;
+import com.nextgis.maplib.util.SettingsConstants;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -42,20 +44,19 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Created by disarm on 11/7/16.
+ * Created by sanna on 11/7/16.
  */
 public class SplashActivity extends AppCompatActivity implements View.OnClickListener {
     private static final int PERMISSION_ALL = 1;
+
     public File dmsFolder = Environment.getExternalStoragePublicDirectory("DMS/");
     public File workingFolder = Environment.getExternalStoragePublicDirectory("DMS/Working");
     public File tmpFolder = Environment.getExternalStoragePublicDirectory("DMS/tmp");
     public File mapFolder = Environment.getExternalStoragePublicDirectory("DMS/Map");
-    final File configFile = new File(dmsFolder,"source.txt");
-    private ProgressDialog progress;
+
     private EditText phoneText1;
     private Button submitButton;
     private Spinner spinner2;
-    boolean isAllFolderExit = false;
     public Locale myLocale;
     private String definedlanguage ;
     public static final String Lang = "language";
@@ -69,70 +70,62 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        setContentView(R.layout.activity_splash);
-        submitButton = (Button) findViewById(R.id.submitButton);
-        phoneText1 = (EditText) findViewById(R.id.phoneText);
-        spinner2 = (Spinner)findViewById(R.id.language);
-        spinner2.setVisibility(View.GONE);
-        submitButton.setVisibility(View.GONE);
-        phoneText1.setVisibility(View.GONE);
-        phoneText1.setCursorVisible(false);
-        progress=new ProgressDialog(this);
-        progress.setMessage("Checking All Configuration");
-        progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        progress.show();
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (!checkPermissions(this, PERMISSIONS)) {
                 ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
             }
         }else{
-            afterPermissionExecute();
+            creatingFolders();
+        }
+        if (checkPhoneNo()){
+            callWriteSettingActivity();
+        }else {
+            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
+            setContentView(R.layout.activity_splash);
+
+            submitButton = (Button) findViewById(R.id.submitButton);
+            phoneText1 = (EditText) findViewById(R.id.phoneText);
+            spinner2 = (Spinner)findViewById(R.id.language);
+
+            definedlanguage = PrefUtils.getFromPrefs(this,Lang,"en");
+            setLocale(definedlanguage);
+
+            submitButton.setOnClickListener( this);
+
+            String[] langArray = getResources().getStringArray(R.array.lang_list);
+            List<String> lang = new ArrayList<String>(Arrays.asList(langArray));
+            ArrayAdapter<String> adapter = new ArrayAdapter<String>
+                    (this, android.R.layout.simple_spinner_item, lang);
+            adapter.setDropDownViewResource
+                    (android.R.layout.simple_spinner_dropdown_item);
+            spinner2.setAdapter(adapter);
+
+            spinner2.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                    if (pos == 0) {
+                        setLocale("en");
+                        PrefUtils.saveToPrefs(getApplicationContext(),Lang,"en");
+                    } else if (pos == 1) {
+                        setLocale("bn");
+                        PrefUtils.saveToPrefs(getApplicationContext(),Lang,"bn");
+                    } else if (pos == 2) {
+                        setLocale("hi");
+                        PrefUtils.saveToPrefs(getApplicationContext(),Lang,"hi");
+                    }
+                }
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+
+                }
+            });
         }
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        definedlanguage = prefs.getString(Lang,"");
-        setLocale(definedlanguage);
-
-        submitButton.setOnClickListener( this);
-
-        String[] langArray = getResources().getStringArray(R.array.lang_list);
-        List<String> lang = new ArrayList<String>(Arrays.asList(langArray));
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>
-                (this, android.R.layout.simple_spinner_item, lang);
-        adapter.setDropDownViewResource
-                (android.R.layout.simple_spinner_dropdown_item);
-        spinner2.setAdapter(adapter);
-
-        spinner2.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(SplashActivity.this);
-                SharedPreferences.Editor editor = prefs.edit();
-                if (pos == 0) {
-                    setLocale("en");
-                    editor.putString(Lang,"en");
-                    editor.commit();
-                } else if (pos == 1) {
-                    setLocale("bn");
-                    editor.putString(Lang,"bn");
-                    editor.commit();
-                } else if (pos == 2) {
-                    setLocale("hi");
-                    editor.putString(Lang,"hi");
-                    editor.commit();
-                }
-            }
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
     }
 
-    private void afterPermissionExecute(){
+    private void creatingFolders(){
         if (!dmsFolder.exists()){
             dmsFolder.mkdir();
         }if (!workingFolder.exists()){
@@ -142,38 +135,13 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
         }if (!mapFolder.exists()){
             mapFolder.mkdir();
         }
-        //checkAllFolder();
         copyingAssets();
 
-        if (checkSourceFile()){
-            progress.setMessage("Source : OK");
-            progress.dismiss();
-            callWriteSettingActivity();
-        }else {
-            phoneText1.setVisibility(View.VISIBLE);
-            submitButton.setVisibility(View.VISIBLE);
-            spinner2.setVisibility(View.VISIBLE);
-            copyingAssets();
-            progress.dismiss();
-        }
-
     }
 
-    private void checkAllFolder() {
-        if (!dmsFolder.exists() && !workingFolder.exists() && !tmpFolder.exists() &&!mapFolder.exists()) {
-            Log.v("File","creating files");
-            dmsFolder.mkdir();
-            workingFolder.mkdir();
-            tmpFolder.mkdir();
-            mapFolder.mkdir();
-            isAllFolderExit = true;
-        }
-    }
-
-    private boolean checkSourceFile() {
+    private boolean checkPhoneNo() {
         boolean isSourceExit = false;
-        if (configFile.exists()) {
-            // TODO Auto-generated method stub
+        if (!PrefUtils.getFromPrefs(this, SettingsConstants.PHONE_NO, "NA").equals("NA")) {
             isSourceExit = true;
         }
         return isSourceExit;
@@ -191,25 +159,7 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
             final String phoneTextVal = phoneText1.getText().toString();
 
             if(phoneTextVal.length() == 10 && phoneTextVal.matches("^[789]\\d{9}$")) {
-                if (!configFile.exists())  {
-                    try  {
-                        Log.d("source File created ", " source File created ");
-                        configFile.createNewFile();
-                    } catch (IOException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-                }
-                try {
-                    BufferedWriter buf = new BufferedWriter(new FileWriter(configFile, true));
-                    buf.write(phoneTextVal);
-                    buf.flush();
-                    buf.close();
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-
+                PrefUtils.saveToPrefs(this, SettingsConstants.PHONE_NO, phoneTextVal);
                 callWriteSettingActivity();
             }
             else
@@ -236,7 +186,7 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    afterPermissionExecute();
+                    creatingFolders();
 
                 } else {
 

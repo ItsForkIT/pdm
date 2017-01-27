@@ -34,7 +34,7 @@
     <string name="msg_taken">Msg Taken</string>
     <string name="writesetting_msg">Allow App to modify system settings, so it can start connection.</string>
     <string name="writesetting_head">One More Thing</string>
-    <string name="allow_setting">allow chnaging settings</string>
+    <string name="allow_setting">allow changing settings</string>
     <string name="discard">DISCARD</string>
     <string name="submit">SUBMIT</string>
     <string name="add_text">Add Text</string>
