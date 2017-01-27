@@ -26,6 +26,8 @@ import android.widget.Toast;
 
 import com.disarm.sanna.pdm.DisarmConnect.MyService;
 import com.disarm.sanna.pdm.Service.SyncService;
+import com.disarm.sanna.pdm.Util.PrefUtils;
+import com.nextgis.maplib.util.SettingsConstants;
 
 
 import java.io.File;
@@ -55,12 +57,14 @@ public class SelectCategoryActivity extends AppCompatActivity{
     LocationListener locationListener;
     static String root = Environment.getExternalStorageDirectory().toString();
     public final static String TARGET_DMS_PATH = root + "/DMS/";
+    public static String SOURCE_PHONE_NO;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.choose_activity);
         ToggleSwitch toggleSwitch_sync = (ToggleSwitch) findViewById(R.id.choose_sync);
+        SOURCE_PHONE_NO = PrefUtils.getFromPrefs(SelectCategoryActivity.this, SettingsConstants.PHONE_NO, "NA");
         ArrayList<String> labels_sync = new ArrayList<>();
         labels_sync.add("OFF");
         labels_sync.add("ON");
