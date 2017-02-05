@@ -8,9 +8,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.location.GpsStatus;
+import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.IBinder;
@@ -20,24 +21,23 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
-import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.disarm.sanna.pdm.DisarmConnect.MyService;
 import com.disarm.sanna.pdm.Service.SyncService;
 import com.disarm.sanna.pdm.Util.PrefUtils;
+import com.disarm.sanna.pdm.location.LocationState;
+import com.disarm.sanna.pdm.location.MLocation;
 import com.nextgis.maplib.util.SettingsConstants;
 
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.util.ArrayList;
 
 import belka.us.androidtoggleswitch.widgets.BaseToggleSwitch;
+import belka.us.androidtoggleswitch.widgets.BaseToggleSwitch.OnToggleSwitchChangeListener;
 import belka.us.androidtoggleswitch.widgets.ToggleSwitch;
-
-import static com.disarm.sanna.pdm.DisarmConnect.MyService.phoneVal;
 
 /**
  * Created by arka on 14/9/16.
@@ -49,8 +49,6 @@ public class SelectCategoryActivity extends AppCompatActivity{
     private boolean gpsService = false;
     SyncService syncService;
     MyService myService;
-    float speed;
-    double latitude, longitude;
     LocationManager lm;
     Logger logger;
     boolean gps_enabled;
@@ -58,13 +56,16 @@ public class SelectCategoryActivity extends AppCompatActivity{
     static String root = Environment.getExternalStorageDirectory().toString();
     public final static String TARGET_DMS_PATH = root + "/DMS/";
     public static String SOURCE_PHONE_NO;
+    ToggleSwitch toggleSwitch_gps;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.choose_activity);
+
+        SOURCE_PHONE_NO = PrefUtils.getFromPrefs(this, SettingsConstants.PHONE_NO, "NA");
+
         ToggleSwitch toggleSwitch_sync = (ToggleSwitch) findViewById(R.id.choose_sync);
-        SOURCE_PHONE_NO = PrefUtils.getFromPrefs(SelectCategoryActivity.this, SettingsConstants.PHONE_NO, "NA");
         ArrayList<String> labels_sync = new ArrayList<>();
         labels_sync.add("OFF");
         labels_sync.add("ON");
@@ -112,33 +113,28 @@ public class SelectCategoryActivity extends AppCompatActivity{
                     }
                     myServiceBound = false;
                     stopService(myServiceIntent);
-                    //img_wifi_state.setImageResource(R.drawable.wifi);
-                    //textConnect.setText("");
                 }
             }
         });
 
-        ToggleSwitch toggleSwitch_gps = (ToggleSwitch) findViewById(R.id.choose_gps);
+        toggleSwitch_gps = (ToggleSwitch) findViewById(R.id.choose_gps);
         ArrayList<String> labels_gps = new ArrayList<>();
         labels_gps.add("OFF");
         labels_gps.add("ON");
         toggleSwitch_gps.setLabels(labels_gps);
         toggleSwitch_gps.setOnToggleSwitchChangeListener(new ToggleSwitch.OnToggleSwitchChangeListener() {
 
+            @SuppressWarnings({"deprecation", "MissingPermission"})
             @Override
             public void onToggleSwitchChangeListener(int position, boolean isChecked) {
                 if (position == 1) {
-                    requestLocation();
+                    if (!LocationState.with(SelectCategoryActivity.this).locationServicesEnabled()){
+                        enableGPS();
+                    }
+                    MLocation.subscribe(SelectCategoryActivity.this);
+
                 } else {
-                    if (ActivityCompat.checkSelfPermission(SelectCategoryActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) !=
-                            PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(SelectCategoryActivity.this,
-                            Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                        return;
-                    }
-                    if (gpsService) {
-                        lm.removeUpdates(locationListener);
-                        gpsService = false;
-                    }
+                    MLocation.unsubscribe();
                 }
             }
         });
@@ -253,57 +249,6 @@ public class SelectCategoryActivity extends AppCompatActivity{
         alert.show();
     }
 
-    private void requestLocation() {
-        LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        boolean statusOfGPS = manager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-        if (statusOfGPS) {
-            // Call logger constructor using phoneVal
-            // Read Device source from ConfigFile.txt
-            File file = new File(TARGET_DMS_PATH, "source.txt");
-            FileInputStream fis = null;
-            try {
-                fis = new FileInputStream(file);
-                byte[] data = new byte[(int) file.length()];
-                fis.read(data);
-                fis.close();
-
-                phoneVal = new String(data, "UTF-8");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            logger = new Logger(phoneVal);
-
-
-            lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-            gps_enabled = false;
-
-            try {
-                gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
-            } catch (Exception ex) {
-            }
-
-            // Check if gps and network provider is on or off
-            if (!gps_enabled) {
-
-                Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                startActivity(myIntent);
-            }
-
-            locationListener = new MyLocationListener(logger, phoneVal);
-
-            lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                    ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                return;
-            }
-            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 5, locationListener);
-            gpsService = true;
-        } else {
-            enableGPS();
-        }
-    }
-
     private void unbindAllService() {
         final Intent syncServiceIntent = new Intent(getBaseContext(), SyncService.class);
         if (syncServiceBound) {
@@ -347,10 +292,11 @@ public class SelectCategoryActivity extends AppCompatActivity{
                 switch(provider.length()){
                     case 0:
                         //GPS still not enabled..
+                        toggleSwitch_gps.setCheckedTogglePosition(0);
                         break;
                     default:
+                        MLocation.subscribe(SelectCategoryActivity.this);
                         Toast.makeText(this, R.string.enabled_gps, Toast.LENGTH_LONG).show();
-                        //startService(new Intent(getBaseContext(), LocationUpdateService.class));
                         break;
                 }
             }

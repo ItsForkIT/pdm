@@ -3,6 +3,7 @@ package com.disarm.sanna.pdm.BackgroundProcess;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.preference.PreferenceManager;
@@ -10,10 +11,13 @@ import android.util.Log;
 
 import com.disarm.sanna.pdm.ActivityList;
 import com.disarm.sanna.pdm.ShareActivity;
+import com.disarm.sanna.pdm.location.MLocation;
 
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.Arrays;
+
+import static com.disarm.sanna.pdm.SelectCategoryActivity.SOURCE_PHONE_NO;
 
 
 /**
@@ -50,7 +54,7 @@ public class FileTask extends AsyncTask  {
     protected Object doInBackground(Object[] objects) {
         ttl = (String) objects[0];
         dest = (String) objects[1];
-        source = ReadLastLine.tail(sourceFile);
+        source = SOURCE_PHONE_NO;
         File logFile = null;
 
        String state = Environment.getExternalStorageState();
@@ -76,13 +80,7 @@ public class FileTask extends AsyncTask  {
             }
 
         }
-        String latlng;
-        try {
-            String[] latlongline = ReadLastLine.tail(logFile).split(",");
-            latlng = latlongline[0]+"_"+latlongline[1];
-        } catch (Exception e) {
-            latlng = "10000.0000_10000.0000";
-        }
+        String latlng = getloc();
 
         String pathFrom = Environment.getExternalStorageDirectory().toString()+"/DMS/tmp";
         String pathTo = Environment.getExternalStorageDirectory().toString()+"/DMS/Working";
@@ -127,5 +125,20 @@ public class FileTask extends AsyncTask  {
             editor.putInt(GROUPID, idNumber);
             editor.commit();
         }
+    }
+
+    public String getloc() {
+        Location l = MLocation.getLocation(applicationContext);
+        String lat_long = null;
+        if (l != null) {
+            double lat = l.getLatitude();
+            double lon = l.getLongitude();
+            boolean hasLatLon = (lat != 0.0d) || (lon != 0.0d);
+            if (hasLatLon) {
+                Log.v("lat_lon", String.valueOf(l.getLatitude()+"_"+l.getLongitude()));
+                lat_long = String.valueOf(l.getLatitude()+"_"+l.getLongitude());
+            }
+        }
+        return lat_long;
     }
 }
