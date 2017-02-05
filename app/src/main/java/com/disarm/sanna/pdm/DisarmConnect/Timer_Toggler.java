@@ -118,7 +118,7 @@ public class Timer_Toggler implements Runnable{
 
         else if(MyService.checkWifiState.contains("DisarmHotspotDB")) {
             Log.v(MyService.TAG1, "DisarmHotspotDB Not Toggling");
-            SurakshitActivity.textConnect.setText("DB Connected");
+
 
         }
         else if (MyService.checkWifiState.contains("DH-")) {

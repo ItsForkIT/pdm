@@ -10,6 +10,8 @@ import android.net.wifi.WifiManager;
 
 import java.lang.reflect.Method;
 
+import static com.disarm.sanna.pdm.SelectCategoryActivity.SOURCE_PHONE_NO;
+
 public class ApManager {
 
     private static final String TAG = "AP Creation";
@@ -44,7 +46,7 @@ public class ApManager {
                 wifiConfig.allowedKeyManagement.clear();
                 wifiConfig.allowedPairwiseCiphers.clear();
                 wifiConfig.allowedProtocols.clear();
-                wifiConfig.SSID = "DH-" + MyService.phoneVal;
+                wifiConfig.SSID = "DH-" + SOURCE_PHONE_NO;
 
                 wifiConfig.preSharedKey = "password123";
 
