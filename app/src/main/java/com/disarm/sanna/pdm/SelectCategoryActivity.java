@@ -50,11 +50,8 @@ public class SelectCategoryActivity extends AppCompatActivity{
     SyncService syncService;
     MyService myService;
     LocationManager lm;
-    Logger logger;
-    boolean gps_enabled;
     LocationListener locationListener;
     static String root = Environment.getExternalStorageDirectory().toString();
-    public final static String TARGET_DMS_PATH = root + "/DMS/";
     public static String SOURCE_PHONE_NO;
     ToggleSwitch toggleSwitch_gps;
 

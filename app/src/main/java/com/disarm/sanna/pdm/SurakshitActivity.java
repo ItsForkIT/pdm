@@ -31,9 +31,6 @@ public class SurakshitActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
-    float speed;
-    double latitude, longitude;
-    public static TextView textConnect;
     static String root = Environment.getExternalStorageDirectory().toString();
     public final static String TARGET_DMS_PATH = root + "/DMS/";
     public static int[] prgmNameList = {R.string.health,
