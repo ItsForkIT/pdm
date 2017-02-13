@@ -12,6 +12,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.logging.FileHandler;
 
+import static com.disarm.sanna.pdm.SelectCategoryActivity.SOURCE_PHONE_NO;
+
 public class Logger {
 
     private static String filename = "MapDisarm_Log", logFileUpdated;
@@ -19,11 +21,7 @@ public class Logger {
     static boolean isExternalStorageAvailable = false;
     static boolean isExternalStorageWriteable = false;
     static String state = Environment.getExternalStorageState();
-    public static String phoneID ;
 
-    public Logger(String phoneVal) {
-        this.phoneID = phoneVal;
-    }
 
     public static void addRecordToLog(String message) {
 
@@ -51,7 +49,7 @@ public class Logger {
             File[] foundFiles = dir.listFiles(new FilenameFilter() {
                 public boolean accept(File dir, String name) {
 
-                    return name.startsWith("MapDisarm_Log_" + phoneID);
+                    return name.startsWith("MapDisarm_Log_" + SOURCE_PHONE_NO);
                 }
             });
 
@@ -65,7 +63,7 @@ public class Logger {
             else {
                 DateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");
                 String date = df.format(Calendar.getInstance().getTime());
-                logFile = new File(dir, filename + "_" + phoneID + "_" + date + ".txt");
+                logFile = new File(dir, filename + "_" + SOURCE_PHONE_NO + "_" + date + ".txt");
                 if (!logFile.exists()) {
                     try {
                         Log.d("File created ", "File created ");
@@ -89,7 +87,7 @@ public class Logger {
 
                 logFileUpdated = logFile.toString().substring(0, logFile.toString().length()-19);
 
-                Log.v("Phone ID: ", phoneID);
+                Log.v("Phone ID: ", SOURCE_PHONE_NO);
                 Log.v("Log File:",logFile.toString());
                 File to = new File(logFileUpdated.toString() + "_" + date + ".txt");
                 Log.v("Log File Updated:",logFileUpdated.toString()+ "_" + date + ".txt");

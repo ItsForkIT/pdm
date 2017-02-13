@@ -23,12 +23,22 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 
+import com.disarm.sanna.pdm.Logger;
 import com.disarm.sanna.pdm.Util.PrefUtils;
 import com.nextgis.maplib.util.SettingsConstants;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FilenameFilter;
+import java.io.InputStreamReader;
 import java.util.List;
+
+import static com.disarm.sanna.pdm.DisarmConnect.MyService.phoneVal;
 
 public class MLocation
 {
@@ -113,11 +123,11 @@ public class MLocation
 
 	private static Location lastGpsLocation			= null;
 	private static Location lastNetworkLocation		= null;
-
 	private static LocationListener locationListenerGps		= new LocationListener()
 															{
 																public void onLocationChanged(Location location)
 																{
+																	LocChangeExecute(location);
 																	//lm.removeUpdates(this);
 																	//lm.removeUpdates(locationListenerGps);
 
@@ -141,7 +151,7 @@ public class MLocation
 	private static LocationListener locationListenerNetwork	= new LocationListener()
 															{
 																public void onLocationChanged(Location location)
-																{
+																{	LocChangeExecute(location);
 																	//lm.removeUpdates(this);
 																	//lm.removeUpdates(locationListenerGps);
 
@@ -161,4 +171,74 @@ public class MLocation
 																{
 																}
 															};
+
+	public static void LocChangeExecute(Location location){
+		Logger logger = new Logger();
+		String sCurrentLine;
+		BufferedReader br;
+		FileInputStream in = null;
+		File inFolder, logFile;
+		double latitude, longitude;
+		float speed;
+		Double distance = 0.0, bearing = 0.0;
+
+		speed = location.getSpeed();
+		latitude = location.getLatitude();
+		longitude = location.getLongitude();
+		// Calculate from GPS
+		inFolder = Environment.getExternalStoragePublicDirectory("DMS/Working/");
+		File[] foundFiles = inFolder.listFiles(new FilenameFilter() {
+			public boolean accept(File dir, String name) {
+
+				return name.startsWith("MapDisarm_Log_" + phoneVal);
+			}
+		});
+		if(foundFiles != null && foundFiles.length > 0) {
+			logFile = new File(foundFiles[0].toString());
+			Log.v("LogFile:", foundFiles[0].toString());
+			try {
+				in = new FileInputStream(logFile);
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			}
+
+			String lastLine = "";
+
+			br = new BufferedReader(new InputStreamReader(in));
+			try {
+				while ((sCurrentLine = br.readLine()) != null) {
+					lastLine = sCurrentLine;
+				}
+			} catch (Exception e) {
+			}
+			Log.v("LastLine:", lastLine);
+			Log.v("LastLine Location New:", "Lat:" + latitude + "Long:" + longitude);
+
+			// Calculate Distance between 2 GPS coordinates
+			distance = LocCalculate.calculateGPSDistance(lastLine.split(",")[0], lastLine.split(",")[1], latitude, longitude);
+			Log.v("Distance :", distance.toString());
+
+			if (distance.doubleValue() > 0.00) {
+				bearing = LocCalculate.bearing(lastLine.split(",")[0], lastLine.split(",")[1], latitude, longitude);
+
+				if (bearing > 90.00 && bearing < 270.00) {
+					bearing = Math.abs(180.00 - bearing);
+				} else if (bearing > 270.00) {
+					bearing = Math.abs(360.00 - bearing);
+				}
+				Log.v("Bearing:", bearing.toString());
+
+				if (latitude != 0.0 && longitude != 0.0 && bearing.doubleValue() > 0.00) {
+					logger.addRecordToLog(String.valueOf(latitude) + "," + String.valueOf(longitude) + "," + String.valueOf(speed) + "," + String.valueOf(distance) + "," + String.valueOf(bearing));
+				}
+				Log.v("Speed :", Float.toString(speed));
+
+			}
+
+		}
+		else {
+			logger.addRecordToLog(String.valueOf(latitude) + "," + String.valueOf(longitude) + "," + String.valueOf(speed) + "," + String.valueOf(distance) + "," + String.valueOf(bearing));
+
+		}
+	}
 }
