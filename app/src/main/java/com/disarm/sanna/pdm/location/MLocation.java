@@ -19,11 +19,14 @@ by Almalence Inc. All Rights Reserved.
 package com.disarm.sanna.pdm.location;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 import com.disarm.sanna.pdm.Logger;
@@ -48,7 +51,7 @@ public class MLocation
 	{
 		lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
 
-		// exceptions will be thrown if provider is not permitted.
+
 		boolean gps_enabled = false;
 		try
 		{

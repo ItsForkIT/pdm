@@ -46,12 +46,13 @@ public class SyncService extends Service {
     public FileManager fileManager;
     public FileTransporter fileTransporter;
     public Controller controller;
-    static String source=null;
+    private String source;
     public Logger logger;
     private final IBinder syncServiceBinder = new SyncServiceBinder();
 
     public SyncService() {
         source = SelectCategoryActivity.SOURCE_PHONE_NO;
+
         logger =new Logger(databaseDirectory,source);
         discoverer = new Discoverer(BROADCAST_IP,source, PORT,logger);
         fileManager = new FileManager(source, databaseName, databaseDirectory,syncDirectory,mapDirectory,logger);
