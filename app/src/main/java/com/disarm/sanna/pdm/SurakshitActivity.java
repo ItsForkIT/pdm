@@ -22,6 +22,7 @@ import android.widget.Toast;
 import com.disarm.sanna.pdm.Adapters.MyAdapter;
 import com.disarm.sanna.pdm.Util.DividerItemDecoration;
 import com.disarm.sanna.pdm.Util.Reset;
+import com.disarm.sanna.pdm.location.LocationState;
 
 
 import java.io.File;
@@ -48,6 +49,7 @@ public class SurakshitActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_surakshit);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

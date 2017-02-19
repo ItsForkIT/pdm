@@ -1,13 +1,16 @@
 package com.disarm.sanna.pdm.DisarmConnect;
 
+import android.app.Activity;
 import android.content.Context;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.Bundle;
 import android.util.Log;
+import android.os.Handler;
+import android.view.LayoutInflater;
 
-import com.disarm.sanna.pdm.SurakshitActivity;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -63,7 +66,9 @@ public class Timer_Toggler implements Runnable{
 
                     if (splitted != null) {
                         if (splitted[3].matches("..:..:..:..:..:..")) {
+                            Log.v("Timer_toggle","Pinging: " + splitted[0]  );
                             Process p1 = Runtime.getRuntime().exec("ping -c 1 -t 1 " + splitted[0]);
+
                             int returnVal = p1.waitFor();
                             isReachable = (returnVal == 0);
 
@@ -118,14 +123,14 @@ public class Timer_Toggler implements Runnable{
 
         else if(MyService.checkWifiState.contains("DisarmHotspotDB")) {
             Log.v(MyService.TAG1, "DisarmHotspotDB Not Toggling");
-
+        //    MainActivity.textConnect.setText("DB Connected");
 
         }
         else if (MyService.checkWifiState.contains("DH-")) {
             /////////////////////////
            // this.handler.post(searchingDisarmDB);
             String connectedText = MyService.checkWifiState + " connected";
-//            SurakshitActivity.textConnect.setText(connectedText);
+//            MainActivity.textConnect.setText(connectedText);
             Log.v(MyService.TAG1, "DisarmHotspot Not Toggling");
             Log.v(MyService.TAG1,"Trying to find better DH");
             //Logger.addRecordToLog("Connected to DH");

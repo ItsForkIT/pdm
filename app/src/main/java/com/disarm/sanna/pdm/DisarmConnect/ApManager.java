@@ -6,11 +6,14 @@ package com.disarm.sanna.pdm.DisarmConnect;
 
 import android.content.Context;
 import android.net.wifi.WifiConfiguration;
+import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.Build;
+import android.util.Log;
+
+import com.disarm.sanna.pdm.SelectCategoryActivity;
 
 import java.lang.reflect.Method;
-
-import static com.disarm.sanna.pdm.SelectCategoryActivity.SOURCE_PHONE_NO;
 
 public class ApManager {
 
@@ -40,13 +43,27 @@ public class ApManager {
             //Change Name of the Created Hotspot
             try {
                 Method getConfigMethod = wifimanager.getClass().getMethod("getWifiApConfiguration");
+
                 WifiConfiguration wifiConfig = (WifiConfiguration) getConfigMethod.invoke(wifimanager);
+                //wifiConfig.getClass().getField("apChannel").setInt(wifiConfig, 6);
+                Log.v("ApManager", "Best Available Channel:" + MyService.bestAvailableChannel);
+
+                // Channel Allocation
+
+                if (Build.VERSION.SDK_INT > 22) {
+                    // Created hotspot in the best available channel
+                    wifiConfig.getClass().getField("apChannel").setInt(wifiConfig, MyService.bestAvailableChannel);
+                } else {
+                    wifiConfig.getClass().getField("channel").setInt(wifiConfig, MyService.bestAvailableChannel);
+                }
+
                 wifiConfig.allowedAuthAlgorithms.clear();
                 wifiConfig.allowedGroupCiphers.clear();
                 wifiConfig.allowedKeyManagement.clear();
                 wifiConfig.allowedPairwiseCiphers.clear();
                 wifiConfig.allowedProtocols.clear();
-                wifiConfig.SSID = "DH-" + SOURCE_PHONE_NO;
+                wifiConfig.SSID = "DH-" + SelectCategoryActivity.SOURCE_PHONE_NO;
+
 
                 wifiConfig.preSharedKey = "password123";
 
@@ -55,9 +72,10 @@ public class ApManager {
                 wifiConfig.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
                 wifiConfig.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
 
-
                 Method setWifiApMethod = wifimanager.getClass().getMethod("setWifiApEnabled", WifiConfiguration.class, boolean.class);
-                boolean apstatus=(Boolean) setWifiApMethod.invoke(wifimanager, wifiConfig,true);
+                boolean apstatus = (Boolean) setWifiApMethod.invoke(wifimanager, wifiConfig, true);
+                //Log.v("GetAPCOnfig:" + getConfigMethod.toString() + ",setWifiApMethod : " + setWifiApMethod.toString());
+                Log.v("WifiConfig: " , wifiConfig.toString());
             }
             catch (Exception e) {
                 e.printStackTrace();

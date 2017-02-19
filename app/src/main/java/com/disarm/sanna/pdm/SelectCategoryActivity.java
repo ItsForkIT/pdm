@@ -73,6 +73,7 @@ public class SelectCategoryActivity extends AppCompatActivity{
             public void onToggleSwitchChangeListener(int position, boolean isChecked) {
                 Log.v("test", String.valueOf(position));
                 if (position == 1) {
+                    toggleSwitch_gps.setCheckedTogglePosition(1);
                     final Intent syncServiceIntent = new Intent(getBaseContext(), SyncService.class);
                     bindService(syncServiceIntent, syncServiceConnection, Context.BIND_AUTO_CREATE);
                     startService(syncServiceIntent);
@@ -141,10 +142,12 @@ public class SelectCategoryActivity extends AppCompatActivity{
         activity_switcher.setOnToggleSwitchChangeListener(new BaseToggleSwitch.OnToggleSwitchChangeListener() {
             @Override
             public void onToggleSwitchChangeListener(int position, boolean isChecked) {
-                if (position == 0){
+                if (position == 0) {
                     // Launch Disaster Management Activity
                     Intent intentDisasterManagement = new Intent(SelectCategoryActivity.this, SurakshitActivity.class);
                     startActivity(intentDisasterManagement);
+
+
                 }else if (position == 1){
                     // Launch Social App
                     Intent intentSocialShare = new Intent(SelectCategoryActivity.this, SocialShareActivity.class);
