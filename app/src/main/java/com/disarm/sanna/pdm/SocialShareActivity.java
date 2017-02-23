@@ -30,7 +30,6 @@ import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -49,7 +48,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 
-import static com.disarm.sanna.pdm.MainActivity.root;
+import static com.disarm.sanna.pdm.SurakshitActivity.root;
 
 /**
  * Created by arka on 14/9/16.
@@ -65,59 +64,11 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
     HashMap<String, Integer> numberToSenderMap;
     ArrayList<Senders> senders;
     Senders myself;
-    LocationManager lm;
-    LocationListener locationListener;
-    boolean gps_enabled;
-    private boolean gpsService = false;
-    String phoneVal = "DefaultNode";
-    final static String TARGET_DMS_PATH = root + "/DMS/";
-    Logger logger;
 
     PathFileObserver pathFileObserver;
 
-    SyncService syncService;
-    private boolean syncServiceBound = false;
-    MyService myService;
-    private boolean myServiceBound = false;
 
     SocialShareChatlistAdapter chatlistAdapter;
-
-    private boolean doubleBackToExitPressedOnce;
-
-    //Psync
-    private ServiceConnection syncServiceConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName className,
-                                       IBinder service) {
-            SyncService.SyncServiceBinder binder = (SyncService.SyncServiceBinder) service;
-            syncService = binder.getService();
-            syncServiceBound = true;
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            syncServiceBound = false;
-        }
-    };
-
-    //DisarmConnect
-    private ServiceConnection myServiceConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName className,
-                                       IBinder service) {
-            MyService.MyServiceBinder binder = (MyService.MyServiceBinder) service;
-            myService = binder.getService();
-            myServiceBound = true;
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            myServiceBound = false;
-        }
-    };
-
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -135,8 +86,6 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
 
         setTitle("Recent");
 
-        doubleBackToExitPressedOnce = false;
-
         myself = new Senders(identifySelf(), "Me");
         populateChatList();
 
@@ -144,51 +93,8 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
                 Environment.getExternalStorageDirectory().toString() + WORKING_DIRECTORY);
         pathFileObserver.startWatching();
 
-        startServices();
-
         FloatingActionButton addChat = (FloatingActionButton) findViewById(R.id.b_social_share_add);
         addChat.setOnClickListener(this);
-        requestLocation();
-    }
-
-    private void startServices() {
-        final Intent syncServiceIntent = new Intent(getBaseContext(), SyncService.class);
-        bindService(syncServiceIntent, syncServiceConnection, Context.BIND_AUTO_CREATE);
-        startService(syncServiceIntent);
-        Toast.makeText(getApplicationContext(), R.string.start_sync, Toast.LENGTH_SHORT).show();
-
-        final Intent myServiceIntent = new Intent(getBaseContext(), MyService.class);
-        bindService(myServiceIntent, myServiceConnection, Context.BIND_AUTO_CREATE);
-        startService(myServiceIntent);
-    }
-
-    private void stopServices() {
-        final Intent syncServiceIntent = new Intent(getBaseContext(), SyncService.class);
-        if (syncServiceBound) {
-            unbindService(syncServiceConnection);
-        }
-        syncServiceBound = false;
-        stopService(syncServiceIntent);
-
-        final Intent myServiceIntent = new Intent(getBaseContext(), MyService.class);
-        if (myServiceBound) {
-            unbindService(myServiceConnection);
-        }
-        myServiceBound = false;
-        stopService(myServiceIntent);
-        Log.v("gps","check");
-        if (gpsService) {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) !=
-                    PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this,
-                    Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                return;
-            }
-            lm.removeUpdates(locationListener);
-            Log.v("gps","check1");
-
-            gpsService = false;
-        }
-        Log.v("gps","check2");
     }
 
     /**
@@ -253,7 +159,7 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
         chatList.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
         chatList.setAdapter(chatlistAdapter);
         chatList.addOnItemTouchListener(new RecyclerTouchListener(getApplicationContext(),
-                chatList, new MainActivity.ClickListener() {
+                chatList, new SurakshitActivity.ClickListener() {
             @Override
             public void onClick(View view, int position) {
                 launchShareActivity(position);
@@ -474,90 +380,12 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
     protected void onDestroy() {
         super.onDestroy();
         pathFileObserver.stopWatching();
-        stopServices();
     }
-
-    private void requestLocation(){
-        LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        boolean statusOfGPS = manager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-        if (statusOfGPS) {
-            // Call logger constructor using phoneVal
-            // Read Device source from ConfigFile.txt
-            File file = new File(TARGET_DMS_PATH,"source.txt");
-            FileInputStream fis = null;
-            try {
-                fis = new FileInputStream(file);
-                byte[] data = new byte[(int) file.length()];
-                fis.read(data);
-                fis.close();
-
-                phoneVal = new String(data, "UTF-8");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            logger = new Logger(phoneVal);
-
-
-            lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-            gps_enabled = false;
-
-            try {
-                gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
-            } catch (Exception ex) {
-            }
-
-            if (!gps_enabled ) {
-
-                Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                startActivity(myIntent);
-            }
-
-            locationListener = new MyLocationListener(logger,phoneVal);
-            lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-            if (ActivityCompat.checkSelfPermission(this,
-                    Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                    && ActivityCompat.checkSelfPermission(this,
-                    Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                return;
-            }
-            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 5, locationListener);
-            gpsService = true;
-        } else {
-            enableGPS();
-        }
-    }
-
-    public void enableGPS(){
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-        alertDialogBuilder
-                .setMessage(R.string.gps_msg)
-                .setCancelable(false)
-                .setPositiveButton(R.string.enable_gps,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog,
-                                                int id) {
-                                Intent callGPSSettingIntent = new Intent(
-                                        android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                                // startActivity(callGPSSettingIntent);
-                                startActivityForResult(callGPSSettingIntent, 5);
-                            }
-                        });
-        alertDialogBuilder.setNegativeButton(R.string.cancel,
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        dialog.cancel();
-                    }
-                });
-        AlertDialog alert = alertDialogBuilder.create();
-        alert.show();
-    }
-
+/*
     @Override
     public void onBackPressed() {
         if(doubleBackToExitPressedOnce) {
             super.onBackPressed();
-            stopServices();
             return;
         }
 
@@ -571,5 +399,5 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
                 doubleBackToExitPressedOnce=false;
             }
         }, 2000);
-    }
+    }*/
 }

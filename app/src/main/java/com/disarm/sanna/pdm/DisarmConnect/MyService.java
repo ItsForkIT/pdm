@@ -20,7 +20,6 @@ import android.util.Log;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.disarm.sanna.pdm.MainActivity;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -65,6 +64,8 @@ public class MyService extends Service {
     private Logger logger;
     public static String phoneVal;
     public static String presentState="wifi";
+    public static List<ScanResult> wifiScanList;
+    public static int bestAvailableChannel;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -104,7 +105,7 @@ public class MyService extends Service {
         registerReceiver(bl, batfilter);
 
         // Read Source to generate DH
-        File file = new File(MainActivity.TARGET_DMS_PATH,"source.txt");
+      /*  File file = new File(MainActivity.TARGET_DMS_PATH,"source.txt");
         FileInputStream fis = null;
         try {
             fis = new FileInputStream(file);
@@ -117,7 +118,7 @@ public class MyService extends Service {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+        */
     }
 
     @Override
@@ -164,7 +165,7 @@ public class MyService extends Service {
 
         // Adding stop record to log
         logger.addRecordToLog("DisarmConnect Stopped");
-        Log.v("MyService:", "DisarmConnect Stooped");
+        Log.v("MyService:", "DisarmConnect Stopped");
     }
 
 }
