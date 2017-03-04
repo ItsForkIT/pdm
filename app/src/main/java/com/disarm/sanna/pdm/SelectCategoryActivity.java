@@ -8,8 +8,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
-import android.location.GpsStatus;
-import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -21,8 +19,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.MotionEvent;
-import android.view.View;
 import android.widget.Toast;
 
 import com.disarm.sanna.pdm.DisarmConnect.MyService;
@@ -32,7 +28,7 @@ import com.disarm.sanna.pdm.location.LocationState;
 import com.disarm.sanna.pdm.location.MLocation;
 import com.nextgis.maplib.util.SettingsConstants;
 
-
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
@@ -41,7 +37,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 import belka.us.androidtoggleswitch.widgets.BaseToggleSwitch;
-import belka.us.androidtoggleswitch.widgets.BaseToggleSwitch.OnToggleSwitchChangeListener;
 import belka.us.androidtoggleswitch.widgets.ToggleSwitch;
 
 /**
@@ -175,9 +170,11 @@ public class SelectCategoryActivity extends AppCompatActivity{
             public void uncaughtException(Thread t, Throwable e) {
                 Calendar cal = Calendar.getInstance();
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
-
-                String filename = SettingsConstants.DMS_PATH + "crashlogs/" +
-                        sdf.format(cal.getTime())+".txt";
+                File crashLogFile =new File (SettingsConstants.DMS_PATH+"PDM_CrashLog" );
+                if (!crashLogFile.exists()){
+                    crashLogFile.mkdir();
+                }
+                String filename = crashLogFile + "/" + sdf.format(cal.getTime())+".txt";
 
                 PrintStream writer;
                 try {
@@ -186,9 +183,8 @@ public class SelectCategoryActivity extends AppCompatActivity{
                     for (int i = 0; i < e.getStackTrace().length; i++) {
                         writer.println(e.getStackTrace()[i].toString());
                     }
-
+                    System.exit(1);
                 } catch (FileNotFoundException | UnsupportedEncodingException e1) {
-                    // TODO Auto-generated catch block
                     e1.printStackTrace();
                 }
             }
