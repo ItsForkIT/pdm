@@ -26,7 +26,6 @@ import static com.disarm.sanna.pdm.SelectCategoryActivity.SOURCE_PHONE_NO;
 public class FileTask extends AsyncTask  {
     String fileType,groupType,timestamp,ttl,dest,source,fileFormat;
     String[] fileName;
-    public File sourceFile = Environment.getExternalStoragePublicDirectory("DMS/source.txt");
     public static final String GROUPID = "Group No";
     Context applicationContext = ActivityList.getContextOfApplication();
     Context shareActivityContext = ShareActivity.getContextOfApplication();
