@@ -38,8 +38,6 @@ public class SyncService extends Service {
     private String mapDirectory = sdcard +"/DMS/Map/";
     private String databaseDirectory = sdcard + "/DMS/";
     private static String databaseName = "fileDB.txt";
-    private static String DirectoryPath= sdcard +"/DMS/source.txt";
-    static File f = new File(DirectoryPath);
     static String line;
     public WebServer webServer;
     public Discoverer discoverer;
