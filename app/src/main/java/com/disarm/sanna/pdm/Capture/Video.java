@@ -21,6 +21,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import static com.disarm.sanna.pdm.Capture.Photo.TMP_FOLDER;
+
 /**
  * Created by Sanna on 22-06-2016.
  */
@@ -39,7 +41,7 @@ public class Video extends AppCompatActivity {
         Intent myIntent = getIntent();
         type = myIntent.getStringExtra("IntentType");
         if (savedInstanceState==null) {
-            output=new File(String.valueOf(new File(getExternalFilesDir(VIDEO), FILENAME)));
+            output=new File(getExternalFilesDir(TMP_FOLDER), FILENAME);
             if (output.exists()) {
                 output.delete();
             }
@@ -92,8 +94,7 @@ public class Video extends AppCompatActivity {
         String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
         group = type;
         groupID = "1";
-        File mediaFile = new File("VID_" + group + "_" + timeStamp + "_" + ".3gp");
-        return mediaFile;
+        return new File("VID_" + group + "_" + timeStamp + "_" + ".3gp");
     }
 
 }

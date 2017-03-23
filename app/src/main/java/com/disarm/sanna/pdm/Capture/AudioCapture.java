@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -17,21 +16,23 @@ import android.widget.Toast;
 
 import com.disarm.sanna.pdm.R;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import static com.disarm.sanna.pdm.Capture.Photo.TMP_FOLDER;
 
 
 /**
  * Created by Sanna on 22-06-2016.
  */
 public class AudioCapture extends AppCompatActivity implements View.OnClickListener {
-    static String root = Environment.getExternalStorageDirectory().toString();
-    static String path =root + "/" + "DMS" + "/" + "tmp" + "/",type,group,groupID;
+    static String type,group,groupID;
     MediaRecorder myAudioRecorder = new MediaRecorder();
     ImageButton record,play;
     Button back;
-    private String outputFile = null;
+    private File outputFile = null;
     boolean flag = true;
     Chronometer mChronometer;
 
@@ -70,12 +71,12 @@ public class AudioCapture extends AppCompatActivity implements View.OnClickListe
                 if (flag) {
                     flag = false;
                     record.setBackgroundResource(R.drawable.super_voice_recorder);
-                    outputFile = getFilenameAud();
+                    outputFile=new File(getApplicationContext().getExternalFilesDir(TMP_FOLDER),getFilenameAud());
                     myAudioRecorder = new MediaRecorder();
                     myAudioRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
                     myAudioRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
                     myAudioRecorder.setAudioEncoder(MediaRecorder.OutputFormat.AMR_NB);
-                    myAudioRecorder.setOutputFile(outputFile);
+                    myAudioRecorder.setOutputFile(outputFile.toString());
                     mChronometer.setBase(SystemClock.elapsedRealtime());
                     mChronometer.start();
 
@@ -107,7 +108,7 @@ public class AudioCapture extends AppCompatActivity implements View.OnClickListe
                 MediaPlayer m = new MediaPlayer();
 
                 try {
-                    m.setDataSource(outputFile);
+                    m.setDataSource(outputFile.toString());
                 }
 
                 catch (IOException e) {
@@ -136,6 +137,6 @@ public class AudioCapture extends AppCompatActivity implements View.OnClickListe
         String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
         group = type;
         groupID = "1";
-        return (path + "SVS_" +  group + "_" + timeStamp + "_" + ".3gp");
+        return ("SVS_" +  group + "_" + timeStamp + "_" + ".3gp");
     }
 }

@@ -31,7 +31,7 @@ public class Photo extends Activity {
             BuildConfig.APPLICATION_ID + ".provider";
     private static final String EXTRA_FILENAME =
             "com.example.sanna.test.EXTRA_FILENAME";
-    private static final String PHOTOS="tmp";
+    public static final String TMP_FOLDER="tmp";
     static String group,type,groupID;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +39,7 @@ public class Photo extends Activity {
         Intent myIntent = getIntent();
         type = myIntent.getStringExtra("IntentType");
         if (savedInstanceState==null) {
-            output=new File(String.valueOf(new File(getExternalFilesDir(PHOTOS), FILENAME)));
+            output=new File(getExternalFilesDir(TMP_FOLDER), FILENAME);
             if (output.exists()) {
                 output.delete();
             }
@@ -88,10 +88,8 @@ public class Photo extends Activity {
     }
     private static File getOutputMediaFile() {
         String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
-        File mediaFile;
         group = type;
         groupID = "1";
-        mediaFile = new File("IMG_" + group + "_" + timeStamp + "_" + ".jpg");
-        return mediaFile;
+        return new File("IMG_" + group + "_" + timeStamp + "_" + ".jpg");
     }
 }
