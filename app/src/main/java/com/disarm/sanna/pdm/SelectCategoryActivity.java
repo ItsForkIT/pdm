@@ -23,7 +23,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
+
 
 import com.disarm.sanna.pdm.DisarmConnect.MyService;
 import com.disarm.sanna.pdm.Service.SyncService;
@@ -39,14 +42,17 @@ import belka.us.androidtoggleswitch.widgets.BaseToggleSwitch;
 import belka.us.androidtoggleswitch.widgets.BaseToggleSwitch.OnToggleSwitchChangeListener;
 import belka.us.androidtoggleswitch.widgets.ToggleSwitch;
 
+
 /**
  * Created by arka on 14/9/16.
  * Activity to choose between offline social sharing and disaster management category
  */
 public class SelectCategoryActivity extends AppCompatActivity{
+    private boolean choice = true;
     private boolean syncServiceBound = false;
     private boolean myServiceBound = false;
     private boolean gpsService = false;
+    private int loop_breaker = 0;
     SyncService syncService;
     MyService myService;
     LocationManager lm;
@@ -54,14 +60,11 @@ public class SelectCategoryActivity extends AppCompatActivity{
     static String root = Environment.getExternalStorageDirectory().toString();
     public static String SOURCE_PHONE_NO;
     ToggleSwitch toggleSwitch_gps;
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.choose_activity);
-
         SOURCE_PHONE_NO = PrefUtils.getFromPrefs(this, SettingsConstants.PHONE_NO, "NA");
-
         ToggleSwitch toggleSwitch_sync = (ToggleSwitch) findViewById(R.id.choose_sync);
         ArrayList<String> labels_sync = new ArrayList<>();
         labels_sync.add("OFF");
@@ -89,6 +92,7 @@ public class SelectCategoryActivity extends AppCompatActivity{
                 }
             }
         });
+        //DISARM Connect
 
         ToggleSwitch toggleSwitch_dc = (ToggleSwitch) findViewById(R.id.choose_dc);
         ArrayList<String> labels_dc = new ArrayList<>();
@@ -100,20 +104,46 @@ public class SelectCategoryActivity extends AppCompatActivity{
             @Override
             public void onToggleSwitchChangeListener(int position, boolean isChecked) {
                 if (position == 1) {
-                    final Intent myServiceIntent = new Intent(getBaseContext(), MyService.class);
-                    bindService(myServiceIntent, myServiceConnection, Context.BIND_AUTO_CREATE);
-                    startService(myServiceIntent);
-                } else {
-
-                    final Intent myServiceIntent = new Intent(getBaseContext(), MyService.class);
-                    if (myServiceBound) {
-                        unbindService(myServiceConnection);
-                    }
-                    myServiceBound = false;
-                    stopService(myServiceIntent);
+                    //Alert for DTN or OPP
+                    //@Naman
+                    AlertDialog.Builder connection_type_choice = new AlertDialog.Builder(SelectCategoryActivity.this);
+                    connection_type_choice.setMessage("Choose the type of connection");
+                    connection_type_choice.setPositiveButton("DTN Connect",
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface arg0, int arg1) {
+                                    choice=true; //DTN
+                                    final Intent myServiceIntent = new Intent(getBaseContext(), MyService.class);
+                                    bindService(myServiceIntent, myServiceConnection, Context.BIND_AUTO_CREATE);
+                                    startService(myServiceIntent);
+                                }
+                            });
+                    connection_type_choice.setNegativeButton("Opp",
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface arg0, int arg1) {
+                                    choice=false; //OPP
+                                }
+                            });
+                    AlertDialog alertDialog = connection_type_choice.create();
+                    alertDialog.show();
                 }
-            }
-        });
+                else {
+                        if (choice) {
+                            //Stop the DTN intent service
+                            final Intent myServiceIntent = new Intent(getBaseContext(), MyService.class);
+                            if (myServiceBound) {
+                                unbindService(myServiceConnection);
+                            }
+                            myServiceBound = false;
+                            stopService(myServiceIntent);
+                        }
+                        else{
+                            //Stop the OPP intent service
+                        }
+                    }
+                }
+            });
 
         toggleSwitch_gps = (ToggleSwitch) findViewById(R.id.choose_gps);
         ArrayList<String> labels_gps = new ArrayList<>();
