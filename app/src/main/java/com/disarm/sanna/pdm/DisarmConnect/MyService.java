@@ -103,22 +103,6 @@ public class MyService extends Service {
         IntentFilter batfilter = new IntentFilter();
         batfilter.addAction(Intent.ACTION_BATTERY_CHANGED);
         registerReceiver(bl, batfilter);
-
-        // Read Source to generate DH
-      /*  File file = new File(MainActivity.TARGET_DMS_PATH,"source.txt");
-        FileInputStream fis = null;
-        try {
-            fis = new FileInputStream(file);
-            byte[] data = new byte[(int) file.length()];
-            fis.read(data);
-            fis.close();
-
-            // phoneVal storing the source from source.txt
-            phoneVal = new String(data, "UTF-8");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        */
     }
 
     @Override

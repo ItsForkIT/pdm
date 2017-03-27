@@ -101,20 +101,7 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
      * Identify device's phone number
      */
     private String identifySelf() {
-        File sourceTxt = new File(
-                Environment.getExternalStorageDirectory().toString() + "/DMS/Source.txt");
-
-        String selfNumber = null;
-        try {
-            FileInputStream fis = new FileInputStream(sourceTxt);
-            BufferedReader br = new BufferedReader(new InputStreamReader(fis));
-
-            selfNumber = br.readLine();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return selfNumber;
+        return SelectCategoryActivity.SOURCE_PHONE_NO;
     }
 
     /**
