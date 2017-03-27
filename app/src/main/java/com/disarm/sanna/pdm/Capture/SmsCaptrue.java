@@ -20,23 +20,19 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import static com.disarm.sanna.pdm.ActivityList.type;
 import static com.disarm.sanna.pdm.Capture.Photo.TMP_FOLDER;
 
 /**
  * Created by disarm on 9/7/16.
  */
 public class SmsCaptrue extends DialogFragment implements View.OnClickListener{
-
-    private static String type;
     private EditText edittextMsg;
     private Button save,back;
     private String msgInput;
     static String group,groupID;
     File output;
-    public static SmsCaptrue newInstance(String s){
-        type = s;
-        return null;
-    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -59,9 +55,6 @@ public class SmsCaptrue extends DialogFragment implements View.OnClickListener{
             case R.id.save:
                 msgInput = edittextMsg.getText().toString();
                 if (!msgInput.isEmpty()) {
-                    //outputFile = getFilename();
-                    //File file = new File(outputFile);
-                    // If file does not exists, then create it
                     output=new File(getActivity().getExternalFilesDir(TMP_FOLDER), getFilename());
                     if (!output.exists()) {
                         try {

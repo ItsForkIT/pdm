@@ -40,7 +40,8 @@ public class ActivityList extends AppCompatActivity implements View.OnClickListe
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
-    String type,ttlString,dest,latlong;
+    String ttlString,dest,latlong;
+    public static String type;
     Button submit,discard;
     EditText ttl,destination;
     public static Context contextOfApplication;
@@ -137,14 +138,13 @@ public class ActivityList extends AppCompatActivity implements View.OnClickListe
 
     private void showTextDialog() {
         FragmentManager fm = getSupportFragmentManager();
-        Text text= Text.newInstance("Add Text",type);
+        Text text= new Text();
         text.show(fm, "activity_text");
     }
 
     private void showSmsDialog(){
         FragmentManager fm = getSupportFragmentManager();
         SmsCaptrue smsCaptrue = new SmsCaptrue();
-        smsCaptrue.newInstance(type);
         smsCaptrue.show(fm,"activity_sms");
     }
 

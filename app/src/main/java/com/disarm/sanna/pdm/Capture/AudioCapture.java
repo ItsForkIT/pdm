@@ -1,6 +1,5 @@
 package com.disarm.sanna.pdm.Capture;
 
-import android.content.Intent;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.Bundle;
@@ -21,6 +20,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import static com.disarm.sanna.pdm.ActivityList.type;
 import static com.disarm.sanna.pdm.Capture.Photo.TMP_FOLDER;
 
 
@@ -28,7 +28,7 @@ import static com.disarm.sanna.pdm.Capture.Photo.TMP_FOLDER;
  * Created by Sanna on 22-06-2016.
  */
 public class AudioCapture extends AppCompatActivity implements View.OnClickListener {
-    static String type,group,groupID;
+    static String group,groupID;
     MediaRecorder myAudioRecorder = new MediaRecorder();
     ImageButton record,play;
     Button back;
@@ -45,8 +45,6 @@ public class AudioCapture extends AppCompatActivity implements View.OnClickListe
         play = (ImageButton) findViewById(R.id.play_button);
         back = (Button) findViewById(R.id.back);
         mChronometer = (Chronometer) findViewById(R.id.chronometer);
-        Intent myIntent = getIntent();
-        type = myIntent.getStringExtra("IntentType");
         record.setOnClickListener(this);
         play.setVisibility(View.GONE);
         play.setEnabled(false);

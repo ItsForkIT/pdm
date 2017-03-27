@@ -21,6 +21,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import static com.disarm.sanna.pdm.ActivityList.type;
 import static com.disarm.sanna.pdm.Capture.Photo.TMP_FOLDER;
 
 /**
@@ -33,13 +34,10 @@ public class Video extends AppCompatActivity {
             BuildConfig.APPLICATION_ID + ".provider";
     private static final String EXTRA_FILENAME =
             "com.example.sanna.test.EXTRA_FILENAME";
-    private static final String VIDEO="tmp";
-    static String group,type,groupID;
+    static String group,groupID;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Intent myIntent = getIntent();
-        type = myIntent.getStringExtra("IntentType");
         if (savedInstanceState==null) {
             output=new File(getExternalFilesDir(TMP_FOLDER), FILENAME);
             if (output.exists()) {

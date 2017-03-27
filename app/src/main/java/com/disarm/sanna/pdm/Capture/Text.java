@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import static com.disarm.sanna.pdm.ActivityList.type;
 import static com.disarm.sanna.pdm.Capture.Photo.TMP_FOLDER;
 
 /**
@@ -34,7 +35,7 @@ import static com.disarm.sanna.pdm.Capture.Photo.TMP_FOLDER;
 public class Text extends DialogFragment implements View.OnClickListener, AdapterView.OnItemSelectedListener {
     private Spinner variety,quantity;
     private Button save,back;
-    static String type;
+    //static String type;
     EditText custom;
     StringBuilder msgString;
     static String group,groupID,h,q;
@@ -46,18 +47,6 @@ public class Text extends DialogFragment implements View.OnClickListener, Adapte
     public String[] trans_num_array ;
     private File output = null;
 
-    public Text() {
-        super();
-    }
-    public static Text newInstance(String title,String s){
-        Text textFrag = new Text();
-        Bundle args = new Bundle();
-        args.putString("title", title);
-        textFrag.setArguments(args);
-        type = s;
-        return textFrag;
-
-    }
     @Override
     public void onViewCreated(final View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
