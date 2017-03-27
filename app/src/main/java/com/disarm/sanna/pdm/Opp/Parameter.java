@@ -12,4 +12,5 @@ public class Parameter {
     public static double beta=1/2; //AP switch parameter
     public static double ws=1/40; //STA switch parameter
     public static double wa=1/20; //AP switch parameter
+    public static String currentState = "IDLE"; //Current State
 }
