@@ -1,25 +1,20 @@
 package com.disarm.sanna.pdm;
 
 import android.Manifest;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
@@ -27,17 +22,12 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.Toast;
-
 
 import com.disarm.sanna.pdm.Util.CopyAssets;
 import com.disarm.sanna.pdm.Util.PrefUtils;
 import com.nextgis.maplib.util.SettingsConstants;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -66,6 +56,7 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
             Manifest.permission.RECORD_AUDIO,
             Manifest.permission.READ_PHONE_STATE,
             Manifest.permission.READ_CONTACTS};
+    public static String GPS_LOC_LISTENER ="gps_loc_listener";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -204,6 +195,9 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
     private void copyingAssets(){
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         if (!prefs.getBoolean("firstTime", false)) {
+            //create gps variable in shared preference
+            PrefUtils.saveToPrefs(this, GPS_LOC_LISTENER, "0");
+
             // <---- run your one time code here
             // Copy files from assets folder
 

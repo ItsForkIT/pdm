@@ -100,11 +100,23 @@ public class SelectCategoryActivity extends AppCompatActivity{
             @Override
             public void onToggleSwitchChangeListener(int position, boolean isChecked) {
                 if (position == 1) {
-                    final Intent myServiceIntent = new Intent(getBaseContext(), MyService.class);
-                    bindService(myServiceIntent, myServiceConnection, Context.BIND_AUTO_CREATE);
-                    startService(myServiceIntent);
-                } else {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(SelectCategoryActivity.this);
+                    builder.setMessage("Use as !!")
+                            .setCancelable(false)
+                            .setPositiveButton("Disarm Connect", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    final Intent myServiceIntent = new Intent(getBaseContext(), MyService.class);
+                                    bindService(myServiceIntent, myServiceConnection, Context.BIND_AUTO_CREATE);
+                                    startService(myServiceIntent);
+                                }
+                            })
+                            .setNegativeButton("Data Mule", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
 
+                                }
+                            });
+                    builder.show();
+                } else {
                     final Intent myServiceIntent = new Intent(getBaseContext(), MyService.class);
                     if (myServiceBound) {
                         unbindService(myServiceConnection);
@@ -132,7 +144,7 @@ public class SelectCategoryActivity extends AppCompatActivity{
                     MLocation.subscribe(SelectCategoryActivity.this);
 
                 } else {
-                    MLocation.unsubscribe();
+                    MLocation.unsubscribe(SelectCategoryActivity.this);
                 }
             }
         });

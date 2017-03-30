@@ -30,6 +30,7 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 import com.disarm.sanna.pdm.Logger;
+import com.disarm.sanna.pdm.SplashActivity;
 import com.disarm.sanna.pdm.Util.PrefUtils;
 import com.nextgis.maplib.util.SettingsConstants;
 
@@ -51,7 +52,7 @@ public class MLocation
 	{
 		lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
 
-
+		Log.v("gps","1");
 		boolean gps_enabled = false;
 		try
 		{
@@ -70,22 +71,25 @@ public class MLocation
 		}
 
 		if (gps_enabled)
-		{
+		{Log.v("gps","2");
 			lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListenerGps);
 		}
 
 		if (network_enabled)
-		{
+		{Log.v("gps","3");
 			lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListenerNetwork);
 		}
+
+		PrefUtils.getFromPrefs(context, SplashActivity.GPS_LOC_LISTENER,"1");
 	}
 
-	public static void unsubscribe()
+	public static void unsubscribe(Context context)
 	{
 		if (lm != null)
 		{
 			lm.removeUpdates(locationListenerGps);
 			lm.removeUpdates(locationListenerNetwork);
+			PrefUtils.getFromPrefs(context, SplashActivity.GPS_LOC_LISTENER,"0");
 		}
 	}
 
@@ -93,15 +97,15 @@ public class MLocation
 	{
 		if (lastGpsLocation != null)
 		{
-			unsubscribe();
+			//unsubscribe();
 			return lastGpsLocation;
 		} else if (lastNetworkLocation != null)
 		{
-			unsubscribe();
+			//unsubscribe();
 			return lastNetworkLocation;
 		} else
 		{
-			unsubscribe();
+			//unsubscribe();
 			return getLastChanceLocation(context);
 		}
 	}
