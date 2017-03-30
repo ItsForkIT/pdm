@@ -105,6 +105,6 @@
             android:name=".Service.SyncService"
             android:enabled="true"
             android:exported="true" />
-        <service android:name=".DisarmConnect.MyService" />
+        <service android:name=".DisarmConnect.DCService" />
     </application>
 </manifest>

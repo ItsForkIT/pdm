@@ -16,8 +16,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import static com.disarm.sanna.pdm.DisarmConnect.MyService.checkWifiState;
-import static com.disarm.sanna.pdm.DisarmConnect.MyService.wifiInfo;
+import static com.disarm.sanna.pdm.DisarmConnect.DCService.wifiInfo;
 
 /**
  * Created by hridoy on 21/8/16.
@@ -38,28 +37,28 @@ public class WifiConnect implements Runnable {
 
     @Override
     public void run() {
-        MyService.wifi.startScan();
-        List<ScanResult> allScanResults = MyService.wifi.getScanResults();
+        DCService.wifi.startScan();
+        List<ScanResult> allScanResults = DCService.wifi.getScanResults();
         //Log.v("WifiConnect allScanResults:",allScanResults.toString());
-        Log.v(MyService.TAG2,"Running Autoconnector");
-        wifiInfo = MyService.wifi.getConnectionInfo();
+        Log.v(DCService.TAG2,"Running Autoconnector");
+        wifiInfo = DCService.wifi.getConnectionInfo();
         String ssidName = wifiInfo.getSSID();
-        Log.v(MyService.TAG2, ssidName);
+        Log.v(DCService.TAG2, ssidName);
         if(ssidName.contains("DisarmHotspotDB")) {
-            Log.v(MyService.TAG2,"Already Connected DB ");
+            Log.v(DCService.TAG2,"Already Connected DB ");
             Logger.addRecordToLog("Already DB Connected");
 
         }
         else if(ssidName.contains("DH-")) {
-            Log.v(MyService.TAG2,"Already Connected");
+            Log.v(DCService.TAG2,"Already Connected");
             Logger.addRecordToLog("DH Connected:" +ssidName);
             try {
 
                 fr = new FileReader("/proc/net/arp");
                 br = new BufferedReader(fr);
                 String line;
-                MyService.IpAddr = new ArrayList<String>();
-                MyService.c = false;
+                DCService.IpAddr = new ArrayList<String>();
+                DCService.c = false;
                 while ((line = br.readLine()) != null) {
                     String[] splitted = line.split(" +");
                     Log.v("Splitted:" , Arrays.deepToString(splitted));
@@ -71,26 +70,26 @@ public class WifiConnect implements Runnable {
 
         else
         {
-            /*Log.v(MyService.TAG2,"Checking For Disarm Hotspot");
+            /*Log.v(DCService.TAG2,"Checking For Disarm Hotspot");
             // Connecting to DisarmHotspot WIfi on Button Click
 
             if (allScanResults.toString().contains("DisarmHotspotDB")) {
                 int level = findDBSignalLevel(allScanResults);
                 if (level > minDBLevel)
                 {
-                    Log.v(MyService.TAG2, "Connecting DisarmDB");
+                    Log.v(DCService.TAG2, "Connecting DisarmDB");
 
                     String ssid = "DisarmHotspotDB";
                     WifiConfiguration wc = new WifiConfiguration();
                     wc.SSID = "\"" + ssid + "\""; //IMPORTANT! This should be in Quotes!!
 
-                    wc.preSharedKey = "\""+ MyService.dbPass +"\"";
+                    wc.preSharedKey = "\""+ DCService.dbPass +"\"";
                     wc.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
 
-                    int res = MyService.wifi.addNetwork(wc);
+                    int res = DCService.wifi.addNetwork(wc);
 
-                    boolean b = MyService.wifi.enableNetwork(res, true);
-                    Log.v(MyService.TAG2, "Connected");
+                    boolean b = DCService.wifi.enableNetwork(res, true);
+                    Log.v(DCService.TAG2, "Connected");
 
                     Logger.addRecordToLog("DB Connected Successfully");
                     isDBConnected = 1;
@@ -134,15 +133,15 @@ public class WifiConnect implements Runnable {
                 wc.preSharedKey = "\""+ pass +"\"";
                 wc.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
                 //wc.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
-                int res = MyService.wifi.addNetwork(wc);
-                boolean b = MyService.wifi.enableNetwork(res, true);
+                int res = DCService.wifi.addNetwork(wc);
+                boolean b = DCService.wifi.enableNetwork(res, true);
                 Log.v("WifiConnect:","Res:" + res + ",b:" + b);
-                Log.v(MyService.TAG2, "Connected");
+                Log.v(DCService.TAG2, "Connected");
                 Log.v("Parameters:" ,wc.SSID + "," + wc.BSSID + "," + wc.allowedAuthAlgorithms + "," + wc.allowedProtocols + "," + wc.allowedKeyManagement + "," + wc.allowedGroupCiphers + "," + wc.allowedPairwiseCiphers + "," + wc.FQDN + "," + wc.status);
                 Logger.addRecordToLog("DH Connected Successfully," + bestFoundSSID);
             }
             else{
-                Log.v(MyService.TAG2,"Disarm Not Available");
+                Log.v(DCService.TAG2,"Disarm Not Available");
 
                 Logger.addRecordToLog("no DH/DB network available");
 
@@ -154,7 +153,7 @@ public class WifiConnect implements Runnable {
     public int findDBSignalLevel(List<ScanResult> allScanResults)
     {
         for (ScanResult scanResult : allScanResults) {
-            if(scanResult.SSID.toString().equals(MyService.dbAPName)) {
+            if(scanResult.SSID.toString().equals(DCService.dbAPName)) {
                 Log.v("SSID:",scanResult.SSID.toString());
                 int level =  WifiManager.calculateSignalLevel(scanResult.level, 5);
                 return level;

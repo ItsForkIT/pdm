@@ -19,20 +19,16 @@ by Almalence Inc. All Rights Reserved.
 package com.disarm.sanna.pdm.location;
 
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 import com.disarm.sanna.pdm.Logger;
 import com.disarm.sanna.pdm.SplashActivity;
 import com.disarm.sanna.pdm.Util.PrefUtils;
-import com.nextgis.maplib.util.SettingsConstants;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -42,7 +38,7 @@ import java.io.FilenameFilter;
 import java.io.InputStreamReader;
 import java.util.List;
 
-import static com.disarm.sanna.pdm.DisarmConnect.MyService.phoneVal;
+import static com.disarm.sanna.pdm.DisarmConnect.DCService.phoneVal;
 
 public class MLocation
 {

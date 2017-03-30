@@ -21,7 +21,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.disarm.sanna.pdm.DisarmConnect.MyService;
+import com.disarm.sanna.pdm.DisarmConnect.DCService;
 import com.disarm.sanna.pdm.Service.SyncService;
 import com.disarm.sanna.pdm.Util.PrefUtils;
 import com.disarm.sanna.pdm.location.LocationState;
@@ -48,7 +48,7 @@ public class SelectCategoryActivity extends AppCompatActivity{
     private boolean myServiceBound = false;
     private boolean gpsService = false;
     SyncService syncService;
-    MyService myService;
+    DCService myService;
     LocationManager lm;
     LocationListener locationListener;
     static String root = Environment.getExternalStorageDirectory().toString();
@@ -105,7 +105,7 @@ public class SelectCategoryActivity extends AppCompatActivity{
                             .setCancelable(false)
                             .setPositiveButton("Disarm Connect", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
-                                    final Intent myServiceIntent = new Intent(getBaseContext(), MyService.class);
+                                    final Intent myServiceIntent = new Intent(getBaseContext(), DCService.class);
                                     bindService(myServiceIntent, myServiceConnection, Context.BIND_AUTO_CREATE);
                                     startService(myServiceIntent);
                                 }
@@ -117,7 +117,7 @@ public class SelectCategoryActivity extends AppCompatActivity{
                             });
                     builder.show();
                 } else {
-                    final Intent myServiceIntent = new Intent(getBaseContext(), MyService.class);
+                    final Intent myServiceIntent = new Intent(getBaseContext(), DCService.class);
                     if (myServiceBound) {
                         unbindService(myServiceConnection);
                     }
@@ -250,7 +250,7 @@ public class SelectCategoryActivity extends AppCompatActivity{
         @Override
         public void onServiceConnected(ComponentName className,
                                        IBinder service) {
-            MyService.MyServiceBinder binder = (MyService.MyServiceBinder) service;
+            DCService.MyServiceBinder binder = (DCService.MyServiceBinder) service;
             myService = binder.getService();
             myServiceBound = true;
         }
@@ -295,7 +295,7 @@ public class SelectCategoryActivity extends AppCompatActivity{
         syncServiceBound = false;
         stopService(syncServiceIntent);
 
-        final Intent myServiceIntent = new Intent(getBaseContext(), MyService.class);
+        final Intent myServiceIntent = new Intent(getBaseContext(), DCService.class);
         if (myServiceBound) {
             unbindService(myServiceConnection);
         }

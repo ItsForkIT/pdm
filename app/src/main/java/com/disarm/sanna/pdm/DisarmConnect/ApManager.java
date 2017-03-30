@@ -6,7 +6,6 @@ package com.disarm.sanna.pdm.DisarmConnect;
 
 import android.content.Context;
 import android.net.wifi.WifiConfiguration;
-import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.util.Log;
@@ -46,15 +45,15 @@ public class ApManager {
 
                 WifiConfiguration wifiConfig = (WifiConfiguration) getConfigMethod.invoke(wifimanager);
                 //wifiConfig.getClass().getField("apChannel").setInt(wifiConfig, 6);
-                Log.v("ApManager", "Best Available Channel:" + MyService.bestAvailableChannel);
+                Log.v("ApManager", "Best Available Channel:" + DCService.bestAvailableChannel);
 
                 // Channel Allocation
 
                 if (Build.VERSION.SDK_INT > 22) {
                     // Created hotspot in the best available channel
-                    wifiConfig.getClass().getField("apChannel").setInt(wifiConfig, MyService.bestAvailableChannel);
+                    wifiConfig.getClass().getField("apChannel").setInt(wifiConfig, DCService.bestAvailableChannel);
                 } else {
-                    wifiConfig.getClass().getField("channel").setInt(wifiConfig, MyService.bestAvailableChannel);
+                    wifiConfig.getClass().getField("channel").setInt(wifiConfig, DCService.bestAvailableChannel);
                 }
 
                 wifiConfig.allowedAuthAlgorithms.clear();

@@ -1,12 +1,8 @@
 package com.disarm.sanna.pdm.DisarmConnect;
 
-import android.app.Service;
 import android.content.Context;
-import android.content.Intent;
 import android.location.Location;
 import android.os.Handler;
-import android.os.IBinder;
-import android.support.annotation.Nullable;
 import android.widget.Toast;
 
 import com.disarm.sanna.pdm.SplashActivity;
@@ -18,7 +14,7 @@ import com.disarm.sanna.pdm.location.MLocation;
  * Created by sanna on 3/29/17.
  */
 
-public class ToggleWRTSpeed extends Service {
+public class ToggleWRTSpeed implements Runnable {
     private final Handler handler;
     private final Context context;
     String TAG = "ToggleWRTSpeed";
@@ -69,11 +65,5 @@ public class ToggleWRTSpeed extends Service {
         if (l != null)
             return l.getSpeed();
         return 0;
-    }
-
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
     }
 }

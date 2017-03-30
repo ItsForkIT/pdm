@@ -12,6 +12,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.List;
@@ -19,7 +20,7 @@ import java.util.List;
 /**
  * Created by Sanna on 16-02-2016.
  */
-public class MyService extends Service {
+public class DCService extends Service {
 
     public static WifiManager wifi;
     public static String checkWifiState="0x";
@@ -59,9 +60,9 @@ public class MyService extends Service {
         return myServiceBinder;
     }
     public class MyServiceBinder extends Binder {
-        public MyService getService() {
+        public DCService getService() {
             // Return this instance of SyncService so activity can call public methods
-            return MyService.this;
+            return DCService.this;
         }
     }
     @Override
@@ -69,7 +70,7 @@ public class MyService extends Service {
         super.onCreate();
 
         // DisarmConnect Started
-        Log.v("MyService:", "DisarmConnect Started");
+        Log.v("DCService:", "DisarmConnect Started");
 
         // WifiScanReceiver registered
         IntentFilter filter = new IntentFilter();
@@ -106,7 +107,6 @@ public class MyService extends Service {
         tt = new Timer_Toggler(handler,getApplicationContext());
         wifiC = new WifiConnect(handler,getApplicationContext());
         sDDB = new SearchingDisarmDB(handler,getApplicationContext());
-        toggleWRTSpeed = new ToggleWRTSpeed(handler,getApplicationContext());
 
         return START_STICKY;
     }
@@ -120,9 +120,9 @@ public class MyService extends Service {
         unregisterReceiver(bl);
 
         // Disabling hotspot and enabling WiFi Mode on app destroy
-        isHotspotOn = ApManager.isApOn(MyService.this);
+        isHotspotOn = ApManager.isApOn(DCService.this);
         if(isHotspotOn){
-            ApManager.configApState(MyService.this);
+            ApManager.configApState(DCService.this);
             wifi.setWifiEnabled(true);
             Logger.addRecordToLog("Stopping DisarmConnect Hotspot Disabled");
         }
@@ -136,7 +136,7 @@ public class MyService extends Service {
 
         // Adding stop record to log
         logger.addRecordToLog("DisarmConnect Stopped");
-        Log.v("MyService:", "DisarmConnect Stopped");
+        Log.v("DCService:", "DisarmConnect Stopped");
     }
 
 }

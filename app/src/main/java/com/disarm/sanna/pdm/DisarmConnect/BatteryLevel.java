@@ -11,6 +11,6 @@ import android.os.BatteryManager;
 public class BatteryLevel extends BroadcastReceiver {
     @Override
     public void onReceive(Context arg0, Intent intent) {
-        MyService.level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+        DCService.level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
     }
 }

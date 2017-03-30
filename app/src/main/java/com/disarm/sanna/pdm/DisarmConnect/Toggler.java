@@ -1,23 +1,11 @@
 package com.disarm.sanna.pdm.DisarmConnect;
 
 import android.app.Activity;
-import android.app.IntentService;
 import android.content.Context;
-import android.content.Intent;
 import android.util.Log;
-
-import com.disarm.sanna.pdm.R;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
-import java.util.StringTokenizer;
 
 /**
  * Created by hridoy on 19/8/16.
@@ -49,10 +37,10 @@ public class Toggler extends Activity{
     public static int findChannelWeight()
     {
         // Get frequency of all the channel available
-        for ( int i = 0 ; i < MyService.wifiScanList.size();i++) {
+        for (int i = 0; i < DCService.wifiScanList.size(); i++) {
 
-            allFrequency.add(convertFrequencyToChannel(MyService.wifiScanList.get(i).frequency));
-            Log.v("Channel  + AP: ", String.valueOf(convertFrequencyToChannel(MyService.wifiScanList.get(i).frequency)) + "->" + String.valueOf(MyService.wifiScanList.get(i).SSID));
+            allFrequency.add(convertFrequencyToChannel(DCService.wifiScanList.get(i).frequency));
+            Log.v("Channel  + AP: ", String.valueOf(convertFrequencyToChannel(DCService.wifiScanList.get(i).frequency)) + "->" + String.valueOf(DCService.wifiScanList.get(i).SSID));
         }
         Log.v("All frequency:",allFrequency.toString());
 
@@ -111,54 +99,54 @@ public class Toggler extends Activity{
 
     }
     public static void toggle(Context c){
-        Log.v(MyService.TAG3, "Toggling randomly!!!");
+        Log.v(DCService.TAG3, "Toggling randomly!!!");
 
         // Start wifi for the first time and then randomly toggle
-        if (MyService.startwififirst == 1){
-            MyService.wifiState= 1.00;
-            MyService.startwififirst = 0;
+        if (DCService.startwififirst == 1){
+            DCService.wifiState= 1.00;
+            DCService.startwififirst = 0;
         }
         else
         {
-            MyService.wifiState = Math.random()*1.0;
-            Log.v(MyService.TAG3, String.valueOf(MyService.wifiState));
+            DCService.wifiState = Math.random()*1.0;
+            Log.v(DCService.TAG3, String.valueOf(DCService.wifiState));
         }
-        Log.v("Battery Level:", String.valueOf(MyService.level));
-        Log.v("Present State:", MyService.presentState);
+        Log.v("Battery Level:", String.valueOf(DCService.level));
+        Log.v("Present State:", DCService.presentState);
 
-        if(MyService.wifiState <= toggleBetweenHotspotWifi && MyService.level > minimumBatteryLevel ) {
+        if(DCService.wifiState <= toggleBetweenHotspotWifi && DCService.level > minimumBatteryLevel ) {
             // Present State
-            MyService.presentState = "hotspot";
+            DCService.presentState = "hotspot";
 
             // Set ImageView to Hotspot
             //MainActivity.img_wifi_state.setImageResource(R.drawable.hotspot);
 
             // Set text to textConnect TextView
-            String apHotspotName = "DH" + MyService.phoneVal;
+            String apHotspotName = "DH" + DCService.phoneVal;
 //            MainActivity.textConnect.setText(apHotspotName);
 
             // Find channel weight of all Wifis
-            MyService.bestAvailableChannel = findChannelWeight();
+            DCService.bestAvailableChannel = findChannelWeight();
 
             // Hotspot Mode Activated
-            Log.v(MyService.TAG1,"hptoggling for " +String.valueOf(addIncreasehp));
-            Logger.addRecordToLog("HA : " + addIncreasehp + " secs," + "Random :" + String.format("%.2f", MyService.wifiState));
+            Log.v(DCService.TAG1,"hptoggling for " +String.valueOf(addIncreasehp));
+            Logger.addRecordToLog("HA : " + addIncreasehp + " secs," + "Random :" + String.format("%.2f", DCService.wifiState));
 
             // Adding hotspot increase time counter by factor of hpIncrease
             addIncreasehp += hpIncrease;
 
             // Disabling Wifi and Enabling Hotspot
-            MyService.wifi.setWifiEnabled(false);
-            MyService.isHotspotOn = ApManager.isApOn(c);
+            DCService.wifi.setWifiEnabled(false);
+            DCService.isHotspotOn = ApManager.isApOn(c);
 
-            if (!MyService.isHotspotOn) {
+            if (!DCService.isHotspotOn) {
                 ApManager.configApState(c);
             }
-            Log.v(MyService.TAG3, "Hotspot Active");
+            Log.v(DCService.TAG3, "Hotspot Active");
 
         }
         else {
-            MyService.presentState = "wifi";
+            DCService.presentState = "wifi";
 
             // Set ImageView to Wifi
             //MainActivity.img_wifi_state.setImageResource(R.drawable.wifi);
@@ -167,24 +155,24 @@ public class Toggler extends Activity{
             //MainActivity.textConnect.setText("");
 
             // Wifi Mode Activated
-            Log.v(MyService.TAG3,"wifitogging for "+ String.valueOf(addIncreasewifi));
+            Log.v(DCService.TAG3,"wifitogging for "+ String.valueOf(addIncreasewifi));
 
-            Logger.addRecordToLog("WA : " + addIncreasewifi + " secs," + "Random :" + String.format("%.2f", MyService.wifiState));
+            Logger.addRecordToLog("WA : " + addIncreasewifi + " secs," + "Random :" + String.format("%.2f", DCService.wifiState));
 
             // Adding wifi increase time counter by factor of wifiIncrease
             addIncreasewifi += wifiIncrease;
 
             // Disabling hotspot and enable Wifi
-            MyService.isHotspotOn = ApManager.isApOn(c);
+            DCService.isHotspotOn = ApManager.isApOn(c);
 
-            if(MyService.isHotspotOn)
+            if(DCService.isHotspotOn)
             {
                 ApManager.configApState(c);
             }
-            MyService.wifi.setWifiEnabled(true);
-            Log.v(MyService.TAG3, "Wifi Active");
+            DCService.wifi.setWifiEnabled(true);
+            Log.v(DCService.TAG3, "Wifi Active");
 
-            MyService.wifi.startScan();
+            DCService.wifi.startScan();
 
         }
 
