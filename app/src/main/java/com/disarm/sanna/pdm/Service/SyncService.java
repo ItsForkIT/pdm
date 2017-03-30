@@ -18,6 +18,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.HashMap;
 
 import bishakh.psync.Controller;
 import bishakh.psync.Discoverer;
@@ -25,7 +26,7 @@ import bishakh.psync.FileManager;
 import bishakh.psync.FileTransporter;
 import bishakh.psync.Logger;
 import bishakh.psync.WebServer;
-
+import com.disarm.sanna.pdm.Opp.Parameter;
 public class SyncService extends Service {
 
     private static final String BROADCAST_IP = "192.168.43.255";
@@ -71,6 +72,10 @@ public class SyncService extends Service {
         discoverer.startDiscoverer();
         fileManager.startFileManager();
         controller.startController();
+        //Extras
+        Parameter.current_number_of_neighbours = discoverer.originalPeerList.size();
+        Log.w("Client side msg",Parameter.current_number_of_neighbours+" neighbours available");
+        //Extras end
         try {
             webServer.start();
         } catch(IOException ioe) {

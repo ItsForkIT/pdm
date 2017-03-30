@@ -1,5 +1,6 @@
 package com.disarm.sanna.pdm.Opp;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
@@ -8,7 +9,7 @@ import android.util.Log;
  * Created by naman on 26/3/17.
  */
 
-public class WifiScanReceiver {
+public class WifiScanReceiver extends BroadcastReceiver {
     public static String wifis[]={"None"};
     public void onReceive(Context c, Intent intent) {
 

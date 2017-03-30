@@ -1,16 +1,11 @@
-package com.disarm.sanna.pdm.DisarmConnect;
+package com.disarm.sanna.pdm.Opp;
 
-import android.app.Activity;
 import android.content.Context;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
-import android.os.Bundle;
 import android.util.Log;
-import android.os.Handler;
-import android.view.LayoutInflater;
-
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -24,8 +19,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by hridoy on 19/8/16.
+ * Created by naman on 27/3/17.
  */
+
 public class Timer_Toggler implements Runnable{
     private BufferedReader br;
     private FileReader fr = null;
@@ -41,17 +37,17 @@ public class Timer_Toggler implements Runnable{
     }
     @Override
     public void run() {
-        MyService.wifi = (WifiManager) context.getSystemService(context.WIFI_SERVICE);
-        WifiInfo wifiInfo = MyService.wifi.getConnectionInfo();
-        MyService.checkWifiState = wifiInfo.getSSID();
-        Log.v(MyService.TAG1, "Ticking Random Function");
+        StartService.wifi = (WifiManager) context.getSystemService(context.WIFI_SERVICE);
+        WifiInfo wifiInfo = StartService.wifi.getConnectionInfo();
+        StartService.checkWifiState = wifiInfo.getSSID();
+        Log.v(StartService.TAG1, "Ticking Random Function");
         Logger.addRecordToLog("Ticking");
-        Log.v(MyService.TAG1, MyService.checkWifiState);
-        MyService.count++;
-        List<ScanResult> allScanResults = MyService.wifi.getScanResults();
+        Log.v(StartService.TAG1, StartService.checkWifiState);
+        StartService.count++;
+        List<ScanResult> allScanResults = StartService.wifi.getScanResults();
 
-        if (MyService.checkWifiState.equals("<unknown ssid>")) {
-            Log.v(MyService.TAG1, "Hotspot Mode Detected");
+        if (StartService.checkWifiState.equals("<unknown ssid>")) {
+            Log.v(StartService.TAG1, "Hotspot Mode Detected");
             Logger.addRecordToLog("Hotspot Mode Detected");
             boolean isReachable = false;
             try {
@@ -59,7 +55,7 @@ public class Timer_Toggler implements Runnable{
                 br = new BufferedReader(fr);
                 String line;
                 IpAddr = new ArrayList<String>();
-                MyService.c = false;
+                StartService.c = false;
                 while ((line = br.readLine()) != null) {
                     String[] splitted = line.split(" +");
 
@@ -73,8 +69,8 @@ public class Timer_Toggler implements Runnable{
 
                         }
                         if (isReachable) {
-                            MyService.c = true;
-                            Log.v(MyService.TAG1, "C IS TRUE !!! ");
+                            StartService.c = true;
+                            Log.v(StartService.TAG1, "C IS TRUE !!! ");
 
                         }
 
@@ -83,23 +79,22 @@ public class Timer_Toggler implements Runnable{
                         System.out.println("Mac : Outside If " + mac);
 
                         if (mac.matches("..:..:..:..:..:..")) {
-                            MyService.macCount++;
+                            StartService.macCount++;
 
                             IpAddr.add(splitted[0]);
 
-                            Log.v(MyService.TAG1, "IP Address  " + splitted[0] + "   MAC_ADDRESS  " + mac);
+                            Log.v(StartService.TAG1, "IP Address  " + splitted[0] + "   MAC_ADDRESS  " + mac);
                             Logger.addRecordToLog("Connected Client, IP :" + splitted[0] + ",mac:" + mac);
                         }
                     }
                 }
-                if (MyService.c) {
-                    Log.v(MyService.TAG1, "Connected!!! ");
+                if (StartService.c) {
+                    Log.v(StartService.TAG1, "Connected!!! ");
                 } else {
-                    Log.v(MyService.TAG1, "Not Connected!!! ");
-
+                    Log.v(StartService.TAG1, "Not Connected!!! ");
                 }
             } catch (Exception e) {
-                Log.v(MyService.TAG1, "exception", e);
+                Log.v(StartService.TAG1, "exception", e);
             } finally {
                 if (fr != null) {
                     try {
@@ -113,39 +108,37 @@ public class Timer_Toggler implements Runnable{
                 }
             }
 
-            if (!MyService.c) {
+            if (!StartService.c) {
                 Toggler.toggle(context);
             }
 
 
         } //if Completed check
 
-        else if(MyService.checkWifiState.contains("DisarmHotspotDB")) {
-            Log.v(MyService.TAG1, "DisarmHotspotDB Not Toggling");
-        //    MainActivity.textConnect.setText("DB Connected");
+        else if(StartService.checkWifiState.contains("DisarmHotspotDB")) {
+            Log.v(StartService.TAG1, "DisarmHotspotDB Not Toggling");
 
         }
-        else if (MyService.checkWifiState.contains("DH-")) {
-            /////////////////////////
-           // this.handler.post(searchingDisarmDB);
-            String connectedText = MyService.checkWifiState + " connected";
-//            MainActivity.textConnect.setText(connectedText);
-            Log.v(MyService.TAG1, "DisarmHotspot Not Toggling");
-            Log.v(MyService.TAG1,"Trying to find better DH");
-            //Logger.addRecordToLog("Connected to DH");
+        else if (StartService.checkWifiState.contains("DH-")) {
+
+            String connectedText = StartService.checkWifiState + " connected";
+
+            Log.v(StartService.TAG1, "DisarmHotspot Not Toggling");
+            Log.v(StartService.TAG1,"Trying to find better DH");
+            Logger.addRecordToLog("Connected to DH");
             // Trying to search for better DH
-            findBetterDHAvailable(allScanResults);
+            if(SwitchStateFinder.shouldSTAChange(Parameter.current_number_of_neighbours))
+                findBetterDHAvailable(allScanResults);
         }
-
         else
         {
             Toggler.toggle(context);
         }
-        boolean apOn = ApManager.isApOn(context);
+        boolean apOn = EnableAP.isApOn(context);
         if(apOn){
-            this.handler.postDelayed(this,Toggler.addIncreasehp);
+            this.handler.postDelayed(this,Parameter.current_ap_time);
         }else{
-            this.handler.postDelayed(this,Toggler.addIncreasewifi);
+            this.handler.postDelayed(this,Parameter.current_wifi_time);
         }
     }
 
@@ -160,10 +153,12 @@ public class Timer_Toggler implements Runnable{
                 allDHAvailable.put(scanResult.SSID,scanResult.level);
             }
         }
-
+        if(allDHAvailable.size()>1){
+            allDHAvailable.remove(StartService.wifiInfo.getSSID());
+        }
         Log.v("AllDH Available:", Arrays.asList(allDHAvailable).toString());
         Logger.addRecordToLog("All DH available:" + Arrays.asList(allDHAvailable).toString());
-        // Find key with the maximum value from allDHAvailable
+        //Find key with the maximum value from allDHAvailable
         String bestFoundSSID="";
         int maxValueInMap = 0;
         try {
@@ -186,10 +181,9 @@ public class Timer_Toggler implements Runnable{
         wc.SSID = "\"" + bestFoundSSID + "\""; //IMPORTANT! This should be in Quotes!!
         wc.preSharedKey = "\""+ pass +"\"";
         wc.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
-        //wc.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
-        int res = MyService.wifi.addNetwork(wc);
-        boolean b = MyService.wifi.enableNetwork(res, true);
-        Log.v(MyService.TAG2, "Connected");
+        int res = StartService.wifi.addNetwork(wc);
+        boolean b = StartService.wifi.enableNetwork(res, true);
+        Log.v(StartService.TAG2, "Connected");
 
     }
 }

@@ -6,6 +6,7 @@ package com.disarm.sanna.pdm.Opp;
 import java.util.Random;
 public class SwitchStateFinder {
 
+
     public static double getRandomNumber(int limit){
         Random rand= new Random();
         return rand.nextInt(limit);

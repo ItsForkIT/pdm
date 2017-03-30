@@ -29,6 +29,7 @@ import android.widget.Toast;
 
 
 import com.disarm.sanna.pdm.DisarmConnect.MyService;
+import com.disarm.sanna.pdm.Opp.StartService;
 import com.disarm.sanna.pdm.Service.SyncService;
 import com.disarm.sanna.pdm.Util.PrefUtils;
 import com.disarm.sanna.pdm.location.LocationState;
@@ -51,10 +52,12 @@ public class SelectCategoryActivity extends AppCompatActivity{
     private boolean choice = true;
     private boolean syncServiceBound = false;
     private boolean myServiceBound = false;
+    private boolean startServiceBound = false;
     private boolean gpsService = false;
     private int loop_breaker = 0;
     SyncService syncService;
     MyService myService;
+    StartService startService;
     LocationManager lm;
     LocationListener locationListener;
     static String root = Environment.getExternalStorageDirectory().toString();
@@ -123,6 +126,9 @@ public class SelectCategoryActivity extends AppCompatActivity{
                                 @Override
                                 public void onClick(DialogInterface arg0, int arg1) {
                                     choice=false; //OPP
+                                    final Intent startServiceIntent = new Intent(getBaseContext(), StartService.class);
+                                    bindService(startServiceIntent , startServiceConnection , Context.BIND_AUTO_CREATE);
+                                    startService(startServiceIntent);
                                 }
                             });
                     AlertDialog alertDialog = connection_type_choice.create();
@@ -140,6 +146,12 @@ public class SelectCategoryActivity extends AppCompatActivity{
                         }
                         else{
                             //Stop the OPP intent service
+                            final Intent startServiceIntent = new Intent(getBaseContext(), StartService.class);
+                            if (startServiceBound) {
+                                unbindService(startServiceConnection);
+                            }
+                            startServiceBound = false;
+                            stopService(startServiceIntent);
                         }
                     }
                 }
@@ -253,6 +265,20 @@ public class SelectCategoryActivity extends AppCompatActivity{
         }
     };
 
+    private  ServiceConnection startServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            StartService.StartServiceBinder binder = (StartService.StartServiceBinder) service;
+            startService = binder.getService();
+            startServiceBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            startServiceBound = false;
+        }
+    };
+
 
     public void enableGPS() {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
@@ -293,6 +319,13 @@ public class SelectCategoryActivity extends AppCompatActivity{
         }
         myServiceBound = false;
         stopService(myServiceIntent);
+
+        final Intent startServiceIntent = new Intent(getBaseContext(), StartService.class);
+        if (startServiceBound) {
+            unbindService(startServiceConnection);
+        }
+        startServiceBound = false;
+        stopService(startServiceIntent);
 
         if (gpsService) {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
