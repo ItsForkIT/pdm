@@ -22,6 +22,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.disarm.sanna.pdm.DisarmConnect.DCService;
+import com.disarm.sanna.pdm.DisarmConnect.DataMuleService;
 import com.disarm.sanna.pdm.Service.SyncService;
 import com.disarm.sanna.pdm.Util.PrefUtils;
 import com.disarm.sanna.pdm.location.LocationState;
@@ -46,9 +47,11 @@ import belka.us.androidtoggleswitch.widgets.ToggleSwitch;
 public class SelectCategoryActivity extends AppCompatActivity{
     private boolean syncServiceBound = false;
     private boolean myServiceBound = false;
+    private boolean dataMuleServiceBound = false;
     private boolean gpsService = false;
     SyncService syncService;
-    DCService myService;
+    public DCService myService;
+    public DataMuleService dataMuleService;
     LocationManager lm;
     LocationListener locationListener;
     static String root = Environment.getExternalStorageDirectory().toString();
@@ -112,17 +115,24 @@ public class SelectCategoryActivity extends AppCompatActivity{
                             })
                             .setNegativeButton("Data Mule", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
-
+                                    final Intent myServiceIntent = new Intent(getBaseContext(), DataMuleService.class);
+                                    bindService(myServiceIntent, dataMuleConnection, Context.BIND_AUTO_CREATE);
+                                    startService(myServiceIntent);
                                 }
                             });
                     builder.show();
                 } else {
                     final Intent myServiceIntent = new Intent(getBaseContext(), DCService.class);
+                    final Intent dataMuleIntent = new Intent(getBaseContext(), DataMuleService.class);
                     if (myServiceBound) {
                         unbindService(myServiceConnection);
+                        myServiceBound = false;
+                        stopService(myServiceIntent);
+                    }else if (dataMuleServiceBound){
+                        unbindService(dataMuleConnection);
+                        dataMuleServiceBound = false;
+                        stopService(dataMuleIntent);
                     }
-                    myServiceBound = false;
-                    stopService(myServiceIntent);
                 }
             }
         });
@@ -258,6 +268,21 @@ public class SelectCategoryActivity extends AppCompatActivity{
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
             myServiceBound = false;
+        }
+    };
+
+    //DataMule
+    private ServiceConnection dataMuleConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            DataMuleService.MyServiceBinder binder = (DataMuleService.MyServiceBinder) service;
+            dataMuleService = binder.getService();
+            dataMuleServiceBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            dataMuleServiceBound = false;
         }
     };
 

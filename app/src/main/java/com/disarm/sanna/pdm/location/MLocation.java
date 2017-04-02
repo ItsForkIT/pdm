@@ -48,7 +48,6 @@ public class MLocation
 	{
 		lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
 
-		Log.v("gps","1");
 		boolean gps_enabled = false;
 		try
 		{
@@ -67,12 +66,12 @@ public class MLocation
 		}
 
 		if (gps_enabled)
-		{Log.v("gps","2");
+		{
 			lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListenerGps);
 		}
 
 		if (network_enabled)
-		{Log.v("gps","3");
+		{
 			lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListenerNetwork);
 		}
 
