@@ -116,15 +116,12 @@ public class Timer_Toggler implements Runnable{
         } //if Completed check
 
         else if(StartService.checkWifiState.contains("DisarmHotspotDB")) {
-            Log.v(StartService.TAG1, "DisarmHotspotDB Not Toggling");
+            //Log.v(StartService.TAG1, "DisarmHotspotDB Not Toggling");
 
         }
         else if (StartService.checkWifiState.contains("DH-")) {
 
             String connectedText = StartService.checkWifiState + " connected";
-
-            Log.v(StartService.TAG1, "DisarmHotspot Not Toggling");
-            Log.v(StartService.TAG1,"Trying to find better DH");
             Logger.addRecordToLog("Connected to DH");
             // Trying to search for better DH
             if(SwitchStateFinder.shouldSTAChange(Parameter.current_number_of_neighbours))
@@ -136,9 +133,13 @@ public class Timer_Toggler implements Runnable{
         }
         boolean apOn = EnableAP.isApOn(context);
         if(apOn){
+            Parameter.current_ap_time=Parameter.current_ap_time+Parameter.ap_increase_time;
             this.handler.postDelayed(this,Parameter.current_ap_time);
+            Log.v("AP","Ap time is increased to "+Parameter.current_ap_time);
         }else{
+            Parameter.current_wifi_time=Parameter.current_wifi_time+Parameter.increase_wifi_time;
             this.handler.postDelayed(this,Parameter.current_wifi_time);
+            Log.v("WiFi","WiFi time is increased to "+Parameter.current_wifi_time);
         }
     }
 
@@ -156,7 +157,7 @@ public class Timer_Toggler implements Runnable{
         if(allDHAvailable.size()>1){
             allDHAvailable.remove(StartService.wifiInfo.getSSID());
         }
-        Log.v("AllDH Available:", Arrays.asList(allDHAvailable).toString());
+        //Log.v("AllDH Available:", Arrays.asList(allDHAvailable).toString());
         Logger.addRecordToLog("All DH available:" + Arrays.asList(allDHAvailable).toString());
         //Find key with the maximum value from allDHAvailable
         String bestFoundSSID="";
@@ -167,7 +168,6 @@ public class Timer_Toggler implements Runnable{
             while (it.hasNext()) {
                 Map.Entry<String, Integer> pair = (Map.Entry) it.next();
                 if (pair.getValue() == maxValueInMap) {
-                    Log.v("Best Found SSID:", pair.getKey());     // Print the key with max value
                     Logger.addRecordToLog("Best Found SSID"+ ',' + pair.getKey());
                     bestFoundSSID = pair.getKey().toString();
                 }
@@ -183,7 +183,7 @@ public class Timer_Toggler implements Runnable{
         wc.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
         int res = StartService.wifi.addNetwork(wc);
         boolean b = StartService.wifi.enableNetwork(res, true);
-        Log.v(StartService.TAG2, "Connected");
+        //Log.v(StartService.TAG2, "Connected");
 
     }
 }

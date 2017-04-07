@@ -67,8 +67,6 @@ public class EnableAP {
                 Method getConfigMethod = wifimanager.getClass().getMethod("getWifiApConfiguration");
 
                 WifiConfiguration wifiConfig = (WifiConfiguration) getConfigMethod.invoke(wifimanager);
-                //wifiConfig.getClass().getField("apChannel").setInt(wifiConfig, 6);
-                Log.v("ApManager", "Best Available Channel:" + StartService.bestAvailableChannel);
 
                 // Channel Allocation
 
@@ -85,10 +83,7 @@ public class EnableAP {
                 wifiConfig.allowedPairwiseCiphers.clear();
                 wifiConfig.allowedProtocols.clear();
                 wifiConfig.SSID = "DH-" + SelectCategoryActivity.SOURCE_PHONE_NO;
-
-
                 wifiConfig.preSharedKey = "password123";
-
                 wifiConfig.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.SHARED);
                 wifiConfig.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
                 wifiConfig.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
@@ -96,7 +91,6 @@ public class EnableAP {
 
                 Method setWifiApMethod = wifimanager.getClass().getMethod("setWifiApEnabled", WifiConfiguration.class, boolean.class);
                 boolean apstatus = (Boolean) setWifiApMethod.invoke(wifimanager, wifiConfig, true);
-                //Log.v("GetAPCOnfig:" + getConfigMethod.toString() + ",setWifiApMethod : " + setWifiApMethod.toString());
                 Log.v("WifiConfig: " , wifiConfig.toString());
             }
             catch (Exception e) {

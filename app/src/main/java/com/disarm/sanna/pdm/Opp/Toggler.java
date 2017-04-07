@@ -35,7 +35,7 @@ public class Toggler extends Activity {
         for ( int i = 0 ; i < StartService.wifiScanList.size();i++) {
 
             allFrequency.add(convertFrequencyToChannel(StartService.wifiScanList.get(i).frequency));
-            Log.v("Channel  + AP: ", String.valueOf(convertFrequencyToChannel(StartService.wifiScanList.get(i).frequency)) + "->" + String.valueOf(StartService.wifiScanList.get(i).SSID));
+            //Log.v("Channel  + AP: ", String.valueOf(convertFrequencyToChannel(StartService.wifiScanList.get(i).frequency)) + "->" + String.valueOf(StartService.wifiScanList.get(i).SSID));
         }
         Log.v("All frequency:",allFrequency.toString());
 
@@ -55,7 +55,7 @@ public class Toggler extends Activity {
                 channelArray[i-1] = (channelArray[i-1] + (6-Math.abs(i-band))*factor);
             }
         }
-        Log.v("Channel Array:",Arrays.toString(channelArray));
+        //Log.v("Channel Array:",Arrays.toString(channelArray));
 
         // Minimum value of channel array
         int bestFoundChannel;
@@ -106,12 +106,6 @@ public class Toggler extends Activity {
             String apHotspotName = "DH" + StartService.phoneVal;
             // Find channel weight of all Wifis
             StartService.bestAvailableChannel = findChannelWeight();
-
-            // Hotspot Mode Activated
-            //Log.v(StartService.TAG1,"hptoggling for " +String.valueOf(addIncreasehp));
-            //Logger.addRecordToLog("HA : " + addIncreasehp + " secs," + "Random :" + String.format("%.2f", StartService.wifiState));
-
-            // Adding hotspot increase time counter by factor of hpIncrease
             Parameter.current_ap_time = Parameter.current_ap_time + Parameter.ap_increase_time;
 
             // Disabling Wifi and Enabling Hotspot
@@ -128,7 +122,6 @@ public class Toggler extends Activity {
             StartService.presentState = "wifi";
 
             // Wifi Mode Activated
-            //Log.v(StartService.TAG3,"wifitogging for "+ String.valueOf(addIncreasewifi));
             Parameter.current_wifi_time+=Parameter.increase_wifi_time;
             // Disabling hotspot and enable Wifi
             StartService.isHotspotOn = EnableAP.isApOn(c);

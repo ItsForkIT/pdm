@@ -78,9 +78,6 @@ public class SearchingDisarmDB implements Runnable {
                 String ssid = StartService.dbAPName;
                 WifiConfiguration wc = new WifiConfiguration();
                 wc.SSID = "\"" + ssid + "\""; //IMPORTANT! This should be in Quotes!!
-                // wc.preSharedKey = "\""+ StartService.dbPass +"\"";
-                //wc.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
-
                 wc.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
 
                 int res = StartService.wifi.addNetwork(wc);
@@ -98,7 +95,7 @@ public class SearchingDisarmDB implements Runnable {
     {
         for (ScanResult scanResult : allScanResults) {
             if(scanResult.SSID.toString().equals(StartService.dbAPName)) {
-                Log.v("SSID:",scanResult.SSID.toString());
+                //Log.v("SSID:",scanResult.SSID.toString());
                 int level =  WifiManager.calculateSignalLevel(scanResult.level, 5);
                 return level;
             }

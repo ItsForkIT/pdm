@@ -43,12 +43,12 @@ public class WifiConnect implements Runnable {
         String ssidName = StartService.wifiInfo.getSSID();
         Log.v(StartService.TAG2, ssidName);
         if(ssidName.contains("DisarmHotspotDB")) {
-            Log.v(StartService.TAG2,"Already Connected DB ");
+            //Log.v(StartService.TAG2,"Already Connected DB ");
             Logger.addRecordToLog("Already DB Connected");
 
         }
         else if(ssidName.contains("DH-")) {
-            Log.v(StartService.TAG2,"Already Connected");
+            //Log.v(StartService.TAG2,"Already Connected");
             Logger.addRecordToLog("DH Connected:" +ssidName);
             try {
 
@@ -59,7 +59,7 @@ public class WifiConnect implements Runnable {
                 StartService.c = false;
                 while ((line = br.readLine()) != null) {
                     String[] splitted = line.split(" +");
-                    Log.v("Splitted:" , Arrays.deepToString(splitted));
+                    //Log.v("Splitted:" , Arrays.deepToString(splitted));
                 }
             }
             catch(Exception e)
@@ -79,7 +79,7 @@ public class WifiConnect implements Runnable {
                     }
                 }
 
-                Log.v("AllDH Available:",Arrays.asList(allDHAvailable).toString());
+                //Log.v("AllDH Available:",Arrays.asList(allDHAvailable).toString());
                 Logger.addRecordToLog("All DH available:" + Arrays.asList(allDHAvailable).toString());
                 // Find key with the maximum value from allDHAvailable
                 String bestFoundSSID="";
@@ -90,7 +90,7 @@ public class WifiConnect implements Runnable {
                     while (it.hasNext()) {
                         Map.Entry<String, Integer> pair = (Map.Entry) it.next();
                         if (pair.getValue() == maxValueInMap) {
-                            Log.v("Best Found SSID:", pair.getKey());     // Print the key with max value
+                            //Log.v("Best Found SSID:", pair.getKey());     // Print the key with max value
                             Logger.addRecordToLog("Best Found SSID"+ ',' + pair.getKey());
                             bestFoundSSID = pair.getKey().toString();
                         }
@@ -106,9 +106,9 @@ public class WifiConnect implements Runnable {
                 wc.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
                 int res = StartService.wifi.addNetwork(wc);
                 boolean b = StartService.wifi.enableNetwork(res, true);
-                Log.v("WifiConnect:","Res:" + res + ",b:" + b);
-                Log.v(StartService.TAG2, "Connected");
-                Log.v("Parameters:" ,wc.SSID + "," + wc.BSSID + "," + wc.allowedAuthAlgorithms + "," + wc.allowedProtocols + "," + wc.allowedKeyManagement + "," + wc.allowedGroupCiphers + "," + wc.allowedPairwiseCiphers + "," + wc.FQDN + "," + wc.status);
+                //Log.v("WifiConnect:","Res:" + res + ",b:" + b);
+               // Log.v(StartService.TAG2, "Connected");
+                //Log.v("Parameters:" ,wc.SSID + "," + wc.BSSID + "," + wc.allowedAuthAlgorithms + "," + wc.allowedProtocols + "," + wc.allowedKeyManagement + "," + wc.allowedGroupCiphers + "," + wc.allowedPairwiseCiphers + "," + wc.FQDN + "," + wc.status);
                 Logger.addRecordToLog("DH Connected Successfully," + bestFoundSSID);
             }
             else{
@@ -125,7 +125,7 @@ public class WifiConnect implements Runnable {
     {
         for (ScanResult scanResult : allScanResults) {
             if(scanResult.SSID.toString().equals(StartService.dbAPName)) {
-                Log.v("SSID:",scanResult.SSID.toString());
+                //Log.v("SSID:",scanResult.SSID.toString());
                 int level =  WifiManager.calculateSignalLevel(scanResult.level, 5);
                 return level;
             }

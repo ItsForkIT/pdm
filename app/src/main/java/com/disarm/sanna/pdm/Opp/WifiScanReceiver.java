@@ -18,7 +18,7 @@ public class WifiScanReceiver extends BroadcastReceiver {
 
         for(int i = 0; i < StartService.wifiScanList.size(); i++){
             wifis[i] = String.valueOf(StartService.wifiScanList.get(i));
-            Log.v("Available Networks : ", StartService.wifiScanList.get(i).SSID);
+            //Log.v("Available Networks : ", StartService.wifiScanList.get(i).SSID);
         }
 
     }
