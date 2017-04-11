@@ -72,10 +72,14 @@ public class SyncService extends Service {
         discoverer.startDiscoverer();
         fileManager.startFileManager();
         controller.startController();
+
+
         //Extras
         Parameter.current_number_of_neighbours = discoverer.originalPeerList.size();
-        Log.w("Client side msg",Parameter.current_number_of_neighbours+" neighbours available");
+        Log.v("Client side msg",Parameter.current_number_of_neighbours+" neighbours available");
         //Extras end
+
+
         try {
             webServer.start();
         } catch(IOException ioe) {

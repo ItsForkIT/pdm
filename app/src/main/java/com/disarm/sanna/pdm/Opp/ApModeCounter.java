@@ -20,7 +20,7 @@ public class ApModeCounter implements Runnable {
             if(StartService.isHotspotOn){
                 Parameter.idle_time_for_AP_mode=0;
                 Parameter.current_hotspot_running_time++;
-                Log.w("ApModeCounter","Hotspot running time has reached over "+Parameter.current_hotspot_running_time);
+                Log.v("ApModeCounter","Hotspot running time has reached over "+Parameter.current_hotspot_running_time);
                 Logger.addRecordToLog("Hotspot running time has reached over "+Parameter.current_hotspot_running_time);
             }
             else{
@@ -28,7 +28,8 @@ public class ApModeCounter implements Runnable {
                 if(Parameter.current_hotspot_running_time!=0)
                     Parameter.previous_hotspot_running_time = Parameter.current_hotspot_running_time;
                 Parameter.current_hotspot_running_time=0;
-                Log.w("ApModeCounter","AP is idel for "+Parameter.idle_time_for_AP_mode+" minutes");
+                Log.v("ApModeCounter","AP is idel for "+Parameter.idle_time_for_AP_mode+" seconds");
             }
+            this.handler.postDelayed(this,1000);
     }
 }

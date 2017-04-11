@@ -15,7 +15,7 @@ public class SwitchStateFinder {
     }
 
     public static boolean shouldIBecomeAP(int number_of_recent_neighbours, int time_since_it_was_off){
-        Log.w("Should I become AP","Recent_Neighnours "+number_of_recent_neighbours+" time_since_ap_off "+time_since_it_was_off);
+        Log.v("Should I become AP","Recent_Neighnours "+number_of_recent_neighbours+" time_since_ap_off "+time_since_it_was_off);
         if(number_of_recent_neighbours>0){
             if(time_since_it_was_off>Parameter.minimum_wait_AP){
 

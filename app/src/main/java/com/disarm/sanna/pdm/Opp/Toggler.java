@@ -55,7 +55,6 @@ public class Toggler extends Activity {
                 channelArray[i-1] = (channelArray[i-1] + (6-Math.abs(i-band))*factor);
             }
         }
-        //Log.v("Channel Array:",Arrays.toString(channelArray));
 
         // Minimum value of channel array
         int bestFoundChannel;

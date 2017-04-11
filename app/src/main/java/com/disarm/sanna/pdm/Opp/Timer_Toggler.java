@@ -133,13 +133,13 @@ public class Timer_Toggler implements Runnable{
         }
         boolean apOn = EnableAP.isApOn(context);
         if(apOn){
-            Parameter.current_ap_time=Parameter.current_ap_time+Parameter.ap_increase_time;
+            //Parameter.current_ap_time=Parameter.current_ap_time+Parameter.ap_increase_time;
             this.handler.postDelayed(this,Parameter.current_ap_time);
-            Log.v("AP","Ap time is increased to "+Parameter.current_ap_time);
+            //Log.v("AP","Ap time is increased to "+Parameter.current_ap_time);
         }else{
-            Parameter.current_wifi_time=Parameter.current_wifi_time+Parameter.increase_wifi_time;
+            //Parameter.current_wifi_time=Parameter.current_wifi_time+Parameter.increase_wifi_time;
             this.handler.postDelayed(this,Parameter.current_wifi_time);
-            Log.v("WiFi","WiFi time is increased to "+Parameter.current_wifi_time);
+            //Log.v("WiFi","WiFi time is increased to "+Parameter.current_wifi_time);
         }
     }
 
