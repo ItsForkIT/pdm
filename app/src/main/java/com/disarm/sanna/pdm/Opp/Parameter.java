@@ -9,7 +9,7 @@ public class Parameter {
     public static int minimum_wait_AP = 10; //10 seconds
     public static int maximum_limit_wait_AP = 120; //2 minutes
     public static int ap_increase_time= 10000;
-    public static int current_ap_time = 10000;
+    public static int current_ap_time = 60000;
     public static int maximum_ap_increase_time = 120000;
     public static int current_wifi_time = 10000;
     public static int increase_wifi_time = 10000;

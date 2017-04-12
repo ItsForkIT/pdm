@@ -47,6 +47,7 @@ public class Timer_Toggler implements Runnable{
         List<ScanResult> allScanResults = StartService.wifi.getScanResults();
 
         if (StartService.checkWifiState.equals("<unknown ssid>")) {
+            StartService.macCount=0;
             Log.v(StartService.TAG1, "Hotspot Mode Detected");
             Logger.addRecordToLog("Hotspot Mode Detected");
             boolean isReachable = false;

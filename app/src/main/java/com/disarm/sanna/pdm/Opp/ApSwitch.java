@@ -16,7 +16,7 @@ public class ApSwitch implements Runnable {
     }
     @Override
     public void run() {
-        if(StartService.isHotspotOn && SwitchStateFinder.shouldAPChangeToIdel(StartService.macCount,Parameter.current_hotspot_running_time)){
+        if(EnableAP.isApOn(context) && SwitchStateFinder.shouldAPChangeToIdel(StartService.macCount,Parameter.current_hotspot_running_time)){
             Toggler.toggle(context);
         }
         this.handler.postDelayed(this,120000);

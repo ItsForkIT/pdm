@@ -43,7 +43,7 @@ public class SyncService extends Service {
     static File f = new File(DirectoryPath);
     static String line;
     public WebServer webServer;
-    public Discoverer discoverer;
+    public static Discoverer discoverer;
     public FileManager fileManager;
     public FileTransporter fileTransporter;
     public Controller controller;
@@ -72,12 +72,6 @@ public class SyncService extends Service {
         discoverer.startDiscoverer();
         fileManager.startFileManager();
         controller.startController();
-
-
-        //Extras
-        Parameter.current_number_of_neighbours = discoverer.originalPeerList.size();
-        Log.v("Client side msg",Parameter.current_number_of_neighbours+" neighbours available");
-        //Extras end
 
 
         try {
