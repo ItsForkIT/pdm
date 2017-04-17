@@ -7,7 +7,6 @@ package com.disarm.sanna.pdm.Opp;
 public class Parameter {
     public static int maximum_AP_on = 600; //10 minutes
     public static int minimum_wait_AP = 10; //10 seconds
-    public static int maximum_limit_wait_AP = 120; //2 minutes
     public static int ap_increase_time= 10000;
     public static int current_ap_time = 60000;
     public static int maximum_ap_increase_time = 120000;

@@ -16,7 +16,7 @@ public class SwitchStateFinder {
 
     public static boolean shouldIBecomeAP(int number_of_recent_neighbours, int time_since_it_was_off){
         Log.v("Should I become AP","Recent_Neighnours "+number_of_recent_neighbours+" time_since_ap_off "+time_since_it_was_off);
-        if(number_of_recent_neighbours>0){
+        if(number_of_recent_neighbours>1){
             if(time_since_it_was_off>Parameter.minimum_wait_AP){
 
                 double prob = 1/number_of_recent_neighbours;
@@ -52,7 +52,7 @@ public class SwitchStateFinder {
     }
 
     public static boolean shouldSTAChange(int number_of_recent_neighbours){
-        if(number_of_recent_neighbours>0){
+        if(number_of_recent_neighbours>1){
             double prob = Parameter.ws * Math.pow(number_of_recent_neighbours,-Parameter.alpha);
             double our_value = SwitchStateFinder.getRandomNumber(99) / 100;
             Log.v("shouldSTAChange","our prob "+our_value+" calculated prob "+prob);
