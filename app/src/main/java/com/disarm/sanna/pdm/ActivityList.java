@@ -1,11 +1,15 @@
 package com.disarm.sanna.pdm;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.GpsStatus;
 import android.os.Bundle;
 
 import android.os.Environment;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -26,7 +30,9 @@ import com.disarm.sanna.pdm.Capture.SmsCaptrue;
 import com.disarm.sanna.pdm.Capture.Text;
 import com.disarm.sanna.pdm.Capture.Video;
 import com.disarm.sanna.pdm.Util.DividerItemDecoration;
+import com.disarm.sanna.pdm.Util.PrefUtils;
 import com.disarm.sanna.pdm.Util.Reset;
+import com.disarm.sanna.pdm.location.MLocation;
 
 import java.io.File;
 
@@ -40,21 +46,23 @@ public class ActivityList extends AppCompatActivity implements View.OnClickListe
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
-    String ttlString,dest,latlong;
+    String ttlString, dest, latlong;
     public static String type;
-    Button submit,discard;
-    EditText ttl,destination;
+    Button submit, discard;
+    EditText ttl, destination;
     public static Context contextOfApplication;
-    public static int [] prgmImages={R.drawable.camera
-                                    ,R.drawable.video_maker
-                                    ,R.drawable.audiopocket
-                                    ,R.drawable.textra_sms
-                                    ,R.drawable.evolve_sms};
-    public static int [] prgmNameList={R.string.photo,
-                                        R.string.video,
-                                        R.string.audio,
-                                        R.string.text,
-                                        R.string.sms};
+    public static int[] prgmImages = {R.drawable.camera
+            , R.drawable.video_maker
+            , R.drawable.audiopocket
+            , R.drawable.textra_sms
+            , R.drawable.evolve_sms};
+    public static int[] prgmNameList = {R.string.photo,
+            R.string.video,
+            R.string.audio,
+            R.string.text,
+            R.string.sms};
+    public static String GPS_LOC ="is_gps_available";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,8 +100,11 @@ public class ActivityList extends AppCompatActivity implements View.OnClickListe
         mRecyclerView.addOnItemTouchListener(new RecyclerTouchListener(getApplicationContext(), mRecyclerView, new SurakshitActivity.ClickListener() {
             @Override
             public void onClick(View view, int position) {
-                onclick(position);
-                //Toast.makeText(ActivityList.this, "clicked", Toast.LENGTH_SHORT).show();
+                if (MLocation.isGPS){
+                    onclick(position);
+                }else{
+                    Toast.makeText(ActivityList.this, "GPS is not ON or GPS is not LOCKED", Toast.LENGTH_LONG).show();
+                }
             }
 
             @Override

@@ -56,7 +56,6 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
             Manifest.permission.RECORD_AUDIO,
             Manifest.permission.READ_PHONE_STATE,
             Manifest.permission.READ_CONTACTS};
-    public static String GPS_LOC_LISTENER ="gps_loc_listener";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -126,7 +125,7 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
         }if (!mapFolder.exists()){
             mapFolder.mkdir();
         }
-        copyingAssets();
+        run1stTimeOnly();
 
     }
 
@@ -192,12 +191,9 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
         }
     }
 
-    private void copyingAssets(){
+    private void run1stTimeOnly(){
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         if (!prefs.getBoolean("firstTime", false)) {
-            //create gps variable in shared preference
-            PrefUtils.saveToPrefs(this, GPS_LOC_LISTENER, "0");
-
             // <---- run your one time code here
             // Copy files from assets folder
 

@@ -40,6 +40,8 @@ import java.util.Calendar;
 import belka.us.androidtoggleswitch.widgets.BaseToggleSwitch;
 import belka.us.androidtoggleswitch.widgets.ToggleSwitch;
 
+import static com.disarm.sanna.pdm.ActivityList.GPS_LOC;
+
 /**
  * Created by arka on 14/9/16.
  * Activity to choose between offline social sharing and disaster management category
@@ -56,7 +58,7 @@ public class SelectCategoryActivity extends AppCompatActivity{
     LocationListener locationListener;
     static String root = Environment.getExternalStorageDirectory().toString();
     public static String SOURCE_PHONE_NO;
-    ToggleSwitch toggleSwitch_gps;
+    public ToggleSwitch toggleSwitch_gps;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -292,6 +294,7 @@ public class SelectCategoryActivity extends AppCompatActivity{
         alertDialogBuilder
                 .setMessage(R.string.gps_msg)
                 .setCancelable(false)
+                .setTitle("Turn on Location")
                 .setPositiveButton(R.string.enable_gps,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,
@@ -366,6 +369,7 @@ public class SelectCategoryActivity extends AppCompatActivity{
         }
         else{
             //the user did not enable his GPS
+            enableGPS();
         }
     }
     @Override

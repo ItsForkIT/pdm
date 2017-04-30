@@ -14,6 +14,9 @@ import com.disarm.sanna.pdm.Util.PrefUtils;
 import com.disarm.sanna.pdm.location.LocationState;
 import com.disarm.sanna.pdm.location.MLocation;
 
+import static com.disarm.sanna.pdm.ActivityList.GPS_LOC;
+import static com.disarm.sanna.pdm.location.MLocation.isGPS;
+
 /**
  * Created by sanna on 3/29/17.
  */
@@ -39,7 +42,7 @@ public class ToggleWRTSpeed implements Runnable {
         //checking GPS ON
         if (LocationState.with(context).locationServicesEnabled()){
             //checking GPS location listener ON
-            if (PrefUtils.getFromPrefs(context, SplashActivity.GPS_LOC_LISTENER,"0").equals("0")){
+            if (!isGPS){
                 MLocation.subscribe(context);
                 Toast.makeText(context, "Turing GPS on..", Toast.LENGTH_SHORT).show();
             }else {
