@@ -15,8 +15,8 @@ import com.disarm.sanna.pdm.location.MLocation;
 
 import java.io.File;
 import java.io.FilenameFilter;
-import java.util.Arrays;
 
+import static com.disarm.sanna.pdm.Capture.Photo.TMP_FOLDER;
 import static com.disarm.sanna.pdm.SelectCategoryActivity.SOURCE_PHONE_NO;
 
 
@@ -26,7 +26,6 @@ import static com.disarm.sanna.pdm.SelectCategoryActivity.SOURCE_PHONE_NO;
 public class FileTask extends AsyncTask  {
     String fileType,groupType,timestamp,ttl,dest,source,fileFormat;
     String[] fileName;
-    public File sourceFile = Environment.getExternalStoragePublicDirectory("DMS/source.txt");
     public static final String GROUPID = "Group No";
     Context applicationContext = ActivityList.getContextOfApplication();
     Context shareActivityContext = ShareActivity.getContextOfApplication();
@@ -56,8 +55,7 @@ public class FileTask extends AsyncTask  {
         dest = (String) objects[1];
         source = SOURCE_PHONE_NO;
         File logFile = null;
-
-       String state = Environment.getExternalStorageState();
+        String state = Environment.getExternalStorageState();
         File dir = Environment.getExternalStoragePublicDirectory("DMS/Working");
         Log.v("Logger Initiated","");
         if (Environment.MEDIA_MOUNTED.equals(state)) {
@@ -82,7 +80,7 @@ public class FileTask extends AsyncTask  {
         }
         String latlng = getloc();
 
-        String pathFrom = Environment.getExternalStorageDirectory().toString()+"/DMS/tmp";
+        String pathFrom = applicationContext.getExternalFilesDir(TMP_FOLDER).toString();
         String pathTo = Environment.getExternalStorageDirectory().toString()+"/DMS/Working";
         Log.d("Files", "Path: " + pathFrom);
         File f = new File(pathFrom);
@@ -99,7 +97,7 @@ public class FileTask extends AsyncTask  {
             timestamp = fileName[2];
             fileFormat = fileName[3];
             groupID = idNumber;
-            Log.v("FIleNames",fileType+ttl+groupType+source+dest+latlng+timestamp+groupID);
+            Log.v("FileNames",fileType+ttl+groupType+source+dest+latlng+timestamp+groupID);
             File from = new File(pathFrom,file[i].getName());
             String acutalFileName = fileType+"_"+
                                     ttl+"_"+

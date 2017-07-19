@@ -29,6 +29,7 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".SplashActivity"
+            android:screenOrientation="portrait"
             android:windowSoftInputMode="stateHidden|adjustUnspecified"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -37,49 +38,66 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths"/>
+        </provider>
         <activity
             android:name="com.disarm.sanna.pdm.ShareActivity"
+            android:screenOrientation="portrait"
             android:label="@string/app_name">
         </activity>
 
         <activity android:name=".SelectCategoryActivity"
+            android:screenOrientation="portrait"
             android:label="@string/app_name">
         </activity>
 
         <activity android:name=".SocialShareActivity"
+            android:screenOrientation="portrait"
             android:label="@string/app_name">
         </activity>
 
         <activity
             android:name=".SurakshitActivity"
+            android:screenOrientation="portrait"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <activity
             android:name=".ActivityList"
+            android:screenOrientation="portrait"
             android:windowSoftInputMode="stateHidden|adjustPan"
             android:theme="@style/Theme.AppCompat.DayNight.NoActionBar">
         </activity>
         <activity
             android:name=".Capture.Photo"
+            android:screenOrientation="portrait"
             android:theme="@style/AppCompatAlertDialogStyle"
             >
         </activity>
         <activity
             android:name=".Capture.Video"
+            android:screenOrientation="portrait"
             android:theme="@style/AppCompatAlertDialogStyle"
             >
         </activity>
         <activity
             android:label="Record Audio"
             android:name=".Capture.AudioCapture"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light.Dialog"
             >
         </activity>
         <activity
             android:label="@string/allow_setting"
             android:name=".WriteSettingActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme"
             >
         </activity>
@@ -87,11 +105,7 @@
             android:name=".Service.SyncService"
             android:enabled="true"
             android:exported="true" />
-        <service android:name=".DisarmConnect.MyService" /><!-- ATTENTION: This was auto-generated to add Google Play services to your project for
-     App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information. -->
-        <meta-data
-            android:name="com.google.android.gms.version"
-            android:value="@integer/google_play_services_version" />
+        <service android:name=".DisarmConnect.DCService" />
+        <service android:name=".DisarmConnect.DataMuleService" />
     </application>
-
 </manifest>

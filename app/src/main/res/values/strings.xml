@@ -16,8 +16,8 @@
     <string name="sms">SMS</string>
     <string name="start_sync">Starting to Sync</string>
     <string name="press_back_to_exit">Please click BACK again to exit</string>
-    <string name="gps_msg">GPS is disabled in your device. Enable it ?</string>
-    <string name="enable_gps">Enable GPS</string>
+    <string name="gps_msg">GPS is disabled in your device. Otherwise you will not be able to collect data !!</string>
+    <string name="enable_gps">Turn on Location</string>
     <string name="cancel">Cancel</string>
     <string name="enabled_gps">GPS is now enabled..</string>
     <string name="files_discard_msg">All files taken in this session will be deleted !</string>

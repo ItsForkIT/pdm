@@ -4,9 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.Nullable;
-import android.support.annotation.StringDef;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
@@ -15,7 +13,6 @@ import android.webkit.MimeTypeMap;
 import android.widget.ListView;
 import android.widget.Toast;
 
-
 import com.disarm.sanna.pdm.Adapters.ShareChatsAdapter;
 import com.disarm.sanna.pdm.BackgroundProcess.FileTask;
 import com.disarm.sanna.pdm.Capture.AudioCapture;
@@ -23,7 +20,6 @@ import com.disarm.sanna.pdm.Capture.Photo;
 import com.disarm.sanna.pdm.Capture.SmsCaptrue;
 import com.disarm.sanna.pdm.Capture.Text;
 import com.disarm.sanna.pdm.Capture.Video;
-import com.disarm.sanna.pdm.Util.PathFileObserver;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -130,7 +126,7 @@ public class ShareActivity extends AppCompatActivity implements
                 break;
             case R.id.b_share_text:
                 FragmentManager fm = getSupportFragmentManager();
-                Text text= Text.newInstance("Add Text", "SocialShare");
+                Text text= new Text();
                 text.show(fm, "activity_text");
                 break;
             case R.id.b_share_audio:
@@ -145,7 +141,6 @@ public class ShareActivity extends AppCompatActivity implements
             case R.id.b_share_sms:
                 FragmentManager fm1 = getSupportFragmentManager();
                 SmsCaptrue smsCaptrue = new SmsCaptrue();
-                smsCaptrue.newInstance("SocialShare");
                 smsCaptrue.show(fm1,"activity_sms");
                 break;
             case R.id.sh_photo:

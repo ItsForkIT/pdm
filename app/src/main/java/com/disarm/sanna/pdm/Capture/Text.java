@@ -1,7 +1,6 @@
 package com.disarm.sanna.pdm.Capture;
 
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.util.Log;
@@ -27,36 +26,27 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import static com.disarm.sanna.pdm.ActivityList.type;
+import static com.disarm.sanna.pdm.Capture.Photo.TMP_FOLDER;
+
 /**
  * Created by Sanna on 30-06-2016.
  */
 public class Text extends DialogFragment implements View.OnClickListener, AdapterView.OnItemSelectedListener {
     private Spinner variety,quantity;
     private Button save,back;
-    static String type;
+    //static String type;
     EditText custom;
     StringBuilder msgString;
-    String h,q,outputFile;
-    static String root = Environment.getExternalStorageDirectory().toString();
-    static String path =root + "/" + "DMS" + "/" + "tmp" + "/",group,groupID;
+    static String group,groupID,h,q;
     private boolean c;
     public String[] trans_health_array ;
     public String[] trans_food_array ;
     public String[] trans_victim_array ;
     public String[] trans_shelter_array ;
     public String[] trans_num_array ;
-    public Text() {
-        super();
-    }
-    public static Text newInstance(String title,String s){
-        Text textFrag = new Text();
-        Bundle args = new Bundle();
-        args.putString("title", title);
-        textFrag.setArguments(args);
-        type = s;
-        return textFrag;
+    private File output = null;
 
-    }
     @Override
     public void onViewCreated(final View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -166,19 +156,17 @@ public class Text extends DialogFragment implements View.OnClickListener, Adapte
                 }
                 if (h != null && q != null){
                     msgString = new StringBuilder(type + ": " + h + q);
-
-                    outputFile = getFilename();
-                    File file = new File(outputFile);
+                    output=new File(getActivity().getExternalFilesDir(TMP_FOLDER),getFilename());
                     // If file does not exists, then create it
-                    if (!file.exists()) {
+                    if (!output.exists()) {
                         try {
-                            file.createNewFile();
+                            output.createNewFile();
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
                     }
                     try {
-                        FileWriter fw = new FileWriter(file.getAbsoluteFile());
+                        FileWriter fw = new FileWriter(output.getAbsoluteFile());
                         BufferedWriter bw = new BufferedWriter(fw);
                         Log.v("File", "Writing " + msgString.toString());
                         bw.write(msgString.toString());
@@ -238,6 +226,6 @@ public class Text extends DialogFragment implements View.OnClickListener, Adapte
         String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
         group = type;
         groupID = "1";
-        return (path + "TXT_" +  group + "_" + timeStamp + "_" + groupID + ".txt");
+        return ("TXT_" +  group + "_" + timeStamp + "_" + groupID + ".txt");
     }
 }

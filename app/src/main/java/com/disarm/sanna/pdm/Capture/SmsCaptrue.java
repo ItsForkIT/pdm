@@ -1,7 +1,6 @@
 package com.disarm.sanna.pdm.Capture;
 
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.util.Log;
@@ -21,23 +20,19 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import static com.disarm.sanna.pdm.ActivityList.type;
+import static com.disarm.sanna.pdm.Capture.Photo.TMP_FOLDER;
+
 /**
  * Created by disarm on 9/7/16.
  */
 public class SmsCaptrue extends DialogFragment implements View.OnClickListener{
-
-    private static String type;
     private EditText edittextMsg;
     private Button save,back;
-    private String outputFile;
     private String msgInput;
-    static String root = Environment.getExternalStorageDirectory().toString();
-    static String path =root + "/" + "DMS" + "/" + "tmp" + "/",group,groupID;
+    static String group,groupID;
+    File output;
 
-    public static SmsCaptrue newInstance(String s){
-        type = s;
-        return null;
-    }
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -60,18 +55,16 @@ public class SmsCaptrue extends DialogFragment implements View.OnClickListener{
             case R.id.save:
                 msgInput = edittextMsg.getText().toString();
                 if (!msgInput.isEmpty()) {
-                    outputFile = getFilename();
-                    File file = new File(outputFile);
-                    // If file does not exists, then create it
-                    if (!file.exists()) {
+                    output=new File(getActivity().getExternalFilesDir(TMP_FOLDER), getFilename());
+                    if (!output.exists()) {
                         try {
-                            file.createNewFile();
+                            output.createNewFile();
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
                     }
                     try {
-                        FileWriter fw = new FileWriter(file.getAbsoluteFile());
+                        FileWriter fw = new FileWriter(output.getAbsoluteFile());
                         BufferedWriter bw = new BufferedWriter(fw);
                         Log.v("File", "Writing " + msgInput);
                         bw.write(msgInput);
@@ -99,6 +92,6 @@ public class SmsCaptrue extends DialogFragment implements View.OnClickListener{
         String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
         group = type;
         groupID = "1";
-        return (path + "SMS_" +  group + "_" + timeStamp + "_" + ".txt");
+        return ("SMS_" +  group + "_" + timeStamp + "_" + ".txt");
     }
 }

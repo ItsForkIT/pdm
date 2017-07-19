@@ -1,27 +1,16 @@
 package com.disarm.sanna.pdm;
 
-import android.Manifest;
-import android.content.ComponentName;
 import android.content.ContentResolver;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.ServiceConnection;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
-import android.os.IBinder;
 import android.provider.BaseColumns;
 import android.provider.ContactsContract;
-import android.provider.Settings;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -34,21 +23,12 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.disarm.sanna.pdm.Adapters.SocialShareChatlistAdapter;
-import com.disarm.sanna.pdm.DisarmConnect.MyService;
-import com.disarm.sanna.pdm.Service.SyncService;
 import com.disarm.sanna.pdm.Util.DividerItemDecoration;
 import com.disarm.sanna.pdm.Util.PathFileObserver;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
-
-
-import static com.disarm.sanna.pdm.SurakshitActivity.root;
 
 /**
  * Created by arka on 14/9/16.
@@ -101,20 +81,7 @@ public class SocialShareActivity extends AppCompatActivity implements View.OnCli
      * Identify device's phone number
      */
     private String identifySelf() {
-        File sourceTxt = new File(
-                Environment.getExternalStorageDirectory().toString() + "/DMS/Source.txt");
-
-        String selfNumber = null;
-        try {
-            FileInputStream fis = new FileInputStream(sourceTxt);
-            BufferedReader br = new BufferedReader(new InputStreamReader(fis));
-
-            selfNumber = br.readLine();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return selfNumber;
+        return SelectCategoryActivity.SOURCE_PHONE_NO;
     }
 
     /**

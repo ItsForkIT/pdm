@@ -19,19 +19,23 @@ by Almalence Inc. All Rights Reserved.
 package com.disarm.sanna.pdm.location;
 
 import android.content.Context;
-import android.content.pm.PackageManager;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.location.LocationProvider;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.disarm.sanna.pdm.Logger;
+import com.disarm.sanna.pdm.R;
+import com.disarm.sanna.pdm.SelectCategoryActivity;
+import com.disarm.sanna.pdm.SplashActivity;
 import com.disarm.sanna.pdm.Util.PrefUtils;
-import com.nextgis.maplib.util.SettingsConstants;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -41,16 +45,18 @@ import java.io.FilenameFilter;
 import java.io.InputStreamReader;
 import java.util.List;
 
-import static com.disarm.sanna.pdm.DisarmConnect.MyService.phoneVal;
+import static com.disarm.sanna.pdm.DisarmConnect.DCService.phoneVal;
 
 public class MLocation
 {
 	public static LocationManager lm;
+	static Context context_con;
+	public static boolean isGPS = false;
 
 	public static void subscribe(Context context)
 	{
+		context_con=context;
 		lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-
 
 		boolean gps_enabled = false;
 		try
@@ -80,7 +86,7 @@ public class MLocation
 		}
 	}
 
-	public static void unsubscribe()
+	public static void unsubscribe(Context context)
 	{
 		if (lm != null)
 		{
@@ -93,15 +99,15 @@ public class MLocation
 	{
 		if (lastGpsLocation != null)
 		{
-			unsubscribe();
+			//unsubscribe();
 			return lastGpsLocation;
 		} else if (lastNetworkLocation != null)
 		{
-			unsubscribe();
+			//unsubscribe();
 			return lastNetworkLocation;
 		} else
 		{
-			unsubscribe();
+			//unsubscribe();
 			return getLastChanceLocation(context);
 		}
 	}
@@ -126,6 +132,7 @@ public class MLocation
 
 	private static Location lastGpsLocation			= null;
 	private static Location lastNetworkLocation		= null;
+	private static String TAG = "MLocation";
 	private static LocationListener locationListenerGps		= new LocationListener()
 															{
 																public void onLocationChanged(Location location)
@@ -135,19 +142,43 @@ public class MLocation
 																	//lm.removeUpdates(locationListenerGps);
 
 																	lastGpsLocation = location;
+																	isGPS = true;
 																}
 
 																public void onProviderDisabled(String provider)
 																{
+																	isGPS = false;
+																	// called if/when the GPS is disabled in settings
+																	Toast.makeText(context_con, "GPS disabled", Toast.LENGTH_LONG).show();
+
 																}
 
 																public void onProviderEnabled(String provider)
 																{
+																	Toast.makeText(context_con, "GPS enabled", Toast.LENGTH_LONG).show();
 																}
 
 																public void onStatusChanged(String provider,
 																		int status, Bundle extras)
 																{
+																	// called upon GPS status changes
+																	switch (status) {
+																		case LocationProvider.OUT_OF_SERVICE:
+																			//Toast.makeText(context_con, "Status changed: out of service", Toast.LENGTH_LONG).show();
+																			Log.v(TAG,"Status changed: out of service");
+																			isGPS = false;
+																			break;
+																		case LocationProvider.TEMPORARILY_UNAVAILABLE:
+																			//Toast.makeText(context_con, "Status changed: temporarily unavailable", Toast.LENGTH_LONG).show();
+																			Log.v(TAG,"Status changed: temporarily unavailable");
+																			isGPS = false;
+																			break;
+																		case LocationProvider.AVAILABLE:
+																			//Toast.makeText(context_con, "Status changed: available", Toast.LENGTH_LONG).show();
+																			Log.v(TAG,"Status changed: available");
+																			isGPS = true;
+																			break;
+																	}
 																}
 															};
 

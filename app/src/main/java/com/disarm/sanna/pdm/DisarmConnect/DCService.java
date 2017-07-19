@@ -1,40 +1,26 @@
 package com.disarm.sanna.pdm.DisarmConnect;
 
-import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.Service;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.wifi.ScanResult;
-import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
-import android.os.BatteryManager;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-import android.widget.ImageView;
-import android.widget.Toast;
 
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileReader;
-import java.io.IOException;
-import java.sql.Time;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
  * Created by Sanna on 16-02-2016.
  */
-public class MyService extends Service {
+public class DCService extends Service {
 
     public static WifiManager wifi;
     public static String checkWifiState="0x";
@@ -59,6 +45,7 @@ public class MyService extends Service {
     public Timer_Toggler tt;
     public SearchingDisarmDB sDDB;
     public WifiConnect wifiC;
+    public ToggleWRTSpeed toggleWRTSpeed;
     private final IBinder myServiceBinder = new MyServiceBinder();
     public BufferedReader br = null;
     private Logger logger;
@@ -73,9 +60,9 @@ public class MyService extends Service {
         return myServiceBinder;
     }
     public class MyServiceBinder extends Binder {
-        public MyService getService() {
+        public DCService getService() {
             // Return this instance of SyncService so activity can call public methods
-            return MyService.this;
+            return DCService.this;
         }
     }
     @Override
@@ -83,7 +70,7 @@ public class MyService extends Service {
         super.onCreate();
 
         // DisarmConnect Started
-        Log.v("MyService:", "DisarmConnect Started");
+        Log.v("DCService:", "DisarmConnect Started");
 
         // WifiScanReceiver registered
         IntentFilter filter = new IntentFilter();
@@ -103,22 +90,6 @@ public class MyService extends Service {
         IntentFilter batfilter = new IntentFilter();
         batfilter.addAction(Intent.ACTION_BATTERY_CHANGED);
         registerReceiver(bl, batfilter);
-
-        // Read Source to generate DH
-      /*  File file = new File(MainActivity.TARGET_DMS_PATH,"source.txt");
-        FileInputStream fis = null;
-        try {
-            fis = new FileInputStream(file);
-            byte[] data = new byte[(int) file.length()];
-            fis.read(data);
-            fis.close();
-
-            // phoneVal storing the source from source.txt
-            phoneVal = new String(data, "UTF-8");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        */
     }
 
     @Override
@@ -149,9 +120,9 @@ public class MyService extends Service {
         unregisterReceiver(bl);
 
         // Disabling hotspot and enabling WiFi Mode on app destroy
-        isHotspotOn = ApManager.isApOn(MyService.this);
+        isHotspotOn = ApManager.isApOn(DCService.this);
         if(isHotspotOn){
-            ApManager.configApState(MyService.this);
+            ApManager.configApState(DCService.this);
             wifi.setWifiEnabled(true);
             Logger.addRecordToLog("Stopping DisarmConnect Hotspot Disabled");
         }
@@ -165,7 +136,7 @@ public class MyService extends Service {
 
         // Adding stop record to log
         logger.addRecordToLog("DisarmConnect Stopped");
-        Log.v("MyService:", "DisarmConnect Stopped");
+        Log.v("DCService:", "DisarmConnect Stopped");
     }
 
 }
