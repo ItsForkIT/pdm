@@ -96,21 +96,6 @@
         android:layout_margin="5dp"
         card_view:cardCornerRadius="2dp"
         card_view:contentPadding="10dp">
-        <!--<belka.us.androidtoggleswitch.widgets.ToggleSwitch-->
-            <!--android:id="@+id/activity_switch"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:textSize="13sp"-->
-            <!--android:layout_gravity="center"-->
-            <!--custom:activeBgColor="@android:color/holo_blue_dark"-->
-            <!--custom:activeTextColor="@android:color/white"-->
-            <!--custom:inactiveBgColor="@android:color/white"-->
-            <!--custom:inactiveTextColor="@android:color/black"-->
-            <!--custom:separatorColor="@color/gray_very_light"-->
-            <!--custom:textToggleLeft="Surakshit"-->
-            <!--custom:textToggleRight="GIS"-->
-            <!--custom:textToggleCenter="chat"-->
-            <!--custom:toggleWidth="104dp"-->
         <Button
             android:id="@+id/btnSurakshit"
             android:layout_width="match_parent"
