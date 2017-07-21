@@ -10,7 +10,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.disarm.sanna.pdm.ActivityList;
-import com.disarm.sanna.pdm.ShareActivity;
+//import com.disarm.sanna.pdm.ShareActivity;
 import com.disarm.sanna.pdm.location.MLocation;
 
 import java.io.File;
@@ -28,7 +28,6 @@ public class FileTask extends AsyncTask  {
     String[] fileName;
     public static final String GROUPID = "Group No";
     Context applicationContext = ActivityList.getContextOfApplication();
-    Context shareActivityContext = ShareActivity.getContextOfApplication();
     SharedPreferences prefs;
     SharedPreferences.Editor editor;
     int idNumber,groupID;
@@ -41,8 +40,6 @@ public class FileTask extends AsyncTask  {
 
         if(applicationContext != null) {
             prefs = PreferenceManager.getDefaultSharedPreferences(applicationContext);
-        } else if (shareActivityContext != null) {
-            prefs = PreferenceManager.getDefaultSharedPreferences(shareActivityContext);
         }
 
         editor = prefs.edit();

@@ -15,6 +15,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
@@ -22,10 +23,10 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.disarm.sanna.pdm.Util.CopyAssets;
 import com.disarm.sanna.pdm.Util.PrefUtils;
-import com.nextgis.maplib.util.SettingsConstants;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -43,13 +44,20 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
     public File workingFolder = Environment.getExternalStoragePublicDirectory("DMS/Working");
     public File tmpFolder = Environment.getExternalStoragePublicDirectory("DMS/tmp");
     public File mapFolder = Environment.getExternalStoragePublicDirectory("DMS/Map");
-
+    public static String PHONE_NO = "phone_no";
     private EditText phoneText1;
     private Button submitButton;
     private Spinner spinner2;
     public Locale myLocale;
     private String definedlanguage ;
     public static final String Lang = "language";
+
+    //Adding new param
+    public static String ROOT                             = Environment.getExternalStorageDirectory().getAbsolutePath();
+    public static String DMS_PATH                         = ROOT + "/DMS/";
+    public static String WORKING_DIR                      = DMS_PATH + "Working/";
+
+
     String[] PERMISSIONS = {Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.CAMERA,
@@ -63,6 +71,7 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (!checkPermissions(this, PERMISSIONS)) {
+                Log.i("permission","request permissions");
                 ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
             }
         }else{
@@ -131,7 +140,7 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
 
     private boolean checkPhoneNo() {
         boolean isSourceExit = false;
-        if (!PrefUtils.getFromPrefs(this, SettingsConstants.PHONE_NO, "NA").equals("NA")) {
+        if (!PrefUtils.getFromPrefs(this, this.PHONE_NO, "NA").equals("NA")) {
             isSourceExit = true;
         }
         return isSourceExit;
@@ -149,7 +158,7 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
             final String phoneTextVal = phoneText1.getText().toString();
 
             if(phoneTextVal.length() == 10 && phoneTextVal.matches("^[789]\\d{9}$")) {
-                PrefUtils.saveToPrefs(this, SettingsConstants.PHONE_NO, phoneTextVal);
+                PrefUtils.saveToPrefs(this, this.PHONE_NO, phoneTextVal);
                 callWriteSettingActivity();
             }
             else

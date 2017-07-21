@@ -12,7 +12,6 @@ import android.util.Log;
 
 import com.disarm.sanna.pdm.SelectCategoryActivity;
 import com.disarm.sanna.pdm.Util.PrefUtils;
-import com.nextgis.maplib.util.SettingsConstants;
 
 import java.io.BufferedReader;
 import java.io.File;

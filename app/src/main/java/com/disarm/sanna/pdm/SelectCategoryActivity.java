@@ -19,6 +19,8 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.disarm.sanna.pdm.DisarmConnect.DCService;
@@ -27,7 +29,7 @@ import com.disarm.sanna.pdm.Service.SyncService;
 import com.disarm.sanna.pdm.Util.PrefUtils;
 import com.disarm.sanna.pdm.location.LocationState;
 import com.disarm.sanna.pdm.location.MLocation;
-import com.nextgis.maplib.util.SettingsConstants;
+
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -51,9 +53,10 @@ public class SelectCategoryActivity extends AppCompatActivity{
     private boolean myServiceBound = false;
     private boolean dataMuleServiceBound = false;
     private boolean gpsService = false;
+    Button btnSurakshit;
     SyncService syncService;
     public DCService myService;
-    public DataMuleService dataMuleService;
+    //public DataMuleService dataMuleService;
     LocationManager lm;
     LocationListener locationListener;
     static String root = Environment.getExternalStorageDirectory().toString();
@@ -65,7 +68,7 @@ public class SelectCategoryActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.choose_activity);
 
-        SOURCE_PHONE_NO = PrefUtils.getFromPrefs(this, SettingsConstants.PHONE_NO, "NA");
+        SOURCE_PHONE_NO = PrefUtils.getFromPrefs(this, SplashActivity.PHONE_NO, "NA");
 
         ToggleSwitch toggleSwitch_sync = (ToggleSwitch) findViewById(R.id.choose_sync);
         ArrayList<String> labels_sync = new ArrayList<>();
@@ -105,35 +108,15 @@ public class SelectCategoryActivity extends AppCompatActivity{
             @Override
             public void onToggleSwitchChangeListener(int position, boolean isChecked) {
                 if (position == 1) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(SelectCategoryActivity.this);
-                    builder.setMessage("Use as !!")
-                            .setCancelable(false)
-                            .setPositiveButton("Disarm Connect", new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                    final Intent myServiceIntent = new Intent(getBaseContext(), DCService.class);
-                                    bindService(myServiceIntent, myServiceConnection, Context.BIND_AUTO_CREATE);
-                                    startService(myServiceIntent);
-                                }
-                            })
-                            .setNegativeButton("Data Mule", new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                    final Intent myServiceIntent = new Intent(getBaseContext(), DataMuleService.class);
-                                    bindService(myServiceIntent, dataMuleConnection, Context.BIND_AUTO_CREATE);
-                                    startService(myServiceIntent);
-                                }
-                            });
-                    builder.show();
+                    final Intent myServiceIntent = new Intent(getBaseContext(), DCService.class);
+                    bindService(myServiceIntent, myServiceConnection, Context.BIND_AUTO_CREATE);
+                    startService(myServiceIntent);
                 } else {
                     final Intent myServiceIntent = new Intent(getBaseContext(), DCService.class);
-                    final Intent dataMuleIntent = new Intent(getBaseContext(), DataMuleService.class);
                     if (myServiceBound) {
                         unbindService(myServiceConnection);
                         myServiceBound = false;
                         stopService(myServiceIntent);
-                    }else if (dataMuleServiceBound){
-                        unbindService(dataMuleConnection);
-                        dataMuleServiceBound = false;
-                        stopService(dataMuleIntent);
                     }
                 }
             }
@@ -161,40 +144,47 @@ public class SelectCategoryActivity extends AppCompatActivity{
             }
         });
 
-        ToggleSwitch activity_switcher = (ToggleSwitch) findViewById(R.id.activity_switch);
-        activity_switcher.setCheckedTogglePosition(0);
-        activity_switcher.setOnToggleSwitchChangeListener(new BaseToggleSwitch.OnToggleSwitchChangeListener() {
+//        ToggleSwitch activity_switcher = (ToggleSwitch) findViewById(R.id.activity_switch);
+//        activity_switcher.setCheckedTogglePosition(0);
+//        activity_switcher.setOnToggleSwitchChangeListener(new BaseToggleSwitch.OnToggleSwitchChangeListener() {
+//            @Override
+//            public void onToggleSwitchChangeListener(int position, boolean isChecked) {
+//                if (position == 0) {
+//                    // Launch Disaster Management Activity
+//                    Intent intentDisasterManagement = new Intent(SelectCategoryActivity.this, SurakshitActivity.class);
+//                    startActivity(intentDisasterManagement);
+//
+//
+//                }else if (position == 1){
+//                    // Launch Social App
+////                    Intent intentSocialShare = new Intent(SelectCategoryActivity.this, SocialShareActivity.class);
+////                    startActivity(intentSocialShare);
+//                }else if (position == 2){
+////                    Intent intentGIS = null;
+////                    try {
+////                        intentGIS = new Intent(SelectCategoryActivity.this, Class.forName("com.nextgis.mobile.activity.MainActivity"));
+////                    } catch (ClassNotFoundException e) {
+////                        e.printStackTrace();
+////                    }
+////                    startActivity(intentGIS);
+//                }
+//            }
+//        });
+        btnSurakshit = (Button) findViewById(R.id.btnSurakshit);
+        btnSurakshit.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onToggleSwitchChangeListener(int position, boolean isChecked) {
-                if (position == 0) {
-                    // Launch Disaster Management Activity
-                    Intent intentDisasterManagement = new Intent(SelectCategoryActivity.this, SurakshitActivity.class);
-                    startActivity(intentDisasterManagement);
-
-
-                }else if (position == 1){
-                    // Launch Social App
-                    Intent intentSocialShare = new Intent(SelectCategoryActivity.this, SocialShareActivity.class);
-                    startActivity(intentSocialShare);
-                }else if (position == 2){
-                    Intent intentGIS = null;
-                    try {
-                        intentGIS = new Intent(SelectCategoryActivity.this, Class.forName("com.nextgis.mobile.activity.MainActivity"));
-                    } catch (ClassNotFoundException e) {
-                        e.printStackTrace();
-                    }
-                    startActivity(intentGIS);
-                }
+            public void onClick(View v) {
+                Intent intentDisasterManagement = new Intent(SelectCategoryActivity.this, SurakshitActivity.class);
+                startActivity(intentDisasterManagement);
             }
         });
-
         // Save crash logs in a file every time the application crashes
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             @Override
             public void uncaughtException(Thread t, Throwable e) {
                 Calendar cal = Calendar.getInstance();
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
-                File crashLogFile =new File (SettingsConstants.DMS_PATH+"PDM_CrashLog" );
+                File crashLogFile =new File (SplashActivity.DMS_PATH+"PDM_CrashLog" );
                 if (!crashLogFile.exists()){
                     crashLogFile.mkdir();
                 }
@@ -273,20 +263,6 @@ public class SelectCategoryActivity extends AppCompatActivity{
         }
     };
 
-    //DataMule
-    private ServiceConnection dataMuleConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            DataMuleService.MyServiceBinder binder = (DataMuleService.MyServiceBinder) service;
-            dataMuleService = binder.getService();
-            dataMuleServiceBound = true;
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            dataMuleServiceBound = false;
-        }
-    };
 
 
     public void enableGPS() {
