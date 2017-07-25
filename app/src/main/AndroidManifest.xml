@@ -47,21 +47,14 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths"/>
         </provider>
-        <activity
-            android:name="com.disarm.sanna.pdm.ShareActivity"
-            android:screenOrientation="portrait"
-            android:label="@string/app_name">
-        </activity>
+
 
         <activity android:name=".SelectCategoryActivity"
             android:screenOrientation="portrait"
             android:label="@string/app_name">
         </activity>
 
-        <activity android:name=".SocialShareActivity"
-            android:screenOrientation="portrait"
-            android:label="@string/app_name">
-        </activity>
+
 
         <activity
             android:name=".SurakshitActivity"
@@ -104,7 +97,8 @@
         <service
             android:name=".Service.SyncService"
             android:enabled="true"
-            android:exported="true" />
+            android:exported="true"
+            />
         <service android:name=".DisarmConnect.DCService" />
         <service android:name=".DisarmConnect.DataMuleService" />
     </application>
