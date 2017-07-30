@@ -17,6 +17,8 @@ cache:
    - $HOME/.gradle/caches/
    - $HOME/.gradle/wrapper/
    - $HOME/.android/build-cache
+after_success:
+- sh set_tags.sh
 script: 
 - bash ./gradlew assembleDebug
 deploy:
@@ -26,4 +28,3 @@ deploy:
   on:
     branch: newStable
     repo: namanmehta1997/pdm
-    tags: true
