@@ -28,7 +28,7 @@ deploy:
   skip_cleanup: true
   api_key:
     secure: nbwoXLXDF1RGAZKFebG5tdVcR+2rJsRDem5RZP+KFAlcD/FwJzEBA3+OGGLaYk8GkZ7mQOSFqi/RNniSE+VZT5okfpNOBIST00yUmcAqciy0A7r+aKaUq551cH4HS6LRMkMtRjXyHRHy6Wm3GxMR2HNI+3wQzBHRZkL/HD7ZgXzEekEbf1l1wZPDsMkqtGZSGPF9KTt++t/0bqy/X5ffbuXfI87EJQkZUFAMqncxtds/64VafmOmSERS2PQRwqgafLFEmeao9N18HUgHblg57uIiA9jYW9KHVPJd2K56CmDm5xxKjnr0h7CvNRTWzC24gcRPR7ym8odd2kUptLHiUcq5W4oxd49rg5rpP8uHC7mEmyzn1sMp0NdUnL2e1ReEaYfwc88beEA8fAoWStINNqk4cgNAplmatJcxX5I1+Q5D+SxRDpebbMhLJdvovBgUSU3rSjG+PZI/OSRb+m/tnOjOy2SwFFSQpWUjtlXf2LX29SgKmIkj7/MIxbwtLu+frHWtpYfpzyAyMew2ZM6t2G99zhtmueXaIjGzFR4aKF42lrrsYUrTY7zDVpGZXIusfn/sGbl39ZMHSHGhOvNOLr1MqOzK/Ec24yYf0Ab8dswHmYZordLL19siqYvRByC6biCO+vI08Jcj/KDpj02YQ7n6N9jrHkNk5GnuRGCpKks=
-  file: ./app/build/outputs/apk/app*release*.apk
+  file: ./app/build/outputs/apk/app-*.apk
   flie_glob: true
   on:
     repo: namanmehta1997/pdm
