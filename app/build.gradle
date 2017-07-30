@@ -21,7 +21,7 @@ android {
                     def date = new Date();
                     def formattedDate = date.format('yyyyMMddHHmmss')
                             output.outputFile = new File(output.outputFile.parent,
-                            output.outputFile.name.replace("-debug", "-" + formattedDate)
+                            output.outputFile.name.replace("-debug", "_" + formattedDate)
                     )
                 }
             }
