@@ -19,3 +19,11 @@ cache:
    - $HOME/.android/build-cache
 script: 
 - bash ./gradlew assembleDebug
+deploy:
+  provider: releases
+  file: app/build/outputs/apk/app-debug.apk
+  skip_cleanup: true
+  on:
+    branch: newStable
+    repo: namanmehta1997/pdm
+    tags: true
