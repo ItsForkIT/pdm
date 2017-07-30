@@ -22,6 +22,9 @@ after_success:
 - sh set_tags.sh
 script:
 - bash ./gradlew assembleDebug
+before_deploy:
+- cp ./app/build/outputs/apk/*.apk
+
 deploy:
   provider: releases
   api_key:
@@ -30,3 +33,4 @@ deploy:
   on:
     repo: namanmehta1997/pdm
     branch: newStable
+    tags: true
