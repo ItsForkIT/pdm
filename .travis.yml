@@ -26,4 +26,7 @@ deploy:
   provider: releases
   api_key:
     secure: uu+v9KjTjJoGEVE5Frbs04UY9NtAuXnKh2VnNhzwTDyzLL6YePnPPHvBYYH2RMcIUJjE+/EZAI62MQzu9uhQu1/wGXfLXtkiPDErXa+A+H7Yzud5InmY26OwCWzcVVZ0M4GnWWkOBLcC51x6VRk1OtdAQDYUh4DLT1SDmpGwrdutNAyp8wgR9v72uJ4KTRCRyiyLKshOgow8pQwj4qunNMtquo6Puwi5Pn6AroHBEOkPBpqOZbMdSwt8hBXYn5YcHWkD/bywWMmtkz7rlQE/Js6EVtPOCae6bK/gy0u6G+hZHgxkjf74Wdh9e0mTRT0GC1st42o26jYrnlIvHl503xQ2job/jInj0373kDLjGIEalW8Qgb6IHd1PonKFpQgfyulyrBGaG3rIxCjtI6kU7JFbkEDgwLFqwvLM3GNnkChEXScBZ4GuxedAn9iaQJoRJLu9jMBqZgehb5t8YUm04unbR7xFNLaqc2WqTbZ0psIImNdbP2wZ1dB+i6aycqk8+BPHzVaxprprucIrR09gxbM1fprFcDdWVxXmA6fA8fZ6AJRdivOwT+KiJmUFGxPnJsZwYTMcpdoaNZYTpzrHwnxWLj69AsY5DmD2VP0IclRKffXQJaBQX+P2sfnwnKxPTfC6b8wSNKROO7jU4gG642VyNtsuXGS8SovFThSxXnA=
-  file: app/build/outputs/apk/app*.apk
+  file: "./app/build/outputs/apk/app*.apk"
+  on:
+    branch: newStable
+
