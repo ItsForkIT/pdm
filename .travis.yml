@@ -31,5 +31,5 @@ deploy:
   file: "./app/build/outputs/apk/app*.apk"
   file_glob: true
   on:
-    repo: ItsForkIt/pdm
+    repo: ItsForkIT/pdm
     branch: newStable
