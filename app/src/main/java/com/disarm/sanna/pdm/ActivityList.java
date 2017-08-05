@@ -54,15 +54,18 @@ public class ActivityList extends AppCompatActivity implements View.OnClickListe
     public static int[] prgmImages = {R.drawable.camera
             , R.drawable.video_maker
             , R.drawable.audiopocket
-            , R.drawable.textra_sms
             , R.drawable.evolve_sms};
     public static int[] prgmNameList = {R.string.photo,
             R.string.video,
             R.string.audio,
-            R.string.text,
             R.string.sms};
     public static String GPS_LOC ="is_gps_available";
 
+    public interface ClickListener {
+        void onClick(View view, int position);
+
+        void onLongClick(View view, int position);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,7 +82,6 @@ public class ActivityList extends AppCompatActivity implements View.OnClickListe
         discard = (Button)findViewById(R.id.discard);
         submit.setOnClickListener(this);
         discard.setOnClickListener(this);
-        //startService(new Intent(this, LocationUpdateService.class));
         mRecyclerView = (RecyclerView) findViewById(R.id.my_recycler_view_activitylist);
 
         // use this setting to improve performance if you know that changes
@@ -102,7 +104,8 @@ public class ActivityList extends AppCompatActivity implements View.OnClickListe
             public void onClick(View view, int position) {
                 if (MLocation.isGPS){
                     onclick(position);
-                }else{
+                }
+                else{
                     Toast.makeText(ActivityList.this, "GPS is not ON or GPS is not LOCKED", Toast.LENGTH_LONG).show();
                 }
             }
@@ -137,9 +140,6 @@ public class ActivityList extends AppCompatActivity implements View.OnClickListe
                 startActivity(intent2);
                 break;
             case 3:
-                showTextDialog();
-                break;
-            case 4:
                 showSmsDialog();
                 break;
 
@@ -147,11 +147,6 @@ public class ActivityList extends AppCompatActivity implements View.OnClickListe
 
     }
 
-    private void showTextDialog() {
-        FragmentManager fm = getSupportFragmentManager();
-        Text text= new Text();
-        text.show(fm, "activity_text");
-    }
 
     private void showSmsDialog(){
         FragmentManager fm = getSupportFragmentManager();

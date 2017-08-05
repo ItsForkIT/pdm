@@ -144,40 +144,17 @@ public class SelectCategoryActivity extends AppCompatActivity{
             }
         });
 
-//        ToggleSwitch activity_switcher = (ToggleSwitch) findViewById(R.id.activity_switch);
-//        activity_switcher.setCheckedTogglePosition(0);
-//        activity_switcher.setOnToggleSwitchChangeListener(new BaseToggleSwitch.OnToggleSwitchChangeListener() {
-//            @Override
-//            public void onToggleSwitchChangeListener(int position, boolean isChecked) {
-//                if (position == 0) {
-//                    // Launch Disaster Management Activity
-//                    Intent intentDisasterManagement = new Intent(SelectCategoryActivity.this, SurakshitActivity.class);
-//                    startActivity(intentDisasterManagement);
-//
-//
-//                }else if (position == 1){
-//                    // Launch Social App
-////                    Intent intentSocialShare = new Intent(SelectCategoryActivity.this, SocialShareActivity.class);
-////                    startActivity(intentSocialShare);
-//                }else if (position == 2){
-////                    Intent intentGIS = null;
-////                    try {
-////                        intentGIS = new Intent(SelectCategoryActivity.this, Class.forName("com.nextgis.mobile.activity.MainActivity"));
-////                    } catch (ClassNotFoundException e) {
-////                        e.printStackTrace();
-////                    }
-////                    startActivity(intentGIS);
-//                }
-//            }
-//        });
         btnSurakshit = (Button) findViewById(R.id.btnSurakshit);
         btnSurakshit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intentDisasterManagement = new Intent(SelectCategoryActivity.this, SurakshitActivity.class);
+                Intent intentDisasterManagement = new Intent(SelectCategoryActivity.this, ActivityList.class);
+                intentDisasterManagement.putExtra("IntentType", "Data");
                 startActivity(intentDisasterManagement);
             }
         });
+
+
         // Save crash logs in a file every time the application crashes
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             @Override

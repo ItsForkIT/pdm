@@ -17,17 +17,12 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             applicationVariants.all { variant ->
-                variant.outputs.each { output ->
-                    def date = new Date();
-                    def formattedDate = date.format('yyyyMMddHHmmss')
-                            output.outputFile = new File(output.outputFile.parent,
-                            output.outputFile.name.replace("-debug", "_" + formattedDate)
-                    )
-                }
+
             }
         }
     }
 }
+
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
