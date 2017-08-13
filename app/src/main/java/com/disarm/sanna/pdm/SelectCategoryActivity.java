@@ -85,7 +85,6 @@ public class SelectCategoryActivity extends AppCompatActivity{
                     final Intent syncServiceIntent = new Intent(getBaseContext(), SyncService.class);
                     bindService(syncServiceIntent, syncServiceConnection, Context.BIND_AUTO_CREATE);
                     startService(syncServiceIntent);
-
                     Toast.makeText(getApplicationContext(), R.string.start_sync, Toast.LENGTH_SHORT).show();
                 } else {
                     final Intent syncServiceIntent = new Intent(getBaseContext(), SyncService.class);
