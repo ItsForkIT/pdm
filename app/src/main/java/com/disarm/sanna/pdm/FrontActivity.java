@@ -478,4 +478,6 @@ public class FrontActivity extends AppCompatActivity {
             }
         });
     }
+
+
 }
