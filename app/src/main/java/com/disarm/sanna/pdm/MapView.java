@@ -22,7 +22,7 @@ public class MapView extends AppCompatActivity {
         setContentView(R.layout.activity_map_view);
         pb = (ProgressBar) findViewById(R.id.progressBar);
         pb.setMax(100);
-        final String URL = "https://www.google.com";
+        final String URL = "http://127.0.0.1:8080/getMapAsset/index.html";
         wv = (WebView) findViewById(R.id.wv);
         wv.setWebChromeClient(new WebChromeClient() {
             public void onProgressChanged(WebView view, int progress)
@@ -35,8 +35,8 @@ public class MapView extends AppCompatActivity {
                 }
             }
         });
-        //WebSettings wb = wv.getSettings();
-        //wb.setJavaScriptEnabled(true);
+        WebSettings wb = wv.getSettings();
+        wb.setJavaScriptEnabled(true);
         wv.setWebViewClient(new WebViewClient());
         wv.loadUrl(URL);
     }
