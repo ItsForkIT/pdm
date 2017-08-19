@@ -42,7 +42,6 @@ public class OSMMapView extends AppCompatActivity {
     }
     CompassOverlay mCompassOverlay;
     ScaleBarOverlay mScaleBarOverlay;
-    RotationGestureOverlay mRotationGestureOverlay;
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -68,10 +67,6 @@ public class OSMMapView extends AppCompatActivity {
         Point size = new Point();
         display.getSize(size);
         int width = size.x;
-        mRotationGestureOverlay = new RotationGestureOverlay(ctx, map);
-        mRotationGestureOverlay.setEnabled(true);
-        map.setMultiTouchControls(true);
-        map.getOverlays().add(this.mRotationGestureOverlay);
         mScaleBarOverlay = new ScaleBarOverlay(map);
         mScaleBarOverlay.setCentred(true);
         mScaleBarOverlay.setScaleBarOffset(width/2, 10);
