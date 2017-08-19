@@ -38,6 +38,7 @@ public class MapView extends AppCompatActivity {
         WebSettings wb = wv.getSettings();
         wb.setJavaScriptEnabled(true);
         wv.setWebViewClient(new WebViewClient());
+        wb.setJavaScriptCanOpenWindowsAutomatically(true);
         wv.loadUrl(URL);
     }
 }
