@@ -441,8 +441,13 @@ public class FrontActivity extends AppCompatActivity {
         ibMap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(serviceSwitch.isChecked()){
                 Intent it = new Intent(FrontActivity.this,MapView.class);
                 startActivity(it);
+                }
+                else{
+                    Toast.makeText(getBaseContext(),"Please enable service!!!",Toast.LENGTH_LONG).show();
+                }
             }
         });
     }
