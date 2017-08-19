@@ -48,17 +48,9 @@ public class OSMMapView extends AppCompatActivity {
         setContentView(R.layout.activity_map_view);
         GetLatLongAsync g = new GetLatLongAsync();
         g.execute();
-//        Drawable d = getResources().getDrawable(R.drawable.market);
-
     }
 
 
-
-
-    private ArrayList<OverlayItem> getOverlayItems(){
-        ArrayList<OverlayItem> items = new ArrayList<OverlayItem>();
-        return items;
-    }
 
     public class GetLatLongAsync extends AsyncTask{
 
@@ -68,26 +60,16 @@ public class OSMMapView extends AppCompatActivity {
         ScaleBarOverlay mScaleBarOverlay;
         MapView map;
         ArrayList<OverlayItem> anotherOverlayItemArray;
+        ArrayList<OverlayItem> localOverlayItemArray;
         ITileSource tileSource;
         GeoPoint startPoint;
+        InputStream is;
         @Override
         protected Object doInBackground(Object[] params) {
             anotherOverlayItemArray = new ArrayList<OverlayItem>();
-            try {
-                url = new URL("http://127.0.0.1:8080/getGIS/allLogs.txt");
-            }
-            catch (Exception ex){
-                Log.e("-- URL Exception --",ex.toString());
-            }
-            try {
-                httpCon = (HttpURLConnection) url.openConnection();
-            }
-            catch (Exception ex) {
-                Log.e("-- HTTP Exception --",ex.toString());
-            }
+            localOverlayItemArray = new ArrayList<OverlayItem>();
             try{
-            InputStream is = httpCon.getInputStream();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+                BufferedReader reader = getReader("http://127.0.0.1:8080/getGIS/allLogs.txt");
                 String data="";
                 while((data = reader.readLine())!=null){
                     Pattern p = Pattern.compile(",");
@@ -97,11 +79,31 @@ public class OSMMapView extends AppCompatActivity {
                         anotherOverlayItemArray.add(new OverlayItem("","",g));
                     }
                 }
+                is.close();
             }
             catch (Exception ex){
                 Log.e("--I/O Exception--",ex.toString());
             }
+            httpCon.disconnect();
 
+
+            try{
+                BufferedReader reader = getReader("http://127.0.0.1:8080/getGIS/allGIS.txt");
+                String data="";
+                while((data = reader.readLine())!=null){
+                    Pattern p = Pattern.compile("_");
+                    String[] array = p.split(data);
+                    if(array.length>2){
+                        GeoPoint g = new GeoPoint(Double.parseDouble(array[5]),Double.parseDouble(array[6]));
+                        localOverlayItemArray.add(new OverlayItem("","",g));
+                    }
+                }
+                is.close();
+            }
+            catch (Exception ex){
+                Log.e("--I/O Exception--",ex.toString());
+            }
+            httpCon.disconnect();
             return null;
         }
 
@@ -137,13 +139,36 @@ public class OSMMapView extends AppCompatActivity {
         @Override
         protected void onPostExecute(Object o) {
             super.onPostExecute(o);
-            ItemizedIconOverlay<OverlayItem> x = new ItemizedIconOverlay<OverlayItem>(anotherOverlayItemArray,getResources().getDrawable(R.drawable.map_marker),null,getBaseContext());
-            map.getOverlays().add(x);
-            anotherOverlayItemArray.add(new OverlayItem(
-                    "", "", startPoint));
+            ItemizedIconOverlay<OverlayItem> markerFromAllLogs = new ItemizedIconOverlay<OverlayItem>(anotherOverlayItemArray,getResources().getDrawable(R.drawable.map_marker),null,getBaseContext());
+            map.getOverlays().add(markerFromAllLogs);
+            ItemizedIconOverlay<OverlayItem> markerFromGIS = new ItemizedIconOverlay<OverlayItem>(localOverlayItemArray,getResources().getDrawable(R.drawable.marker_default),null,getBaseContext());
+            map.getOverlays().add(markerFromGIS);
             map.setTileSource(tileSource);
 
+        }
 
+        private BufferedReader getReader(String urlString){
+            BufferedReader reader = null;
+            try {
+                url = new URL(urlString);
+            }
+            catch (Exception ex){
+                Log.e("-- URL Exception --",ex.toString());
+            }
+            try {
+                httpCon = (HttpURLConnection) url.openConnection();
+            }
+            catch (Exception ex) {
+                Log.e("-- HTTP Exception --",ex.toString());
+            }
+            try{
+                is = httpCon.getInputStream();
+                reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+            }
+            catch (Exception ex){
+                Log.e("--IO Exception--",ex.toString());
+            }
+            return reader;
         }
     }
 
