@@ -102,7 +102,7 @@
         <service android:name=".DisarmConnect.DCService" />
         <service android:name=".DisarmConnect.DataMuleService" />
 
-        <activity android:name=".MapView"></activity>
+        <activity android:name=".OSMMapView"></activity>
     </application>
 
 </manifest>

@@ -2,7 +2,6 @@ package com.disarm.sanna.pdm;
 
 
 import android.Manifest;
-import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -442,7 +441,7 @@ public class FrontActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(serviceSwitch.isChecked()){
-                Intent it = new Intent(FrontActivity.this,MapView.class);
+                Intent it = new Intent(FrontActivity.this,OSMMapView.class);
                 startActivity(it);
                 }
                 else{
