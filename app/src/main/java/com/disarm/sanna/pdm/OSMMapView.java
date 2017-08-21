@@ -1,6 +1,7 @@
 package com.disarm.sanna.pdm;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
@@ -8,7 +9,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Display;
-
 import org.osmdroid.api.IMapController;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.tileprovider.tilesource.ITileSource;
@@ -16,16 +16,18 @@ import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.ItemizedIconOverlay;
 import org.osmdroid.views.overlay.OverlayItem;
+import org.osmdroid.views.overlay.Polygon;
 import org.osmdroid.views.overlay.ScaleBarOverlay;
 import org.osmdroid.views.overlay.compass.CompassOverlay;
 import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider;
-
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.regex.Pattern;
 
 
@@ -133,9 +135,21 @@ public class OSMMapView extends AppCompatActivity {
             ItemizedIconOverlay<OverlayItem> markerFromGIS = new ItemizedIconOverlay<OverlayItem>(localOverlayItemArray,getResources().getDrawable(R.drawable.marker_default),null,getBaseContext());
             map.getOverlays().add(markerFromGIS);
             map.setTileSource(tileSource);
-
         }
 
+        public Polygon pointsAsCircle(GeoPoint center, double radiusInMeters){
+            Polygon polygon = new Polygon(getBaseContext());
+            ArrayList<GeoPoint> circlePoints = new ArrayList<GeoPoint>(360/6);
+            for (int f = 0; f < 360; f += 6){
+                GeoPoint onCircle = center.destinationPoint(radiusInMeters, f);
+                circlePoints.add(onCircle);
+            }
+            polygon.setPoints(circlePoints);
+            polygon.setFillColor(Color.TRANSPARENT);
+            polygon.setStrokeColor(Color.BLUE);
+            polygon.setStrokeWidth(2);
+            return polygon;
+        }
         private BufferedReader getReader(String urlString){
             BufferedReader reader = null;
             try {
@@ -160,5 +174,7 @@ public class OSMMapView extends AppCompatActivity {
             return reader;
         }
     }
+
+
 
 }

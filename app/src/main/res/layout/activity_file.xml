@@ -54,7 +54,7 @@
             android:layout_marginBottom="10dp"
             android:background="@android:color/holo_blue_light"
             android:src="@drawable/notrunning"/>
-        
+
     </RelativeLayout>
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rv"
