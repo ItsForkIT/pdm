@@ -445,7 +445,7 @@ public class FrontActivity extends AppCompatActivity {
                 startActivity(it);
                 }
                 else{
-                    Toast.makeText(getBaseContext(),"Please enable service!!!",Toast.LENGTH_LONG).show();
+                    Toast.makeText(getBaseContext(),"Please enable service!!!",Toast.LENGTH_SHORT).show();
                 }
             }
         });
