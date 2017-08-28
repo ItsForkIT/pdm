@@ -1,20 +1,28 @@
 package com.disarm.sanna.pdm;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Display;
+import android.view.MotionEvent;
+import android.view.View;
+
 import org.osmdroid.api.IMapController;
+import org.osmdroid.bonuspack.clustering.RadiusMarkerClusterer;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.tileprovider.tilesource.ITileSource;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.ItemizedIconOverlay;
+import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.OverlayItem;
 import org.osmdroid.views.overlay.Polygon;
 import org.osmdroid.views.overlay.ScaleBarOverlay;
@@ -26,8 +34,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.HashMap;
 import java.util.regex.Pattern;
 
 
@@ -50,15 +57,12 @@ public class OSMMapView extends AppCompatActivity {
         CompassOverlay mCompassOverlay;
         ScaleBarOverlay mScaleBarOverlay;
         MapView map;
-        ArrayList<OverlayItem> anotherOverlayItemArray;
-        ArrayList<OverlayItem> localOverlayItemArray;
         ITileSource tileSource;
         GeoPoint startPoint;
         InputStream is;
+        RadiusMarkerClusterer rmc;
         @Override
         protected Object doInBackground(Object[] params) {
-            anotherOverlayItemArray = new ArrayList<OverlayItem>();
-            localOverlayItemArray = new ArrayList<OverlayItem>();
             try{
                 BufferedReader reader = getReader("http://127.0.0.1:8080/getGIS/allLogs.txt");
                 String data="";
@@ -67,7 +71,9 @@ public class OSMMapView extends AppCompatActivity {
                     String[] array = p.split(data);
                     if(array.length>2){
                         GeoPoint g = new GeoPoint(Double.parseDouble(array[0]),Double.parseDouble(array[1]));
-                        anotherOverlayItemArray.add(new OverlayItem("","",g));
+                        Marker m = new Marker(map);
+                        m.setPosition(g);
+                        rmc.add(m);
                     }
                 }
                 is.close();
@@ -86,7 +92,10 @@ public class OSMMapView extends AppCompatActivity {
                     String[] array = p.split(data);
                     if(array.length>2){
                         GeoPoint g = new GeoPoint(Double.parseDouble(array[5]),Double.parseDouble(array[6]));
-                        localOverlayItemArray.add(new OverlayItem("","",g));
+                        Marker m = new Marker(map);
+                        m.setPosition(g);
+                        rmc.add(m);
+
                     }
                 }
                 is.close();
@@ -113,6 +122,7 @@ public class OSMMapView extends AppCompatActivity {
             map.setMultiTouchControls(true);
             IMapController mapController = map.getController();
             mapController.setZoom(15);
+            rmc = new RadiusMarkerClusterer(ctx);
             startPoint = new GeoPoint(23.5500612,87.2912049);
             mapController.setCenter(startPoint);
             String[] s = {"http://127.0.0.1:8080/getTile/"};
@@ -130,10 +140,8 @@ public class OSMMapView extends AppCompatActivity {
         @Override
         protected void onPostExecute(Object o) {
             super.onPostExecute(o);
-            ItemizedIconOverlay<OverlayItem> markerFromAllLogs = new ItemizedIconOverlay<OverlayItem>(anotherOverlayItemArray,getResources().getDrawable(R.drawable.map_marker),null,getBaseContext());
-            map.getOverlays().add(markerFromAllLogs);
-            ItemizedIconOverlay<OverlayItem> markerFromGIS = new ItemizedIconOverlay<OverlayItem>(localOverlayItemArray,getResources().getDrawable(R.drawable.marker_default),null,getBaseContext());
-            map.getOverlays().add(markerFromGIS);
+            map.getOverlays().add(rmc);
+
             map.setTileSource(tileSource);
         }
 

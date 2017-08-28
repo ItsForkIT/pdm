@@ -25,13 +25,16 @@ android {
             }
         }
     }
+
 }
-
-
 dependencies {
-
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile files('libs/psync-pc-jar-with-dependencies.jar')
+    compile(name:'osmbonuspack_6.4', ext:'aar')
+    compile 'com.android.support:support-v4:23.2.1'
+    compile 'org.apache.commons:commons-lang3:3.3.2'
+    compile 'com.google.code.gson:gson:2.7'
+    compile 'com.squareup.okhttp3:okhttp:3.4.1'
     compile 'com.android.support:multidex:1.0.0'
     compile 'com.android.support:appcompat-v7:25.0.0'
     compile 'com.android.support:design:25.0.0'
