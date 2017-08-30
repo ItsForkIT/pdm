@@ -60,7 +60,7 @@ public class OSMMapView extends AppCompatActivity {
         ITileSource tileSource;
         GeoPoint startPoint;
         InputStream is;
-        RadiusMarkerClusterer rmc;
+        MyMarkerCluster rmc;
         @Override
         protected Object doInBackground(Object[] params) {
             try{
@@ -94,8 +94,7 @@ public class OSMMapView extends AppCompatActivity {
                         GeoPoint g = new GeoPoint(Double.parseDouble(array[5]),Double.parseDouble(array[6]));
                         Marker m = new Marker(map);
                         m.setPosition(g);
-                        rmc.add(m);
-
+                        rmc.addMarker(m,data);
                     }
                 }
                 is.close();
@@ -122,7 +121,9 @@ public class OSMMapView extends AppCompatActivity {
             map.setMultiTouchControls(true);
             IMapController mapController = map.getController();
             mapController.setZoom(15);
-            rmc = new RadiusMarkerClusterer(ctx);
+            rmc = new MyMarkerCluster(ctx);
+            rmc.setMaxClusteringZoomLevel(16);
+            rmc.fileAddress = new HashMap<Marker, String>();
             startPoint = new GeoPoint(23.5500612,87.2912049);
             mapController.setCenter(startPoint);
             String[] s = {"http://127.0.0.1:8080/getTile/"};
@@ -141,7 +142,6 @@ public class OSMMapView extends AppCompatActivity {
         protected void onPostExecute(Object o) {
             super.onPostExecute(o);
             map.getOverlays().add(rmc);
-
             map.setTileSource(tileSource);
         }
 
