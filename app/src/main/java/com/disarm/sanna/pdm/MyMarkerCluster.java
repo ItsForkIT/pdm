@@ -8,7 +8,10 @@ import android.graphics.drawable.BitmapDrawable;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Adapter;
+import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.Toast;
 
@@ -17,6 +20,7 @@ import org.osmdroid.bonuspack.clustering.StaticCluster;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Marker;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -25,10 +29,12 @@ import java.util.HashMap;
 
 public class MyMarkerCluster extends RadiusMarkerClusterer {
     Context context;
+    ListView lvmap;
     public HashMap<Marker,String> fileAddress;
-    public MyMarkerCluster(Context ctx) {
+    public MyMarkerCluster(Context ctx,ListView lvmap) {
         super(ctx);
         context=ctx;
+        this.lvmap = lvmap;
     }
 
     @Override
@@ -40,19 +46,15 @@ public class MyMarkerCluster extends RadiusMarkerClusterer {
         m.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker, MapView mapView) {
-                LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                View popupview = inflater.inflate(R.layout.popup_map,null);
-                int width = LinearLayout.LayoutParams.MATCH_PARENT;
-                int height = LinearLayout.LayoutParams.MATCH_PARENT;
-                PopupWindow pw = new PopupWindow(popupview,width,height,true);
-                pw.showAtLocation(mapView,Gravity.CENTER,width,height);
-
+                ArrayList<String> al = new ArrayList<String>();
                 for(int i=0;i<cluster.getSize();i++){
                     Marker m = cluster.getItem(i);
                     if(fileAddress.containsKey(m)){
-
+                        al.add(fileAddress.get(m));
                     }
                 }
+                ArrayAdapter<String> ad = new ArrayAdapter<String>(context,android.R.layout.simple_list_item_1,al);
+                lvmap.setAdapter(ad);
                 return false;
             }
         });

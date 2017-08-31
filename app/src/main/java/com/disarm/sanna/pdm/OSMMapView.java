@@ -8,12 +8,16 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.design.widget.BottomSheetBehavior;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ListView;
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.bonuspack.clustering.RadiusMarkerClusterer;
@@ -39,11 +43,57 @@ import java.util.regex.Pattern;
 
 
 public class OSMMapView extends AppCompatActivity {
-
+    View bottomsheet;
+    ListView maplv;
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map_view);
+        bottomsheet = findViewById(R.id.rlbottomsheet);
+        maplv = (ListView) findViewById(R.id.map_list_view);
+        maplv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+            }
+        });
+        final BottomSheetBehavior behave = BottomSheetBehavior.from(bottomsheet);
+        bottomsheet.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                behave.setState(BottomSheetBehavior.STATE_EXPANDED);
+            }
+        });
+
+        behave.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+            @Override
+            public void onStateChanged(@NonNull View bottomSheet, int newState) {
+                switch (newState) {
+                    case BottomSheetBehavior.STATE_DRAGGING:
+                        Log.i("BottomSheetCallback", "BottomSheetBehavior.STATE_DRAGGING");
+                        break;
+                    case BottomSheetBehavior.STATE_SETTLING:
+                        Log.i("BottomSheetCallback", "BottomSheetBehavior.STATE_SETTLING");
+                        break;
+                    case BottomSheetBehavior.STATE_EXPANDED:
+                        Log.i("BottomSheetCallback", "BottomSheetBehavior.STATE_EXPANDED");
+                        break;
+                    case BottomSheetBehavior.STATE_COLLAPSED:
+                        Log.i("BottomSheetCallback", "BottomSheetBehavior.STATE_COLLAPSED");
+                        break;
+                    case BottomSheetBehavior.STATE_HIDDEN:
+                        Log.i("BottomSheetCallback", "BottomSheetBehavior.STATE_HIDDEN");
+                        break;
+                }
+            }
+
+            @Override
+            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+                Log.i("BottomSheetCallback", "slideOffset: " + slideOffset);
+            }
+        });
+
+
         GetLatLongAsync g = new GetLatLongAsync();
         g.execute();
     }
@@ -121,7 +171,7 @@ public class OSMMapView extends AppCompatActivity {
             map.setMultiTouchControls(true);
             IMapController mapController = map.getController();
             mapController.setZoom(15);
-            rmc = new MyMarkerCluster(ctx);
+            rmc = new MyMarkerCluster(ctx,maplv);
             rmc.setMaxClusteringZoomLevel(16);
             rmc.fileAddress = new HashMap<Marker, String>();
             startPoint = new GeoPoint(23.5500612,87.2912049);
