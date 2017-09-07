@@ -355,12 +355,12 @@ public class FrontActivity extends AppCompatActivity {
             }
         });
         for (File f : files) {
-            if (f.isFile())
-                name = f.getName();
-            path = "/DMS/Working/"+name;
-            Pattern pattern = Pattern.compile("_");
-            String[] result = pattern.split(name);
             try {
+                if (f.isFile())
+                    name = f.getName();
+                path = "/DMS/Working/"+name;
+                Pattern pattern = Pattern.compile("_");
+                String[] result = pattern.split(name);
                 type=result[0];
                 no=result[3];
                 source=result[5]+" , "+ result[6];
