@@ -14,42 +14,27 @@
     <LinearLayout
         android:id="@+id/rlbottomsheet"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="400dp"
         android:paddingBottom="@dimen/activity_vertical_margin"
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin"
         android:paddingTop="@dimen/activity_vertical_margin"
         android:orientation="vertical"
-        app:behavior_hideable="true"
+        android:background="@color/white"
+        app:behavior_hideable="false"
         app:behavior_peekHeight="50dp"
         app:elevation="4dp"
         app:layout_behavior="@string/bottom_sheet_behavior">
 
-        <TextView
-            android:id="@+id/tvNoOfImages"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Images : "/>
-        <TextView
-            android:id="@+id/tvNoOfVides"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Videos : "/>
-        <TextView
-            android:id="@+id/tvNoOfAudios"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Audio : "/>
-        <TextView
-            android:id="@+id/tvNoOfText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Text/SMS : "/>
+            android:orientation="horizontal"></LinearLayout>
         <ListView
             android:id="@+id/map_list_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"></ListView>
-
+;
     </LinearLayout>
 
 </android.support.design.widget.CoordinatorLayout>

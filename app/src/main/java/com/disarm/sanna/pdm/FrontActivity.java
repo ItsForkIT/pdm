@@ -70,6 +70,7 @@ public class FrontActivity extends AppCompatActivity {
     private boolean gpsService = false;
     LocationManager lm;
     LocationListener locationListener;
+    int psync_type;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -394,17 +395,42 @@ public class FrontActivity extends AppCompatActivity {
                     }
                 })
         );
+
+
         serviceSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if(isChecked){
-                    final Intent syncServiceIntent = new Intent(getBaseContext(), SyncService.class);
-                    bindService(syncServiceIntent, syncServiceConnection, Context.BIND_AUTO_CREATE);
-                    startService(syncServiceIntent);
+                    final DialogInterface.OnClickListener dialogClick = new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            if(i == -1){
+                                psync_type=0;
+                            }
+                            else if(i == -2){
+                                psync_type=1;
+                            }
+                            else{
+                                psync_type=2;
+                            }
+                            final Intent syncServiceIntent = new Intent(getBaseContext(), SyncService.class);
+                            syncServiceIntent.putExtra("PSync",psync_type+"");
+                            bindService(syncServiceIntent, syncServiceConnection, Context.BIND_AUTO_CREATE);
+                            startService(syncServiceIntent);
+                        }
+                    };
+                    AlertDialog.Builder sd = new AlertDialog.Builder(FrontActivity.this);
+                    sd.setTitle("Mode of Sync Service");
+                    sd.setMessage("Which type of service do you want to run?");
+                    sd.setPositiveButton("Random", dialogClick);
+                    sd.setNegativeButton("Based on Priority", dialogClick);
+                    sd.setNeutralButton("Based on Importance", dialogClick);
+                    sd.show();
 
                     final Intent myServiceIntent = new Intent(getBaseContext(), DCService.class);
                     bindService(myServiceIntent, myServiceConnection, Context.BIND_AUTO_CREATE);
                     startService(myServiceIntent);
+
 
                     if (!LocationState.with(FrontActivity.this).locationServicesEnabled()){
                         enableGPS();

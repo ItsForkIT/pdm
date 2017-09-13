@@ -5,11 +5,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.Environment;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.widget.Toast;
 
+import com.disarm.sanna.pdm.FrontActivity;
 import com.disarm.sanna.pdm.SelectCategoryActivity;
 import com.disarm.sanna.pdm.Util.PrefUtils;
 
@@ -49,22 +52,23 @@ public class SyncService extends Service {
 
     public SyncService() {
         source = SelectCategoryActivity.SOURCE_PHONE_NO;
-
         logger =new Logger(databaseDirectory,source);
         discoverer = new Discoverer(BROADCAST_IP,source, PORT,logger);
         fileManager = new FileManager(source, databaseName, databaseDirectory,syncDirectory,mapDirectory,logger);
         fileTransporter = new FileTransporter(syncDirectory,logger);
-        controller = new Controller(discoverer, fileManager, fileTransporter, syncInterval, maxRunningDownloads, logger, false);
         webServer = new WebServer(8080, controller,logger);
     }
 
     @Override
     public void onCreate() {
+
     }
 
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId){
+        int psync_type = Integer.parseInt(intent.getStringExtra("PSync"));
+        controller = new Controller(discoverer, fileManager, fileTransporter, syncInterval, maxRunningDownloads, logger, psync_type);
         discoverer.startDiscoverer();
         fileManager.startFileManager();
         controller.startController();
@@ -78,6 +82,7 @@ public class SyncService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
+        //Log.e("Value",intent.getStringExtra("PSync"));
         return syncServiceBinder;
     }
 

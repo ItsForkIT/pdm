@@ -1,7 +1,6 @@
 package com.disarm.sanna.pdm;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
@@ -57,42 +56,6 @@ public class OSMMapView extends AppCompatActivity {
 
             }
         });
-        final BottomSheetBehavior behave = BottomSheetBehavior.from(bottomsheet);
-        bottomsheet.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                behave.setState(BottomSheetBehavior.STATE_EXPANDED);
-            }
-        });
-
-        behave.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
-            @Override
-            public void onStateChanged(@NonNull View bottomSheet, int newState) {
-                switch (newState) {
-                    case BottomSheetBehavior.STATE_DRAGGING:
-                        Log.i("BottomSheetCallback", "BottomSheetBehavior.STATE_DRAGGING");
-                        break;
-                    case BottomSheetBehavior.STATE_SETTLING:
-                        Log.i("BottomSheetCallback", "BottomSheetBehavior.STATE_SETTLING");
-                        break;
-                    case BottomSheetBehavior.STATE_EXPANDED:
-                        Log.i("BottomSheetCallback", "BottomSheetBehavior.STATE_EXPANDED");
-                        break;
-                    case BottomSheetBehavior.STATE_COLLAPSED:
-                        Log.i("BottomSheetCallback", "BottomSheetBehavior.STATE_COLLAPSED");
-                        break;
-                    case BottomSheetBehavior.STATE_HIDDEN:
-                        Log.i("BottomSheetCallback", "BottomSheetBehavior.STATE_HIDDEN");
-                        break;
-                }
-            }
-
-            @Override
-            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
-                Log.i("BottomSheetCallback", "slideOffset: " + slideOffset);
-            }
-        });
-
 
         GetLatLongAsync g = new GetLatLongAsync();
         g.execute();
@@ -108,7 +71,6 @@ public class OSMMapView extends AppCompatActivity {
         ScaleBarOverlay mScaleBarOverlay;
         MapView map;
         ITileSource tileSource;
-        GeoPoint startPoint;
         InputStream is;
         MyMarkerCluster rmc;
         @Override
@@ -172,13 +134,11 @@ public class OSMMapView extends AppCompatActivity {
             IMapController mapController = map.getController();
             mapController.setZoom(15);
             rmc = new MyMarkerCluster(ctx,maplv);
-            rmc.setMaxClusteringZoomLevel(16);
+            rmc.setMaxClusteringZoomLevel(20);
             rmc.fileAddress = new HashMap<Marker, String>();
-            startPoint = new GeoPoint(23.5500612,87.2912049);
-            mapController.setCenter(startPoint);
             String[] s = {"http://127.0.0.1:8080/getTile/"};
             tileSource = new MyOSMTileSource(
-                    "DISARM MAP SOURCE", 13, 16, 256, ".png", s);
+                    "DISARM MAP SOURCE", 13, 20, 256, ".png", s);
             mCompassOverlay = new CompassOverlay(ctx, new InternalCompassOrientationProvider(ctx), map);
             mCompassOverlay.enableCompass();
             map.getOverlays().add(mCompassOverlay);
@@ -191,6 +151,12 @@ public class OSMMapView extends AppCompatActivity {
         @Override
         protected void onPostExecute(Object o) {
             super.onPostExecute(o);
+            try {
+                map.getController().setCenter(rmc.getItems().get(0).getPosition());
+            }
+            catch (Exception ex){
+
+            }
             map.getOverlays().add(rmc);
             map.setTileSource(tileSource);
         }
