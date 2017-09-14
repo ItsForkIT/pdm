@@ -17,14 +17,17 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.bonuspack.clustering.RadiusMarkerClusterer;
 import org.osmdroid.config.Configuration;
+import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.tileprovider.tilesource.ITileSource;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.ItemizedIconOverlay;
+import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.OverlayItem;
 import org.osmdroid.views.overlay.Polygon;
@@ -129,6 +132,7 @@ public class OSMMapView extends AppCompatActivity {
             Context ctx = getApplicationContext();
             Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx));
             map = (MapView) findViewById(R.id.map);
+            setTouchOnMap(map);
             map.setBuiltInZoomControls(true);
             map.setMultiTouchControls(true);
             IMapController mapController = map.getController();
@@ -161,7 +165,7 @@ public class OSMMapView extends AppCompatActivity {
             map.setTileSource(tileSource);
         }
 
-        public Polygon pointsAsCircle(GeoPoint center, double radiusInMeters){
+        Polygon pointsAsCircle(GeoPoint center, double radiusInMeters){
             Polygon polygon = new Polygon(getBaseContext());
             ArrayList<GeoPoint> circlePoints = new ArrayList<GeoPoint>(360/6);
             for (int f = 0; f < 360; f += 6){
@@ -173,6 +177,26 @@ public class OSMMapView extends AppCompatActivity {
             polygon.setStrokeColor(Color.BLUE);
             polygon.setStrokeWidth(2);
             return polygon;
+        }
+
+        private void setTouchOnMap(MapView map){
+            MapEventsReceiver mReceive = new MapEventsReceiver() {
+                @Override
+                public boolean singleTapConfirmedHelper(GeoPoint p) {
+                    Toast.makeText(getBaseContext(),p.getLatitude() + " - "+p.getLongitude(),Toast.LENGTH_LONG).show();
+                    return false;
+                }
+
+                @Override
+                public boolean longPressHelper(GeoPoint p) {
+                    return false;
+                }
+            };
+
+
+            MapEventsOverlay OverlayEvents = new MapEventsOverlay(getBaseContext(), mReceive);
+            map.getOverlays().add(OverlayEvents);
+
         }
         private BufferedReader getReader(String urlString){
             BufferedReader reader = null;

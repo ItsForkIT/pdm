@@ -90,8 +90,6 @@ public class FrontActivity extends AppCompatActivity {
         callHandler();
         crashLog();
 
-
-
     }
     @Override
     public void onBackPressed() {
