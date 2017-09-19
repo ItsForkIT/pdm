@@ -7,6 +7,7 @@ import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
@@ -17,14 +18,16 @@ import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
 
 import org.osmdroid.api.IMapController;
-import org.osmdroid.bonuspack.clustering.RadiusMarkerClusterer;
+import org.osmdroid.bonuspack.kml.KmlGroundOverlay;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.tileprovider.tilesource.ITileSource;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.FolderOverlay;
 import org.osmdroid.views.overlay.ItemizedIconOverlay;
 import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.OverlayItem;
@@ -33,6 +36,7 @@ import org.osmdroid.views.overlay.ScaleBarOverlay;
 import org.osmdroid.views.overlay.compass.CompassOverlay;
 import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -45,12 +49,14 @@ import java.util.regex.Pattern;
 public class OSMMapView extends AppCompatActivity {
     View bottomsheet;
     ListView maplv;
+    ImageView iv;
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map_view);
         bottomsheet = findViewById(R.id.rlbottomsheet);
         maplv = (ListView) findViewById(R.id.map_list_view);
+        iv = (ImageView) findViewById(R.id.imageView2);
         maplv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -174,7 +180,7 @@ public class OSMMapView extends AppCompatActivity {
             rmc = new MyMarkerCluster(ctx,maplv);
             rmc.setMaxClusteringZoomLevel(16);
             rmc.fileAddress = new HashMap<Marker, String>();
-            startPoint = new GeoPoint(23.5500612,87.2912049);
+            startPoint = new GeoPoint(12.092741012573242,47.72502517700195);
             mapController.setCenter(startPoint);
             String[] s = {"http://127.0.0.1:8080/getTile/"};
             tileSource = new MyOSMTileSource(
@@ -186,6 +192,13 @@ public class OSMMapView extends AppCompatActivity {
             mScaleBarOverlay.setCentred(true);
             mScaleBarOverlay.setScaleBarOffset(width/2, 10);
             map.getOverlays().add(mScaleBarOverlay);
+
+            KmzExtend kmz = new KmzExtend();
+            File f = Environment.getExternalStoragePublicDirectory("test.kmz");
+            kmz.parseKMZFileWithImage(f,iv);
+            FolderOverlay fo = (FolderOverlay)kmz.mKmlRoot.buildOverlay(map,null,null,kmz);
+            map.getOverlays().add(fo);
+            map.invalidate();
         }
 
         @Override
