@@ -56,7 +56,6 @@ public class SyncService extends Service {
         discoverer = new Discoverer(BROADCAST_IP,source, PORT,logger);
         fileManager = new FileManager(source, databaseName, databaseDirectory,syncDirectory,mapDirectory,logger);
         fileTransporter = new FileTransporter(syncDirectory,logger);
-        webServer = new WebServer(8080, controller,logger);
     }
 
     @Override
@@ -69,6 +68,7 @@ public class SyncService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId){
         int psync_type = Integer.parseInt(intent.getStringExtra("PSync"));
         controller = new Controller(discoverer, fileManager, fileTransporter, syncInterval, maxRunningDownloads, logger, psync_type);
+        webServer = new WebServer(8080, controller,logger);
         discoverer.startDiscoverer();
         fileManager.startFileManager();
         controller.startController();
