@@ -59,7 +59,7 @@ public class FrontActivity extends AppCompatActivity {
     List<FileRecord> lfr;
     Handler handleApater;
     Handler handleStatus;
-    Switch serviceSwitch;
+    Switch serviceSwitch,DCSwtich;
     ImageView ivStatus;
     Button btnCollectData;
     ImageButton ibMap;
@@ -79,6 +79,7 @@ public class FrontActivity extends AppCompatActivity {
         handleApater = new Handler();
         handleStatus = new Handler();
         rv = (RecyclerView) findViewById(R.id.rv);
+        DCSwtich = (Switch) findViewById(R.id.switchDC);
         serviceSwitch = (Switch) findViewById(R.id.switchService);
         ivStatus = (ImageView) findViewById(R.id.ivStatus);
         btnCollectData = (Button) findViewById(R.id.btnCollectData);
@@ -394,7 +395,24 @@ public class FrontActivity extends AppCompatActivity {
                 })
         );
 
-
+        DCSwtich.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked){
+                    final Intent myServiceIntent = new Intent(getBaseContext(), DCService.class);
+                    bindService(myServiceIntent, myServiceConnection, Context.BIND_AUTO_CREATE);
+                    startService(myServiceIntent);
+                }
+                else{
+                    final Intent myServiceIntent = new Intent(getBaseContext(), DCService.class);
+                    if (myServiceBound) {
+                        unbindService(myServiceConnection);
+                        myServiceBound = false;
+                        stopService(myServiceIntent);
+                    }
+                }
+            }
+        });
         serviceSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -425,9 +443,7 @@ public class FrontActivity extends AppCompatActivity {
                     sd.setNeutralButton("Based on Importance", dialogClick);
                     sd.show();
 
-                    final Intent myServiceIntent = new Intent(getBaseContext(), DCService.class);
-                    bindService(myServiceIntent, myServiceConnection, Context.BIND_AUTO_CREATE);
-                    startService(myServiceIntent);
+
 
 
                     if (!LocationState.with(FrontActivity.this).locationServicesEnabled()){
@@ -437,12 +453,7 @@ public class FrontActivity extends AppCompatActivity {
                 }
                 else{
                     MLocation.unsubscribe(FrontActivity.this);
-                    final Intent myServiceIntent = new Intent(getBaseContext(), DCService.class);
-                    if (myServiceBound) {
-                        unbindService(myServiceConnection);
-                        myServiceBound = false;
-                        stopService(myServiceIntent);
-                    }
+
                     final Intent syncServiceIntent = new Intent(getBaseContext(), SyncService.class);
                     if (syncServiceBound) {
                         unbindService(syncServiceConnection);

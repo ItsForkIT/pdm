@@ -11,8 +11,7 @@
         android:layout_height="0dp"
         android:layout_weight="1.5"
         android:background="@android:color/holo_blue_light">
-
-
+        
         <TextView
             android:id="@+id/tvService"
             android:layout_width="wrap_content"
@@ -54,6 +53,24 @@
             android:layout_marginBottom="10dp"
             android:background="@android:color/holo_blue_light"
             android:src="@drawable/notrunning"/>
+
+        <TextView
+            android:id="@+id/tvDC"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="10dp"
+            android:textStyle="bold"
+            android:layout_alignTop="@+id/tvStatus"
+            android:layout_toEndOf="@+id/switchService"
+            android:text="DC :" />
+
+        <Switch
+            android:id="@+id/switchDC"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/switchService"
+            android:layout_toEndOf="@+id/tvDC" />
 
     </RelativeLayout>
     <android.support.v7.widget.RecyclerView
