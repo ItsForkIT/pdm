@@ -20,15 +20,18 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.bonuspack.kml.KmlGroundOverlay;
 import org.osmdroid.config.Configuration;
+import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.tileprovider.tilesource.ITileSource;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.FolderOverlay;
 import org.osmdroid.views.overlay.ItemizedIconOverlay;
+import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.OverlayItem;
 import org.osmdroid.views.overlay.Polygon;
@@ -49,14 +52,12 @@ import java.util.regex.Pattern;
 public class OSMMapView extends AppCompatActivity {
     View bottomsheet;
     ListView maplv;
-    ImageView iv;
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map_view);
         bottomsheet = findViewById(R.id.rlbottomsheet);
         maplv = (ListView) findViewById(R.id.map_list_view);
-        iv = (ImageView) findViewById(R.id.imageView2);
         maplv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -176,6 +177,23 @@ public class OSMMapView extends AppCompatActivity {
             map.setBuiltInZoomControls(true);
             map.setMultiTouchControls(true);
             IMapController mapController = map.getController();
+            MapEventsReceiver mReceive = new MapEventsReceiver() {
+                @Override
+                public boolean singleTapConfirmedHelper(GeoPoint p) {
+                    Toast.makeText(getBaseContext(),p.getLatitude() + " - "+p.getLongitude(), Toast.LENGTH_LONG).show();
+
+                    return false;
+                }
+
+                @Override
+                public boolean longPressHelper(GeoPoint p) {
+                    return false;
+                }
+            };
+
+
+            MapEventsOverlay OverlayEvents = new MapEventsOverlay(getBaseContext(), mReceive);
+            map.getOverlays().add(OverlayEvents);
             mapController.setZoom(15);
             rmc = new MyMarkerCluster(ctx,maplv);
             rmc.setMaxClusteringZoomLevel(16);
@@ -195,7 +213,7 @@ public class OSMMapView extends AppCompatActivity {
 
             KmzExtend kmz = new KmzExtend();
             File f = Environment.getExternalStoragePublicDirectory("test.kmz");
-            kmz.parseKMZFileWithImage(f,iv);
+            kmz.parseKMZFile(f);
             FolderOverlay fo = (FolderOverlay)kmz.mKmlRoot.buildOverlay(map,null,null,kmz);
             map.getOverlays().add(fo);
             map.invalidate();

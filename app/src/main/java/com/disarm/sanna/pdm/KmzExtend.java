@@ -11,9 +11,11 @@ import org.osmdroid.bonuspack.kml.KmlDocument;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Enumeration;
+import java.util.concurrent.Exchanger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -22,9 +24,8 @@ import java.util.zip.ZipFile;
  */
 
 public class KmzExtend extends KmlDocument {
-    Bitmap img[];
-    int count=0;
-    public boolean parseKMZFileWithImage(File file, ImageView iv) {
+    @Override
+    public boolean parseKMZFile(File file) {
         this.mLocalFile = file;
         Log.d("BONUSPACK", "KmlProvider.parseKMZFile:" + this.mLocalFile.getAbsolutePath());
 
@@ -40,15 +41,26 @@ public class KmzExtend extends KmlDocument {
                     rootFileName = rootEntry;
                 }
                 if(rootEntry.endsWith(".JPG")){
-                    InputStream is = e.getInputStream(result);
+                    final InputStream is = e.getInputStream(result);
                     File f = new File(Environment.getExternalStoragePublicDirectory(rootEntry.toString()).toString());
-                    OutputStream os = new FileOutputStream(f);
-                    int read;
-                    while((read=is.read())!=-1){
-                        os.write(read);
-                    }
-                    os.flush();
-                    os.close();
+                    final OutputStream os = new FileOutputStream(f);
+                    Thread t = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            int read;
+                            try {
+                                while ((read = is.read()) != -1) {
+                                    os.write(read);
+                                }
+                                os.flush();
+                                os.close();
+                            }
+                            catch (Exception e){
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+                    t.start();
                     break;
                 }
             }
@@ -71,8 +83,5 @@ public class KmzExtend extends KmlDocument {
             return false;
         }
 
-    }
-    public Bitmap[] getBitmap(){
-        return this.img;
     }
 }
