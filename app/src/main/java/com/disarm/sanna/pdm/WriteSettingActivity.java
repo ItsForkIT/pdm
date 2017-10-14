@@ -44,7 +44,7 @@ public class WriteSettingActivity extends AppCompatActivity {
     private void callMainActivity(){
         //Intent iinent = new Intent(this, SurakshitActivity.class);
         //Intent intent = new Intent(this, SelectCategoryActivity.class);
-        Intent intent = new Intent(this, FrontActivity.class);
+        Intent intent = new Intent(this, UI_Map.class);
         startActivity(intent);
         finish();
     }

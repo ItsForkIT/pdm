@@ -30,7 +30,7 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile files('libs/psync-pc-jar-with-dependencies.jar')
-    compile(name:'osmbonuspack_6.4', ext:'aar')
+    compile(name: 'osmbonuspack_6.4', ext: 'aar')
     compile 'com.android.support:support-v4:23.2.1'
     compile 'org.apache.commons:commons-lang3:3.3.2'
     compile 'com.squareup.okhttp3:okhttp:3.4.1'

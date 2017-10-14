@@ -49,7 +49,6 @@ public class SyncService extends Service {
 
     public SyncService() {
         source = SelectCategoryActivity.SOURCE_PHONE_NO;
-
         logger =new Logger(databaseDirectory,source);
         discoverer = new Discoverer(BROADCAST_IP,source, PORT,logger);
         fileManager = new FileManager(source, databaseName, databaseDirectory,syncDirectory,mapDirectory,logger);
