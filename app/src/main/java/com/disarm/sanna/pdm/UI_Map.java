@@ -11,6 +11,8 @@ import android.graphics.Point;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
@@ -41,10 +43,17 @@ import com.disarm.sanna.pdm.location.LocationState;
 import com.disarm.sanna.pdm.location.MLocation;
 
 import org.osmdroid.api.IMapController;
+import org.osmdroid.bonuspack.kml.KmlDocument;
+import org.osmdroid.bonuspack.kml.KmlPlacemark;
+import org.osmdroid.bonuspack.kml.KmlPoint;
 import org.osmdroid.config.Configuration;
+import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.tileprovider.tilesource.ITileSource;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.MapEventsOverlay;
+import org.osmdroid.views.overlay.Marker;
+import org.osmdroid.views.overlay.Polygon;
 import org.osmdroid.views.overlay.ScaleBarOverlay;
 import org.osmdroid.views.overlay.compass.CompassOverlay;
 import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider;
@@ -54,12 +63,15 @@ import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class UI_Map extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    Button save,edit,cancel;
+    Button save,draw,cancel;
     MapView map;
     View bottomsheet;
     ITileSource tileSource;
@@ -74,18 +86,27 @@ public class UI_Map extends AppCompatActivity
     private boolean gpsService = false;
     LocationManager lm;
     LocationListener locationListener;
+    ArrayList<GeoPoint> polygon_points;
+    int draw_flag=1;
+    final Polygon polygon = new Polygon();
+    final ArrayList<Marker> all_markers = new ArrayList<>();
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected void onCreate(Bundle drawdInstanceState) {
+        super.onCreate(drawdInstanceState);
         setContentView(R.layout.activity_ui__map);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+
+                fab.setVisibility(View.INVISIBLE);
+                draw.setVisibility(View.VISIBLE);
+                cancel.setVisibility(View.VISIBLE);
+                save.setVisibility(View.VISIBLE);
+
             }
         });
 
@@ -106,7 +127,10 @@ public class UI_Map extends AppCompatActivity
         intialize();
         setBottomsheet();
         setMapData();
-
+        setMapClick();
+        setDrawClick();
+        setCancelClick(fab);
+        setSaveClick();
     }
 
     @Override
@@ -193,10 +217,11 @@ public class UI_Map extends AppCompatActivity
 
     private void intialize(){
         map = (MapView) findViewById(R.id.ui_map);
-        save = (Button) findViewById(R.id.btn_map_save);
-        edit = (Button) findViewById(R.id.btn_map_edit);
+        draw = (Button) findViewById(R.id.btn_map_draw);
         cancel = (Button) findViewById(R.id.btn_map_cancel);
+        save = (Button) findViewById(R.id.btn_map_save);
         bottomsheet = findViewById(R.id.map_bottomsheet);
+        polygon_points = new ArrayList<>();
     }
 
     private void setBottomsheet(){
@@ -385,7 +410,7 @@ public class UI_Map extends AppCompatActivity
     }
 
     private void crashLog(){
-        // Save crash logs in a file every time the application crashes
+        // draw crash logs in a file every time the application crashes
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             @Override
             public void uncaughtException(Thread t, Throwable e) {
@@ -407,6 +432,115 @@ public class UI_Map extends AppCompatActivity
                     System.exit(1);
                 } catch (FileNotFoundException | UnsupportedEncodingException e1) {
                     e1.printStackTrace();
+                }
+            }
+        });
+    }
+
+
+    private void setMapClick(){
+        MapEventsReceiver mReceive = new MapEventsReceiver() {
+            @Override
+            public boolean singleTapConfirmedHelper(GeoPoint p) {
+
+                if(draw.getVisibility()==View.VISIBLE){
+
+                    polygon_points.add(p);
+                    final Marker marker = new Marker(map);
+                    marker.setPosition(p);
+                    marker.setDraggable(true);
+                    final GeoPoint g = new GeoPoint(p);
+                    marker.setOnMarkerDragListener(new Marker.OnMarkerDragListener() {
+                        @Override
+                        public void onMarkerDrag(Marker new_marker) {
+                            int index = polygon_points.indexOf(g);
+                            polygon_points.set(index,new_marker.getPosition());
+                            map.getOverlays().remove(polygon);
+                            polygon.getPoints().clear();
+                            polygon.setPoints(polygon_points);
+                            map.getOverlays().add(polygon);
+                            g.setLatitude(new_marker.getPosition().getLatitude());
+                            g.setLongitude(new_marker.getPosition().getLongitude());
+                            g.setAltitude(new_marker.getPosition().getAltitude());
+                        }
+
+                        @Override
+                        public void onMarkerDragEnd(Marker new_marker) {
+                            int index = polygon_points.indexOf(g);
+                            polygon_points.set(index,new_marker.getPosition());
+                            map.getOverlays().remove(polygon);
+                            polygon.getPoints().clear();
+                            polygon.setPoints(polygon_points);
+                            map.getOverlays().add(polygon);
+                            g.setLatitude(new_marker.getPosition().getLatitude());
+                            g.setLongitude(new_marker.getPosition().getLongitude());
+                            g.setAltitude(new_marker.getPosition().getAltitude());
+                        }
+
+                        @Override
+                        public void onMarkerDragStart(Marker marker) {
+
+                        }
+                    });
+                    map.getOverlays().add(marker);
+                    all_markers.add(marker);
+                }
+                return true;
+            }
+            @Override
+            public boolean longPressHelper(GeoPoint p) {
+                return true;
+            }
+        };
+        MapEventsOverlay OverlayEvents = new MapEventsOverlay(getBaseContext(), mReceive);
+        map.getOverlays().add(OverlayEvents);
+    }
+
+    private void setDrawClick(){
+        draw.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                polygon.setPoints(polygon_points);
+                map.getOverlays().add(polygon);
+                map.invalidate();
+            }
+        });
+
+    }
+
+    private void setCancelClick(final FloatingActionButton fab){
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fab.setVisibility(View.VISIBLE);
+                draw.setVisibility(View.GONE);
+                cancel.setVisibility(View.GONE);
+                save.setVisibility(View.GONE);
+                draw_flag=1;
+                map.getOverlays().remove(polygon);
+                polygon_points.clear();
+                for(int i=0;i<all_markers.size();i++){
+                    map.getOverlays().remove(all_markers.get(i));
+                }
+            }
+        });
+    }
+
+    private void setSaveClick(){
+        save.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                KmlDocument kml = new KmlDocument();
+                if(polygon_points.size()==1){
+                    KmlPlacemark place = new KmlPlacemark(polygon_points.get(0));
+                    kml.mKmlRoot.add(place);
+                    File file = Environment.getExternalStoragePublicDirectory("Surkshit.kml");
+                    kml.saveAsKML(file);
+                }
+                else{
+                    kml.mKmlRoot.addOverlay(polygon,kml);
+                    File file = Environment.getExternalStoragePublicDirectory("Surkshit.kml");
+                    kml.saveAsKML(file);
                 }
             }
         });

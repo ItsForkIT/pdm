@@ -34,36 +34,39 @@
         app:srcCompat="@android:drawable/ic_input_add" />
 
     <Button
-        android:id="@+id/btn_map_save"
+        android:id="@+id/btn_map_draw"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|right"
-        android:text="Button"
+        android:text="DRAW"
         android:visibility="gone"
         app:layout_anchor="@+id/include2"
         style="@style/Widget.AppCompat.Button.Colored"
         app:layout_anchorGravity="top|left" />
 
-    <Button
-        android:id="@+id/btn_map_edit"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|center_horizontal"
-        android:text="Button"
-        android:visibility="gone"
-        style="@style/Widget.AppCompat.Button.Colored"
-        app:layout_anchor="@+id/include2"
-        app:layout_anchorGravity="top|center_horizontal" />
 
     <Button
         android:id="@+id/btn_map_cancel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|left"
-        android:text="Button"
+        android:text="CANCEL"
         android:visibility="gone"
         style="@style/Widget.AppCompat.Button.Colored"
         app:layout_anchor="@+id/include2"
         app:layout_anchorGravity="top|right" />
+
+
+    <Button
+        android:id="@+id/btn_map_save"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:text="SAVE"
+        android:visibility="gone"
+        app:layout_anchor="@+id/include2"
+        app:layout_anchorGravity="top|center_horizontal" />
+
 
 </android.support.design.widget.CoordinatorLayout>
