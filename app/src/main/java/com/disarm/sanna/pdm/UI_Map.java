@@ -44,6 +44,7 @@ import com.disarm.sanna.pdm.location.MLocation;
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.bonuspack.kml.KmlDocument;
+import org.osmdroid.bonuspack.kml.KmlFolder;
 import org.osmdroid.bonuspack.kml.KmlPlacemark;
 import org.osmdroid.bonuspack.kml.KmlPoint;
 import org.osmdroid.config.Configuration;
@@ -450,6 +451,13 @@ public class UI_Map extends AppCompatActivity
                     marker.setPosition(p);
                     marker.setDraggable(true);
                     final GeoPoint g = new GeoPoint(p);
+                    marker.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
+                        @Override
+                        public boolean onMarkerClick(Marker marker, MapView mapView) {
+                            marker.getInfoWindow().close();
+                            return false;
+                        }
+                    });
                     marker.setOnMarkerDragListener(new Marker.OnMarkerDragListener() {
                         @Override
                         public void onMarkerDrag(Marker new_marker) {
@@ -482,8 +490,14 @@ public class UI_Map extends AppCompatActivity
 
                         }
                     });
+                    marker.setTitle(marker.getPosition().toString());
                     map.getOverlays().add(marker);
                     all_markers.add(marker);
+                }
+                else{
+                    for(Marker m : all_markers){
+                        m.getInfoWindow().close();
+                    }
                 }
                 return true;
             }
