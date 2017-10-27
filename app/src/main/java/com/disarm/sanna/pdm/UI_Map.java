@@ -285,7 +285,7 @@ public class UI_Map extends AppCompatActivity
 
         mapController = map.getController();
         mapController.setZoom(15);
-        String[] s = {"http://127.0.0.1:8080/getTile"};
+        String[] s = {"http://127.0.0.1:8080/getTile/"};
         tileSource = new MyOSMTileSource(
                 "DISARM MAP SOURCE", MIN_ZOOM, MAX_ZOOM, PIXEL, ".png", s);
         map.setTileSource(tileSource);
