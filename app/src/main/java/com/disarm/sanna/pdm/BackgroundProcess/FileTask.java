@@ -13,6 +13,8 @@ import com.disarm.sanna.pdm.ActivityList;
 //import com.disarm.sanna.pdm.ShareActivity;
 import com.disarm.sanna.pdm.location.MLocation;
 
+import org.osmdroid.bonuspack.kml.KmlDocument;
+
 import java.io.File;
 import java.io.FilenameFilter;
 
@@ -67,7 +69,7 @@ public class FileTask extends AsyncTask  {
                 }
             });
 
-            Log.v("Found Files starting with MapDisarm_Log:", foundFiles.length + "");
+            Log.v("File with MapDisarm_Log", foundFiles.length + "");
 
             if (foundFiles != null && foundFiles.length > 0) {
                 logFile = new File(foundFiles[0].toString());
@@ -106,6 +108,8 @@ public class FileTask extends AsyncTask  {
                                     groupID+
                                     fileFormat;
             File to = new File(pathTo,acutalFileName);
+            KmlDocument kml = new KmlDocument();
+
             from.renameTo(to);
 
         }

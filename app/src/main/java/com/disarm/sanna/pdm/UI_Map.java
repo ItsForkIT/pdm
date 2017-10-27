@@ -34,8 +34,13 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.disarm.sanna.pdm.Capture.AudioCapture;
+import com.disarm.sanna.pdm.Capture.Photo;
+import com.disarm.sanna.pdm.Capture.Video;
 import com.disarm.sanna.pdm.DisarmConnect.DCService;
 import com.disarm.sanna.pdm.Service.SyncService;
 import com.disarm.sanna.pdm.Util.PrefUtils;
@@ -495,9 +500,7 @@ public class UI_Map extends AppCompatActivity
                     all_markers.add(marker);
                 }
                 else{
-                    for(Marker m : all_markers){
-                        m.getInfoWindow().close();
-                    }
+                    removeInfoWindow();
                 }
                 return true;
             }
@@ -517,6 +520,7 @@ public class UI_Map extends AppCompatActivity
                 polygon.setPoints(polygon_points);
                 map.getOverlays().add(polygon);
                 map.invalidate();
+                removeInfoWindow();
             }
         });
 
@@ -533,9 +537,11 @@ public class UI_Map extends AppCompatActivity
                 draw_flag=1;
                 map.getOverlays().remove(polygon);
                 polygon_points.clear();
+                removeInfoWindow();
                 for(int i=0;i<all_markers.size();i++){
                     map.getOverlays().remove(all_markers.get(i));
                 }
+
             }
         });
     }
@@ -544,19 +550,72 @@ public class UI_Map extends AppCompatActivity
         save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                KmlDocument kml = new KmlDocument();
-                if(polygon_points.size()==1){
-                    KmlPlacemark place = new KmlPlacemark(polygon_points.get(0));
-                    kml.mKmlRoot.add(place);
-                    File file = Environment.getExternalStoragePublicDirectory("Surkshit.kml");
-                    kml.saveAsKML(file);
+//                KmlDocument kml = new KmlDocument();
+//                if(polygon_points.size()==1){
+//                    KmlPlacemark place = new KmlPlacemark(polygon_points.get(0));
+//                    kml.mKmlRoot.add(place);
+//                    File file = Environment.getExternalStoragePublicDirectory("Surkshit.kml");
+//                    kml.saveAsKML(file);
+//                }
+//                else{
+//                    kml.mKmlRoot.addOverlay(polygon,kml);
+//                    File file = Environment.getExternalStoragePublicDirectory("Surkshit.kml");
+//                    kml.saveAsKML(file);
+//                }
+                for(Marker m : all_markers){
+                    m.getInfoWindow().close();
                 }
-                else{
-                    kml.mKmlRoot.addOverlay(polygon,kml);
-                    File file = Environment.getExternalStoragePublicDirectory("Surkshit.kml");
-                    kml.saveAsKML(file);
-                }
+
+                createDialog();
+
+
             }
         });
+    }
+
+    private void removeInfoWindow(){
+        for(Marker m : all_markers){
+            m.getInfoWindow().close();
+        }
+    }
+
+    private void createDialog(){
+        View dialog_view = getLayoutInflater().inflate(R.layout.dialog_list_type,null);
+        TextView img,vid,aud,txt;
+        dialog_view.setPadding(10,10,10,10);
+        img = (TextView) dialog_view.findViewById(R.id.dialog_tv_image);
+        vid = (TextView) dialog_view.findViewById(R.id.dialog_tv_video);
+        aud = (TextView) dialog_view.findViewById(R.id.dialog_tv_audio);
+        txt = (TextView) dialog_view.findViewById(R.id.dialog_tv_text);
+        AlertDialog.Builder dialog_builder = new AlertDialog.Builder(UI_Map.this);
+        dialog_builder.setTitle("Please select the media type which describes the situition best !!!");
+        dialog_builder.setView(dialog_view);
+        AlertDialog dialog = dialog_builder.create();
+        dialog.show();
+        img.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(UI_Map.this, Photo.class);
+                intent.putExtra("Intent type","Data");
+                startActivity(intent);
+            }
+        });
+        vid.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(UI_Map.this, Video.class);
+                intent.putExtra("Intent type","Data");
+                startActivity(intent);
+            }
+        });
+        aud.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(UI_Map.this, AudioCapture.class);
+                intent.putExtra("Intent type","Data");
+                startActivity(intent);
+            }
+        });
+
     }
 }
