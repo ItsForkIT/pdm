@@ -3,6 +3,7 @@ package com.disarm.sanna.pdm.BackgroundProcess;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Point;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Environment;
@@ -14,9 +15,15 @@ import com.disarm.sanna.pdm.ActivityList;
 import com.disarm.sanna.pdm.location.MLocation;
 
 import org.osmdroid.bonuspack.kml.KmlDocument;
+import org.osmdroid.bonuspack.kml.KmlPlacemark;
+import org.osmdroid.util.GeoPoint;
+import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.Marker;
+import org.osmdroid.views.overlay.Polygon;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.util.ArrayList;
 
 import static com.disarm.sanna.pdm.Capture.Photo.TMP_FOLDER;
 import static com.disarm.sanna.pdm.SelectCategoryActivity.SOURCE_PHONE_NO;
@@ -109,7 +116,40 @@ public class FileTask extends AsyncTask  {
                                     fileFormat;
             File to = new File(pathTo,acutalFileName);
             KmlDocument kml = new KmlDocument();
-
+            ArrayList<GeoPoint> polygon_points = (ArrayList)objects[2];
+            if(polygon_points.size()==1){
+                    GeoPoint point = polygon_points.get(0);
+                    MapView map = (MapView) objects[3];
+                    Marker m = new Marker(map);
+                    m.setPosition(point);
+                    m.setTitle("Point");
+                    KmlPlacemark place = new KmlPlacemark(m);
+                    kml.mKmlRoot.add(place);
+                    kml.mKmlRoot.setExtendedData("Media Type",fileType);
+                    kml.mKmlRoot.setExtendedData("Group Type",groupType);
+                    kml.mKmlRoot.setExtendedData("Time Stamp",timestamp);
+                    kml.mKmlRoot.setExtendedData("Sorce",source);
+                    kml.mKmlRoot.setExtendedData("Destination",dest);
+                    kml.mKmlRoot.setExtendedData("Lat Long",latlng);
+                    kml.mKmlRoot.setExtendedData("Group ID",groupID+"");
+                    kml.mKmlRoot.setExtendedData("Priority",ttl);
+                    kml.mKmlRoot.setExtendedData("KML Type","Point");
+                }
+                else{
+                    Polygon polygon = new Polygon();
+                    polygon.setPoints(polygon_points);
+                    polygon.setTitle("Polygon");
+                    kml.mKmlRoot.setExtendedData("Media Type",fileType);
+                    kml.mKmlRoot.setExtendedData("Group Type",groupType);
+                    kml.mKmlRoot.setExtendedData("Time Stamp",timestamp);
+                    kml.mKmlRoot.setExtendedData("Sorce",source);
+                    kml.mKmlRoot.setExtendedData("Destination",dest);
+                    kml.mKmlRoot.setExtendedData("Lat Long",latlng);
+                    kml.mKmlRoot.setExtendedData("Group ID",groupID+"");
+                    kml.mKmlRoot.setExtendedData("Priority",ttl);
+                    kml.mKmlRoot.setExtendedData("KML Type","Polygon");
+                    kml.mKmlRoot.addOverlay(polygon,kml);
+                }
             from.renameTo(to);
 
         }

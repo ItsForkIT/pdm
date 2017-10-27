@@ -15,6 +15,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.provider.Contacts;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
@@ -34,16 +35,19 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.disarm.sanna.pdm.BackgroundProcess.FileTask;
 import com.disarm.sanna.pdm.Capture.AudioCapture;
 import com.disarm.sanna.pdm.Capture.Photo;
 import com.disarm.sanna.pdm.Capture.Video;
 import com.disarm.sanna.pdm.DisarmConnect.DCService;
 import com.disarm.sanna.pdm.Service.SyncService;
 import com.disarm.sanna.pdm.Util.PrefUtils;
+import com.disarm.sanna.pdm.Util.Reset;
 import com.disarm.sanna.pdm.location.LocationState;
 import com.disarm.sanna.pdm.location.MLocation;
 
@@ -281,7 +285,7 @@ public class UI_Map extends AppCompatActivity
 
         mapController = map.getController();
         mapController.setZoom(15);
-        String[] s = {"http://127.0.0.1:8080/getTile/"};
+        String[] s = {"http://127.0.0.1:8080/getTile"};
         tileSource = new MyOSMTileSource(
                 "DISARM MAP SOURCE", MIN_ZOOM, MAX_ZOOM, PIXEL, ".png", s);
         map.setTileSource(tileSource);
@@ -565,10 +569,10 @@ public class UI_Map extends AppCompatActivity
                 for(Marker m : all_markers){
                     m.getInfoWindow().close();
                 }
-
-                createDialog();
-
-
+                if(MLocation.isGPS)
+                    createDialog();
+                else
+                    Toast.makeText(UI_Map.this, "GPS is not ON or GPS is not LOCKED", Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -581,17 +585,26 @@ public class UI_Map extends AppCompatActivity
 
     private void createDialog(){
         View dialog_view = getLayoutInflater().inflate(R.layout.dialog_list_type,null);
-        TextView img,vid,aud,txt;
+        final TextView img,vid,aud,txt;
+        Button submit,discard;
+        final EditText importance,destination;
         dialog_view.setPadding(10,10,10,10);
+
         img = (TextView) dialog_view.findViewById(R.id.dialog_tv_image);
         vid = (TextView) dialog_view.findViewById(R.id.dialog_tv_video);
         aud = (TextView) dialog_view.findViewById(R.id.dialog_tv_audio);
         txt = (TextView) dialog_view.findViewById(R.id.dialog_tv_text);
+        submit = (Button) dialog_view.findViewById(R.id.dialog_save);
+        discard = (Button) dialog_view.findViewById(R.id.dialog_discard);
+        importance = (EditText) dialog_view.findViewById(R.id.dialog_importance);
+        destination = (EditText) dialog_view.findViewById(R.id.dialog_destination);
+
         AlertDialog.Builder dialog_builder = new AlertDialog.Builder(UI_Map.this);
         dialog_builder.setTitle("Please select the media type which describes the situition best !!!");
         dialog_builder.setView(dialog_view);
-        AlertDialog dialog = dialog_builder.create();
+        final AlertDialog dialog = dialog_builder.create();
         dialog.show();
+
         img.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -600,6 +613,7 @@ public class UI_Map extends AppCompatActivity
                 startActivity(intent);
             }
         });
+
         vid.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -608,12 +622,63 @@ public class UI_Map extends AppCompatActivity
                 startActivity(intent);
             }
         });
+
         aud.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(UI_Map.this, AudioCapture.class);
                 intent.putExtra("Intent type","Data");
                 startActivity(intent);
+            }
+        });
+
+        submit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String dest = destination.getText().toString().trim();
+                String imp = importance.getText().toString().trim();
+
+                if(dest.isEmpty() || dest.length() == 0 || dest.equals("") || dest == null) {
+                    dest = "defaultMcs";
+                }
+
+                if(imp.isEmpty() || img.length() ==0 || imp.equals("") || imp == null){
+                    imp = "50";
+                }
+
+                new FileTask().execute(imp,dest,polygon_points,map);
+                dialog.dismiss();
+            }
+        });
+
+        discard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(UI_Map.this);
+                alertDialogBuilder
+                        .setMessage(R.string.files_discard_msg)
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.discard_files,
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog,
+                                                        int id) {
+                                        File dir = new File(Environment.getExternalStorageDirectory() + "/DMS/tmp");
+                                        if (Reset.deleteContents(dir)) {
+                                            Toast.makeText(UI_Map.this, R.string.files_discarded, Toast.LENGTH_SHORT).show();
+                                        }
+                                        dialog.dismiss();
+                                    }
+                                });
+                alertDialogBuilder.setNegativeButton(R.string.cancel,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        });
+                AlertDialog alert = alertDialogBuilder.create();
+                alert.show();
+
             }
         });
 
