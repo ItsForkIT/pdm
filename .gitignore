@@ -6,7 +6,7 @@
 .DS_Store
 /build
 /captures
-
+/android_gisapp
 
 #built application files
 *.apk
