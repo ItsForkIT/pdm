@@ -29,7 +29,6 @@
             android:background="@null"
             android:id="@+id/phoneText"
             android:hint="@string/phoneNo"
-            android:inputType="number"
             android:padding="5dp"
             android:singleLine="true"/>
         <Spinner
