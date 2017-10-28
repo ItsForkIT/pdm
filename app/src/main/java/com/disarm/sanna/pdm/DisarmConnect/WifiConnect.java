@@ -47,7 +47,6 @@ public class WifiConnect implements Runnable {
         if(ssidName.contains("DisarmHotspotDB")) {
             Log.v(DCService.TAG2,"Already Connected DB ");
             Logger.addRecordToLog("Already DB Connected");
-
         }
         else if(ssidName.contains("DH-")) {
             Log.v(DCService.TAG2,"Already Connected");

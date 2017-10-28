@@ -126,7 +126,8 @@ public class OSMMapView extends AppCompatActivity {
             mapController.setCenter(startPoint);
             String[] s = {"http://127.0.0.1:8080/getTile/"};
             tileSource = new MyOSMTileSource(
-                    "DISARM MAP SOURCE", 13, 16, 256, ".png", s);
+                    "DISARM MAP SOURCE", 14, 16, 256, ".png", s);
+            map.setTileSource(tileSource);
             mCompassOverlay = new CompassOverlay(ctx, new InternalCompassOrientationProvider(ctx), map);
             mCompassOverlay.enableCompass();
             map.getOverlays().add(mCompassOverlay);
@@ -143,7 +144,6 @@ public class OSMMapView extends AppCompatActivity {
             map.getOverlays().add(markerFromAllLogs);
             ItemizedIconOverlay<OverlayItem> markerFromGIS = new ItemizedIconOverlay<OverlayItem>(localOverlayItemArray,getResources().getDrawable(R.drawable.marker_default),null,getBaseContext());
             map.getOverlays().add(markerFromGIS);
-            map.setTileSource(tileSource);
 
         }
 

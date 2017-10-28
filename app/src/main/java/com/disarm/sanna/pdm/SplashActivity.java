@@ -27,6 +27,8 @@ import android.widget.Toast;
 
 import com.disarm.sanna.pdm.Util.CopyAssets;
 import com.disarm.sanna.pdm.Util.PrefUtils;
+import com.disarm.sanna.pdm.Util.UnZip;
+import com.snatik.storage.Storage;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -208,12 +210,19 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
 
             CopyAssets copy = new CopyAssets(this);
             copy.copyFileOrDir("");
-
+            extractZip();
             // mark first time has runned.
             SharedPreferences.Editor editor = prefs.edit();
             editor.putBoolean("firstTime", true);
             editor.commit();
         }
+    }
+
+    public void extractZip(){
+        String root = Environment.getExternalStorageDirectory().toString();
+        String path = root+"/DMS/Map/tiles/";
+        UnZip unzip = new UnZip(path,path+"/tiles.zip");
+
     }
 
     public void setLocale(String lang) {
