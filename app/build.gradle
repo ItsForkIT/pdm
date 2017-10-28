@@ -24,7 +24,6 @@ android {
             }
         }
     }
-
 }
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
@@ -40,5 +39,6 @@ dependencies {
     compile 'us.belka:androidtoggleswitch:1.2.1'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'org.osmdroid:osmdroid-android:5.6.2'
+    compile 'com.snatik:storage:2.1.0'
     testCompile 'junit:junit:4.12'
 }

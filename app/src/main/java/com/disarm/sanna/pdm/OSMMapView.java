@@ -23,7 +23,6 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import org.osmdroid.api.IMapController;
-import org.osmdroid.bonuspack.kml.KmlGroundOverlay;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.tileprovider.tilesource.ITileSource;
@@ -130,7 +129,6 @@ public class OSMMapView extends AppCompatActivity {
                         GeoPoint g = new GeoPoint(Double.parseDouble(array[0]),Double.parseDouble(array[1]));
                         Marker m = new Marker(map);
                         m.setPosition(g);
-                        rmc.add(m);
                     }
                 }
                 is.close();
@@ -195,14 +193,13 @@ public class OSMMapView extends AppCompatActivity {
             MapEventsOverlay OverlayEvents = new MapEventsOverlay(getBaseContext(), mReceive);
             map.getOverlays().add(OverlayEvents);
             mapController.setZoom(15);
-            rmc = new MyMarkerCluster(ctx,maplv);
-            rmc.setMaxClusteringZoomLevel(16);
-            rmc.fileAddress = new HashMap<Marker, String>();
+
             startPoint = new GeoPoint(12.092741012573242,47.72502517700195);
             mapController.setCenter(startPoint);
             String[] s = {"http://127.0.0.1:8080/getTile/"};
             tileSource = new MyOSMTileSource(
-                    "DISARM MAP SOURCE", 13, 16, 256, ".png", s);
+                    "DISARM MAP SOURCE", 14, 16, 256, ".png", s);
+            map.setTileSource(tileSource);
             mCompassOverlay = new CompassOverlay(ctx, new InternalCompassOrientationProvider(ctx), map);
             mCompassOverlay.enableCompass();
             map.getOverlays().add(mCompassOverlay);
@@ -211,19 +208,12 @@ public class OSMMapView extends AppCompatActivity {
             mScaleBarOverlay.setScaleBarOffset(width/2, 10);
             map.getOverlays().add(mScaleBarOverlay);
 
-            KmzExtend kmz = new KmzExtend();
-            File f = Environment.getExternalStoragePublicDirectory("test.kmz");
-            kmz.parseKMZFile(f);
-            FolderOverlay fo = (FolderOverlay)kmz.mKmlRoot.buildOverlay(map,null,null,kmz);
-            map.getOverlays().add(fo);
-            map.invalidate();
         }
 
         @Override
         protected void onPostExecute(Object o) {
             super.onPostExecute(o);
-            map.getOverlays().add(rmc);
-            map.setTileSource(tileSource);
+
         }
 
         public Polygon pointsAsCircle(GeoPoint center, double radiusInMeters){
