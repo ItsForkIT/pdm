@@ -50,12 +50,7 @@ import com.disarm.sanna.pdm.Util.PrefUtils;
 import com.disarm.sanna.pdm.Util.Reset;
 import com.disarm.sanna.pdm.location.LocationState;
 import com.disarm.sanna.pdm.location.MLocation;
-
 import org.osmdroid.api.IMapController;
-import org.osmdroid.bonuspack.kml.KmlDocument;
-import org.osmdroid.bonuspack.kml.KmlFolder;
-import org.osmdroid.bonuspack.kml.KmlPlacemark;
-import org.osmdroid.bonuspack.kml.KmlPoint;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.tileprovider.tilesource.ITileSource;
@@ -289,7 +284,7 @@ public class UI_Map extends AppCompatActivity
         tileSource = new MyOSMTileSource(
                 "DISARM MAP SOURCE", MIN_ZOOM, MAX_ZOOM, PIXEL, ".png", s);
         map.setTileSource(tileSource);
-        GeoPoint startPoint = new GeoPoint(12.092741012573242,47.72502517700195);
+        GeoPoint startPoint = new GeoPoint(23.548512,87.2894873);
         mapController.setCenter(startPoint);
         mCompassOverlay = new CompassOverlay(ctx, new InternalCompassOrientationProvider(ctx), map);
         mCompassOverlay.enableCompass();
