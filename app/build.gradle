@@ -20,6 +20,7 @@ android {
             applicationVariants.all { variant ->
                 variant.outputs.all {
                     outputFileName = "Surakshit_Mod_Bishak.apk"
+
                 }
             }
         }

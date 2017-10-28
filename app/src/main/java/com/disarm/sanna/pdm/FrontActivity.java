@@ -71,6 +71,7 @@ public class FrontActivity extends AppCompatActivity {
     LocationManager lm;
     LocationListener locationListener;
     int psync_type;
+    boolean psync_epidemic_flag;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -429,10 +430,28 @@ public class FrontActivity extends AppCompatActivity {
                             else{
                                 psync_type=2;
                             }
-                            final Intent syncServiceIntent = new Intent(getBaseContext(), SyncService.class);
-                            syncServiceIntent.putExtra("PSync",psync_type+"");
-                            bindService(syncServiceIntent, syncServiceConnection, Context.BIND_AUTO_CREATE);
-                            startService(syncServiceIntent);
+                            final DialogInterface.OnClickListener dialog2Click = new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    if(i == -1){
+                                        psync_epidemic_flag = false;
+                                    }
+                                    else {
+                                        psync_epidemic_flag = true;
+                                    }
+                                    final Intent syncServiceIntent = new Intent(getBaseContext(), SyncService.class);
+                                    syncServiceIntent.putExtra("PSync",psync_type+"");
+                                    syncServiceIntent.putExtra("PSyncEpidemicFlag", psync_epidemic_flag);
+                                    bindService(syncServiceIntent, syncServiceConnection, Context.BIND_AUTO_CREATE);
+                                    startService(syncServiceIntent);
+                                }
+                            };
+                            AlertDialog.Builder sd2 = new AlertDialog.Builder(FrontActivity.this);
+                            sd2.setTitle("Mode of Sync Service");
+                            sd2.setMessage("Which type of service do you want to run?");
+                            sd2.setPositiveButton("Epidemic", dialog2Click);
+                            sd2.setNegativeButton("Restricted Epidemic", dialog2Click);
+                            sd2.show();
                         }
                     };
                     AlertDialog.Builder sd = new AlertDialog.Builder(FrontActivity.this);

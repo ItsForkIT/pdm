@@ -157,6 +157,7 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
         if (view.getId() == R.id.submitButton){
             final String phoneTextVal = phoneText1.getText().toString();
 
+
                 PrefUtils.saveToPrefs(this, this.PHONE_NO, phoneTextVal);
                 callWriteSettingActivity();
 
