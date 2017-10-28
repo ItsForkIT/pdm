@@ -67,11 +67,13 @@ public class SyncService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId){
         int psync_type = Integer.parseInt(intent.getStringExtra("PSync"));
-        controller = new Controller(discoverer, fileManager, fileTransporter, syncInterval, maxRunningDownloads, logger, psync_type);
+        boolean psync_restricted_epidemic_flag = intent.getBooleanExtra("PSyncEpidemicFlag", true);
+        controller = new Controller(discoverer, fileManager, fileTransporter, syncInterval, maxRunningDownloads, logger, psync_type, psync_restricted_epidemic_flag);
         webServer = new WebServer(8080, controller,logger);
         discoverer.startDiscoverer();
         fileManager.startFileManager();
         controller.startController();
+        Log.d("PSync: ", "Started parameters: " + psync_type + ", " + psync_restricted_epidemic_flag);
         try {
             webServer.start();
         } catch(IOException ioe) {
