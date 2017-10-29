@@ -92,7 +92,7 @@ public class Video extends AppCompatActivity {
         String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
         group = type;
         groupID = "1";
-        return new File("VID_" + group + "_" + timeStamp + "_" + ".3gp");
+        return new File("VID_" + group + "_" + timeStamp + "_" + ".mp4");
     }
 
 }
