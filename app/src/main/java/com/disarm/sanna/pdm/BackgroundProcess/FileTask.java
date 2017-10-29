@@ -115,6 +115,8 @@ public class FileTask extends AsyncTask  {
                                     groupID+
                                     fileFormat;
             File to = new File(pathTo,acutalFileName);
+            File toTemp = new File(pathFrom,"data"+fileFormat);
+            from.renameTo(toTemp);
             KmlDocument kml = new KmlDocument();
             ArrayList<GeoPoint> polygon_points = (ArrayList)objects[2];
             if(polygon_points.size()==1){
@@ -150,7 +152,9 @@ public class FileTask extends AsyncTask  {
                     kml.mKmlRoot.setExtendedData("KML Type","Polygon");
                     kml.mKmlRoot.addOverlay(polygon,kml);
                 }
-            from.renameTo(to);
+            File kmlFile = new File(pathFrom,"index.kml");
+            kml.saveAsKML(kmlFile);
+            //from.renameTo(to);
 
         }
         return null;

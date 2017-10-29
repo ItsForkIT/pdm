@@ -277,7 +277,6 @@ public class UI_Map extends AppCompatActivity
 
         map.setBuiltInZoomControls(true);
         map.setMultiTouchControls(true);
-
         mapController = map.getController();
         mapController.setZoom(15);
         String[] s = {"http://127.0.0.1:8080/getTile/"};
@@ -536,6 +535,7 @@ public class UI_Map extends AppCompatActivity
                 draw_flag=1;
                 map.getOverlays().remove(polygon);
                 polygon_points.clear();
+                map.invalidate();
                 removeInfoWindow();
                 for(int i=0;i<all_markers.size();i++){
                     map.getOverlays().remove(all_markers.get(i));
@@ -549,18 +549,7 @@ public class UI_Map extends AppCompatActivity
         save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                KmlDocument kml = new KmlDocument();
-//                if(polygon_points.size()==1){
-//                    KmlPlacemark place = new KmlPlacemark(polygon_points.get(0));
-//                    kml.mKmlRoot.add(place);
-//                    File file = Environment.getExternalStoragePublicDirectory("Surkshit.kml");
-//                    kml.saveAsKML(file);
-//                }
-//                else{
-//                    kml.mKmlRoot.addOverlay(polygon,kml);
-//                    File file = Environment.getExternalStoragePublicDirectory("Surkshit.kml");
-//                    kml.saveAsKML(file);
-//                }
+
                 for(Marker m : all_markers){
                     m.getInfoWindow().close();
                 }
