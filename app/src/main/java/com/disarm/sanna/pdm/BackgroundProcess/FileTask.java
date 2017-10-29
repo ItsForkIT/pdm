@@ -12,7 +12,10 @@ import android.util.Log;
 
 import com.disarm.sanna.pdm.ActivityList;
 //import com.disarm.sanna.pdm.ShareActivity;
+import com.disarm.sanna.pdm.UI_Map;
+import com.disarm.sanna.pdm.Util.KmzCreator;
 import com.disarm.sanna.pdm.location.MLocation;
+import com.snatik.storage.Storage;
 
 import org.osmdroid.bonuspack.kml.KmlDocument;
 import org.osmdroid.bonuspack.kml.KmlPlacemark;
@@ -36,7 +39,7 @@ public class FileTask extends AsyncTask  {
     String fileType,groupType,timestamp,ttl,dest,source,fileFormat;
     String[] fileName;
     public static final String GROUPID = "Group No";
-    Context applicationContext = ActivityList.getContextOfApplication();
+    Context applicationContext = UI_Map.getContextOfApplication();
     SharedPreferences prefs;
     SharedPreferences.Editor editor;
     int idNumber,groupID;
@@ -114,9 +117,17 @@ public class FileTask extends AsyncTask  {
                                     timestamp+"_"+
                                     groupID+
                                     fileFormat;
+            String actualKmzName = fileType+"_"+
+                    ttl+"_"+
+                    groupType+"_"+
+                    source+"_"+
+                    dest+"_"+
+                    latlng+"_"+
+                    timestamp+"_"+
+                    groupID;
             File to = new File(pathTo,acutalFileName);
             File toTemp = new File(pathFrom,"data"+fileFormat);
-            from.renameTo(toTemp);
+            //from.renameTo(toTemp);
             KmlDocument kml = new KmlDocument();
             ArrayList<GeoPoint> polygon_points = (ArrayList)objects[2];
             if(polygon_points.size()==1){
@@ -130,7 +141,7 @@ public class FileTask extends AsyncTask  {
                     kml.mKmlRoot.setExtendedData("Media Type",fileType);
                     kml.mKmlRoot.setExtendedData("Group Type",groupType);
                     kml.mKmlRoot.setExtendedData("Time Stamp",timestamp);
-                    kml.mKmlRoot.setExtendedData("Sorce",source);
+                    kml.mKmlRoot.setExtendedData("Source",source);
                     kml.mKmlRoot.setExtendedData("Destination",dest);
                     kml.mKmlRoot.setExtendedData("Lat Long",latlng);
                     kml.mKmlRoot.setExtendedData("Group ID",groupID+"");
@@ -139,12 +150,14 @@ public class FileTask extends AsyncTask  {
                 }
                 else{
                     Polygon polygon = new Polygon();
+                    polygon_points.add(polygon_points.get(0));
                     polygon.setPoints(polygon_points);
                     polygon.setTitle("Polygon");
+                    polygon.setSnippet("<img source='"+acutalFileName+"'>");
                     kml.mKmlRoot.setExtendedData("Media Type",fileType);
                     kml.mKmlRoot.setExtendedData("Group Type",groupType);
                     kml.mKmlRoot.setExtendedData("Time Stamp",timestamp);
-                    kml.mKmlRoot.setExtendedData("Sorce",source);
+                    kml.mKmlRoot.setExtendedData("Source",source);
                     kml.mKmlRoot.setExtendedData("Destination",dest);
                     kml.mKmlRoot.setExtendedData("Lat Long",latlng);
                     kml.mKmlRoot.setExtendedData("Group ID",groupID+"");
@@ -152,10 +165,19 @@ public class FileTask extends AsyncTask  {
                     kml.mKmlRoot.setExtendedData("KML Type","Polygon");
                     kml.mKmlRoot.addOverlay(polygon,kml);
                 }
-            File kmlFile = new File(pathFrom,"index.kml");
+            File kmlFile = new File(pathTo,"index.kml");
             kml.saveAsKML(kmlFile);
-            //from.renameTo(to);
-
+            from.renameTo(to);
+            Storage storage = new Storage(applicationContext);
+            File tempKmzFolder = Environment.getExternalStoragePublicDirectory("DMS/tmpKMZ");
+            if(!tempKmzFolder.exists()){
+                tempKmzFolder.mkdir();
+            }
+            storage.move(to.getPath(),tempKmzFolder.getPath()+"/"+to.getName());
+            storage.move(kmlFile.getPath(),tempKmzFolder.getPath()+"/"+kmlFile.getName());
+            KmzCreator kmz = new KmzCreator();
+            kmz.zipIt(Environment.getExternalStoragePublicDirectory("DMS/Working/"+actualKmzName+".kmz").toString());
+            storage.deleteDirectory(tempKmzFolder.toString());
         }
         return null;
     }

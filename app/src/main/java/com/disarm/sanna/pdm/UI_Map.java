@@ -75,7 +75,7 @@ import java.util.TimerTask;
 
 public class UI_Map extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-
+    public static Context contextOfApplication;
     Button save,draw,cancel;
     MapView map;
     View bottomsheet;
@@ -100,6 +100,7 @@ public class UI_Map extends AppCompatActivity
     protected void onCreate(Bundle drawdInstanceState) {
         super.onCreate(drawdInstanceState);
         setContentView(R.layout.activity_ui__map);
+        contextOfApplication = getApplicationContext();
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -553,10 +554,11 @@ public class UI_Map extends AppCompatActivity
                 for(Marker m : all_markers){
                     m.getInfoWindow().close();
                 }
-                if(MLocation.isGPS)
-                    createDialog();
-                else
-                    Toast.makeText(UI_Map.this, "GPS is not ON or GPS is not LOCKED", Toast.LENGTH_LONG).show();
+//                if(MLocation.isGPS)
+//                    createDialog();
+//                else
+//                    Toast.makeText(UI_Map.this, "GPS is not ON or GPS is not LOCKED", Toast.LENGTH_LONG).show();
+                createDialog();
             }
         });
     }
@@ -666,5 +668,8 @@ public class UI_Map extends AppCompatActivity
             }
         });
 
+    }
+    public static Context getContextOfApplication(){
+        return contextOfApplication;
     }
 }
