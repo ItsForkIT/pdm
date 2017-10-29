@@ -135,15 +135,26 @@ public class FileTask extends AsyncTask  {
                     Marker m = new Marker(map);
                     m.setPosition(point);
                     m.setTitle("Point");
-                    if(fileFormat ==".jpg"){
+                    if(fileFormat.equals(".jpg")){
                         m.setSnippet("<img source='"+acutalFileName+"'>");
+                        Log.d("Snippet","Image snippet");
                     }
-                    else if(fileFormat == ".3gp"){
+                    else if(fileFormat.equals(".mp4")){
                         m.setSnippet("<video width=\"320\" height=\"240\" controls/>\n" +
-                                "<source src=\"movie.mp4\" type=\"video/mp4\">\n" +
-                                "<source src=\"movie.ogg\" type=\"video/ogg\">\n" +
+                                "<source src=\""+acutalFileName+"\" type=\"video/mp4\">\n" +
+                                "<source src=\""+actualKmzName+".ogg\" type=\"video/ogg\">\n" +
                                 "Your browser does not support the video tag.\n" +
                                 "</video>");
+                        Log.d("Snippet","Video snippet");
+                    }
+                    else if(fileFormat.equals(".mp3")){
+                        m.setSnippet("<audio controls>\n" +
+                                "  <source src=\""+acutalFileName+"\" type=\"audio/mpeg\">\n" +
+                                "  <source src=\""+actualKmzName+".ogg\" type=\"audio/ogg\">\n" +
+                                "Your browser does not support the audio element.\n" +
+                                "</audio>");
+
+                        Log.d("Snippet","Audio snippet");
                     }
                     KmlPlacemark place = new KmlPlacemark(m);
                     kml.mKmlRoot.add(place);
@@ -162,7 +173,26 @@ public class FileTask extends AsyncTask  {
                     polygon_points.add(polygon_points.get(0));
                     polygon.setPoints(polygon_points);
                     polygon.setTitle("Polygon");
-                    polygon.setSnippet("<img source='"+acutalFileName+"'>");
+                    if(fileFormat.equals(".jpg")){
+                        polygon.setSnippet("<img source='"+acutalFileName+"'>");
+                        Log.d("Snippet","Image snippet");
+                    }
+                    else if(fileFormat.equals(".mp4")){
+                        polygon.setSnippet("<video width=\"320\" height=\"240\" controls/>\n" +
+                                "<source src=\""+acutalFileName+"\" type=\"video/mp4\">\n" +
+                                "<source src=\""+actualKmzName+".ogg\" type=\"video/ogg\">\n" +
+                                "Your browser does not support the video tag.\n" +
+                                "</video>");
+                        Log.d("Snippet","Video snippet");
+                    }
+                    else if(fileFormat.equals(".mp3")){
+                        polygon.setSnippet("<audio controls>\n" +
+                                "  <source src=\""+acutalFileName+"\" type=\"audio/mpeg\">\n" +
+                                "  <source src=\""+actualKmzName+".ogg\" type=\"audio/ogg\">\n" +
+                                "Your browser does not support the audio element.\n" +
+                                "</audio>");
+                        Log.d("Snippet","Audio snippet");
+                    }
                     kml.mKmlRoot.setExtendedData("Media Type",fileType);
                     kml.mKmlRoot.setExtendedData("Group Type",groupType);
                     kml.mKmlRoot.setExtendedData("Time Stamp",timestamp);

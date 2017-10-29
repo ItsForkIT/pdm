@@ -554,11 +554,8 @@ public class UI_Map extends AppCompatActivity
                 for(Marker m : all_markers){
                     m.getInfoWindow().close();
                 }
-//                if(MLocation.isGPS)
-//                    createDialog();
-//                else
-//                    Toast.makeText(UI_Map.this, "GPS is not ON or GPS is not LOCKED", Toast.LENGTH_LONG).show();
                 createDialog();
+                map.getOverlays().remove(polygon);
             }
         });
     }
