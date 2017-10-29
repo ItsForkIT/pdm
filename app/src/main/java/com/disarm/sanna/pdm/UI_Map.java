@@ -51,11 +51,13 @@ import com.disarm.sanna.pdm.Util.Reset;
 import com.disarm.sanna.pdm.location.LocationState;
 import com.disarm.sanna.pdm.location.MLocation;
 import org.osmdroid.api.IMapController;
+import org.osmdroid.bonuspack.kml.KmlDocument;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.tileprovider.tilesource.ITileSource;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.FolderOverlay;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Polygon;
@@ -293,7 +295,7 @@ public class UI_Map extends AppCompatActivity
         mScaleBarOverlay.setCentred(true);
         mScaleBarOverlay.setScaleBarOffset(width/2, 10);
         map.getOverlays().add(mScaleBarOverlay);
-
+        setWorkingData();
     }
 
     private void startService(){
@@ -665,6 +667,20 @@ public class UI_Map extends AppCompatActivity
             }
         });
 
+    }
+
+    private void setWorkingData(){
+        File working = Environment.getExternalStoragePublicDirectory("DMS/Working");
+        File[] files = working.listFiles();
+        for(File file : files){
+            if(file.getName().contains("MapDisarm")){
+                continue;
+            }
+            KmlDocument kml = new KmlDocument();
+            kml.parseKMZFile(file);
+            FolderOverlay kmlOverlay = (FolderOverlay)kml.mKmlRoot.buildOverlay(map, null, null, kml);
+            map.getOverlays().add(kmlOverlay);
+        }
     }
     public static Context getContextOfApplication(){
         return contextOfApplication;
