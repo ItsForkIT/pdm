@@ -126,8 +126,7 @@ public class FileTask extends AsyncTask  {
                     timestamp+"_"+
                     groupID;
             File to = new File(pathTo,acutalFileName);
-            File toTemp = new File(pathFrom,"data"+fileFormat);
-            //from.renameTo(toTemp);
+            Log.d("File type","File format :"+fileFormat);
             KmlDocument kml = new KmlDocument();
             ArrayList<GeoPoint> polygon_points = (ArrayList)objects[2];
             if(polygon_points.size()==1){
@@ -136,6 +135,16 @@ public class FileTask extends AsyncTask  {
                     Marker m = new Marker(map);
                     m.setPosition(point);
                     m.setTitle("Point");
+                    if(fileFormat ==".jpg"){
+                        m.setSnippet("<img source='"+acutalFileName+"'>");
+                    }
+                    else if(fileFormat == ".3gp"){
+                        m.setSnippet("<video width=\"320\" height=\"240\" controls/>\n" +
+                                "<source src=\"movie.mp4\" type=\"video/mp4\">\n" +
+                                "<source src=\"movie.ogg\" type=\"video/ogg\">\n" +
+                                "Your browser does not support the video tag.\n" +
+                                "</video>");
+                    }
                     KmlPlacemark place = new KmlPlacemark(m);
                     kml.mKmlRoot.add(place);
                     kml.mKmlRoot.setExtendedData("Media Type",fileType);
