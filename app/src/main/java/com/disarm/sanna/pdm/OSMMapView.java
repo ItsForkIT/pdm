@@ -172,6 +172,10 @@ public class OSMMapView extends AppCompatActivity {
             Context ctx = getApplicationContext();
             Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx));
             map = (MapView) findViewById(R.id.map);
+            String[] s = {"http://127.0.0.1:8080/getTile/"};
+            tileSource = new MyOSMTileSource(
+                    "Mapnik", 13, 19, 256, ".png", s);
+            map.setTileSource(tileSource);
             map.setBuiltInZoomControls(true);
             map.setMultiTouchControls(true);
             IMapController mapController = map.getController();
@@ -194,12 +198,9 @@ public class OSMMapView extends AppCompatActivity {
             map.getOverlays().add(OverlayEvents);
             mapController.setZoom(15);
 
-            startPoint = new GeoPoint(12.092741012573242,47.72502517700195);
+            startPoint = new GeoPoint(23.5497305,87.2886851 );
             mapController.setCenter(startPoint);
-            String[] s = {"http://127.0.0.1:8080/getTile/"};
-            tileSource = new MyOSMTileSource(
-                    "DISARM MAP SOURCE", 14, 16, 256, ".png", s);
-            map.setTileSource(tileSource);
+
             mCompassOverlay = new CompassOverlay(ctx, new InternalCompassOrientationProvider(ctx), map);
             mCompassOverlay.enableCompass();
             map.getOverlays().add(mCompassOverlay);

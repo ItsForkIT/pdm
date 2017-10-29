@@ -83,7 +83,7 @@ public class UI_Map extends AppCompatActivity
     CompassOverlay mCompassOverlay;
     ScaleBarOverlay mScaleBarOverlay;
     IMapController mapController;
-    final int MIN_ZOOM=13,MAX_ZOOM=20,PIXEL=256;
+    final int MIN_ZOOM=13,MAX_ZOOM=19,PIXEL=256;
     SyncService syncService;
     public DCService myService;
     private boolean syncServiceBound = false;
@@ -222,6 +222,10 @@ public class UI_Map extends AppCompatActivity
 
     private void intialize(){
         map = (MapView) findViewById(R.id.ui_map);
+        String[] s = {"http://127.0.0.1:8080/getTile/"};
+        tileSource = new MyOSMTileSource(
+                "Mapnik", MIN_ZOOM, MAX_ZOOM, PIXEL, ".png", s);
+        map.setTileSource(tileSource);
         draw = (Button) findViewById(R.id.btn_map_draw);
         cancel = (Button) findViewById(R.id.btn_map_cancel);
         save = (Button) findViewById(R.id.btn_map_save);
@@ -274,15 +278,11 @@ public class UI_Map extends AppCompatActivity
         int width = size.x;
         Context ctx = getApplicationContext();
         Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx));
-
         map.setBuiltInZoomControls(true);
         map.setMultiTouchControls(true);
         mapController = map.getController();
         mapController.setZoom(15);
-        String[] s = {"http://127.0.0.1:8080/getTile/"};
-        tileSource = new MyOSMTileSource(
-                "DISARM MAP SOURCE", MIN_ZOOM, MAX_ZOOM, PIXEL, ".png", s);
-        map.setTileSource(tileSource);
+
         GeoPoint startPoint = new GeoPoint(23.548512,87.2894873);
         mapController.setCenter(startPoint);
         mCompassOverlay = new CompassOverlay(ctx, new InternalCompassOrientationProvider(ctx), map);
