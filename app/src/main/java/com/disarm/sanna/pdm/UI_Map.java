@@ -97,6 +97,7 @@ public class UI_Map extends AppCompatActivity
     int draw_flag=1;
     final Polygon polygon = new Polygon();
     final ArrayList<Marker> all_markers = new ArrayList<>();
+    final ArrayList<FolderOverlay> all_kmz_overlay = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle drawdInstanceState) {
@@ -114,7 +115,6 @@ public class UI_Map extends AppCompatActivity
                 draw.setVisibility(View.VISIBLE);
                 cancel.setVisibility(View.VISIBLE);
                 save.setVisibility(View.VISIBLE);
-
             }
         });
 
@@ -138,7 +138,7 @@ public class UI_Map extends AppCompatActivity
         setMapClick();
         setDrawClick();
         setCancelClick(fab);
-        setSaveClick();
+        setSaveClick(fab);
     }
 
     @Override
@@ -538,17 +538,17 @@ public class UI_Map extends AppCompatActivity
                 draw_flag=1;
                 map.getOverlays().remove(polygon);
                 polygon_points.clear();
-                map.invalidate();
                 removeInfoWindow();
                 for(int i=0;i<all_markers.size();i++){
                     map.getOverlays().remove(all_markers.get(i));
                 }
+                map.invalidate();
 
             }
         });
     }
 
-    private void setSaveClick(){
+    private void setSaveClick(final FloatingActionButton fab){
         save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -558,6 +558,14 @@ public class UI_Map extends AppCompatActivity
                 }
                 createDialog();
                 map.getOverlays().remove(polygon);
+                for(int i=0;i<all_markers.size();i++){
+                    map.getOverlays().remove(all_markers.get(i));
+                }
+                map.invalidate();
+                draw.setVisibility(View.GONE);
+                cancel.setVisibility(View.GONE);
+                save.setVisibility(View.GONE);
+                fab.setVisibility(View.GONE);
             }
         });
     }
@@ -680,6 +688,7 @@ public class UI_Map extends AppCompatActivity
             kml.parseKMZFile(file);
             FolderOverlay kmlOverlay = (FolderOverlay)kml.mKmlRoot.buildOverlay(map, null, null, kml);
             map.getOverlays().add(kmlOverlay);
+            all_kmz_overlay.add(kmlOverlay);
         }
     }
     public static Context getContextOfApplication(){
