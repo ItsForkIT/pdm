@@ -543,7 +543,6 @@ public class UI_Map extends AppCompatActivity
                     map.getOverlays().remove(all_markers.get(i));
                 }
                 map.invalidate();
-
             }
         });
     }
