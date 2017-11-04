@@ -25,6 +25,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.Display;
+import android.view.MotionEvent;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -72,6 +73,7 @@ import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -79,7 +81,7 @@ public class UI_Map extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     public static Context contextOfApplication;
     Button save,draw,cancel;
-    MapView map;
+    static MapView map;
     View bottomsheet;
     ITileSource tileSource;
     CompassOverlay mCompassOverlay;
@@ -97,7 +99,7 @@ public class UI_Map extends AppCompatActivity
     int draw_flag=1;
     final Polygon polygon = new Polygon();
     final ArrayList<Marker> all_markers = new ArrayList<>();
-    final ArrayList<FolderOverlay> all_kmz_overlay = new ArrayList<>();
+    final static HashMap<String,Boolean> all_kmz_overlay_map = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle drawdInstanceState) {
@@ -115,6 +117,7 @@ public class UI_Map extends AppCompatActivity
                 draw.setVisibility(View.VISIBLE);
                 cancel.setVisibility(View.VISIBLE);
                 save.setVisibility(View.VISIBLE);
+                polygon_points.clear();
             }
         });
 
@@ -564,7 +567,7 @@ public class UI_Map extends AppCompatActivity
                 draw.setVisibility(View.GONE);
                 cancel.setVisibility(View.GONE);
                 save.setVisibility(View.GONE);
-                fab.setVisibility(View.GONE);
+                fab.setVisibility(View.VISIBLE);
             }
         });
     }
@@ -673,21 +676,38 @@ public class UI_Map extends AppCompatActivity
 
             }
         });
-
     }
 
-    private void setWorkingData(){
+
+
+    public static void setWorkingData(){
         File working = Environment.getExternalStoragePublicDirectory("DMS/Working");
         File[] files = working.listFiles();
         for(File file : files){
             if(file.getName().contains("MapDisarm")){
                 continue;
             }
+            if(all_kmz_overlay_map.containsKey(file.getName())){
+                continue;
+            }
+            all_kmz_overlay_map.put(file.getName(),true);
             KmlDocument kml = new KmlDocument();
             kml.parseKMZFile(file);
-            FolderOverlay kmlOverlay = (FolderOverlay)kml.mKmlRoot.buildOverlay(map, null, null, kml);
+            final FolderOverlay kmlOverlay = (FolderOverlay)kml.mKmlRoot.buildOverlay(map, null, null, kml);
+
+            Thread t = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    for(int i=0;i<kmlOverlay.getItems().size();i++){
+                        if(kmlOverlay.getItems().get(i) instanceof Polygon){
+
+                            ((Polygon) kmlOverlay.getItems().get(i)).setInfoWindow(new CustomInfoWindow(R.layout.custom_info_window,map,"Polygon","1,1"));
+                        }
+                    }
+                }
+            });
+            t.run();
             map.getOverlays().add(kmlOverlay);
-            all_kmz_overlay.add(kmlOverlay);
         }
     }
     public static Context getContextOfApplication(){
