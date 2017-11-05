@@ -741,7 +741,7 @@ public class UI_Map extends AppCompatActivity
                     }
                 }
             });
-            t.run();
+            t.start();
             map.getOverlays().add(kmlOverlay);
         }
     }

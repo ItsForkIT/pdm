@@ -219,10 +219,15 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     public void extractZip(){
-        String root = Environment.getExternalStorageDirectory().toString();
-        String path = root+"/DMS/Map/tiles/";
-        UnZip unzip = new UnZip(path,path+"/tiles.zip");
-
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String root = Environment.getExternalStorageDirectory().toString();
+                String path = root+"/DMS/Map/tiles/";
+                UnZip unzip = new UnZip(path,path+"/tiles.zip");
+            }
+        });
+        t.start();
     }
 
     public void setLocale(String lang) {
