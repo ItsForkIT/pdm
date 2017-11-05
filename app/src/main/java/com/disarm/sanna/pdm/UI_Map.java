@@ -127,8 +127,8 @@ public class UI_Map extends AppCompatActivity
             }
         });
 
-        //Storage storage = new Storage(getApplicationContext());
-        //storage.deleteDirectory(Environment.getExternalStoragePublicDirectory("DMS/tmpOpen").toString());
+        Storage storage = new Storage(getApplicationContext());
+        storage.deleteDirectory(Environment.getExternalStoragePublicDirectory("DMS/tmpOpen").toString());
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
