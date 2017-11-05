@@ -154,11 +154,27 @@ public class UI_Map extends AppCompatActivity
     @Override
     public void onBackPressed() {
 
+        Boolean isOpen = false;
+        for(Overlay overlay : allOverlays){
+            if(overlay instanceof Polygon){
+                if(((Polygon) overlay).getInfoWindow().isOpen()){
+                    isOpen = true;
+                    ((Polygon) overlay).getInfoWindow().close();
+                }
 
+            }
+            else if(overlay instanceof Marker){
+                if(((Marker) overlay).getInfoWindow().isOpen())
+                {
+                    isOpen = true;
+                    ((Marker) overlay).getInfoWindow().close();
+                }
+            }
+        }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
-        } else {
+        } else if(!isOpen) {
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
             alertDialogBuilder
                     .setMessage("Exit Application")
