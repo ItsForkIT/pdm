@@ -51,6 +51,8 @@ import com.disarm.sanna.pdm.Util.PrefUtils;
 import com.disarm.sanna.pdm.Util.Reset;
 import com.disarm.sanna.pdm.location.LocationState;
 import com.disarm.sanna.pdm.location.MLocation;
+import com.snatik.storage.Storage;
+
 import org.osmdroid.api.IMapController;
 import org.osmdroid.bonuspack.kml.KmlDocument;
 import org.osmdroid.config.Configuration;
@@ -61,10 +63,12 @@ import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.FolderOverlay;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
+import org.osmdroid.views.overlay.Overlay;
 import org.osmdroid.views.overlay.Polygon;
 import org.osmdroid.views.overlay.ScaleBarOverlay;
 import org.osmdroid.views.overlay.compass.CompassOverlay;
 import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider;
+import org.osmdroid.views.overlay.infowindow.BasicInfoWindow;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -74,6 +78,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -100,6 +105,7 @@ public class UI_Map extends AppCompatActivity
     final Polygon polygon = new Polygon();
     final ArrayList<Marker> all_markers = new ArrayList<>();
     final static HashMap<String,Boolean> all_kmz_overlay_map = new HashMap<>();
+    final static ArrayList<Overlay> allOverlays = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle drawdInstanceState) {
@@ -121,7 +127,8 @@ public class UI_Map extends AppCompatActivity
             }
         });
 
-
+        Storage storage = new Storage(getApplicationContext());
+        storage.deleteDirectory(Environment.getExternalStoragePublicDirectory("DMS/tmpOpen").toString());
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -146,6 +153,8 @@ public class UI_Map extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
+
+
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
@@ -177,6 +186,8 @@ public class UI_Map extends AppCompatActivity
     protected void onDestroy() {
         super.onDestroy();
         unbindAllService();
+        Storage storage = new Storage(getApplicationContext());
+        storage.deleteDirectory(Environment.getExternalStoragePublicDirectory("DMS/tmpOpen").toString());
     }
 
     @Override
@@ -424,6 +435,7 @@ public class UI_Map extends AppCompatActivity
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             @Override
             public void uncaughtException(Thread t, Throwable e) {
+
                 Calendar cal = Calendar.getInstance();
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
                 File crashLogFile =new File (SplashActivity.DMS_PATH+"PDM_CrashLog" );
@@ -506,7 +518,7 @@ public class UI_Map extends AppCompatActivity
                 else{
                     removeInfoWindow();
                 }
-                return true;
+                return false;
             }
             @Override
             public boolean longPressHelper(GeoPoint p) {
@@ -683,7 +695,7 @@ public class UI_Map extends AppCompatActivity
     public static void setWorkingData(){
         File working = Environment.getExternalStoragePublicDirectory("DMS/Working");
         File[] files = working.listFiles();
-        for(File file : files){
+        for(final File file : files){
             if(file.getName().contains("MapDisarm")){
                 continue;
             }
@@ -691,17 +703,24 @@ public class UI_Map extends AppCompatActivity
                 continue;
             }
             all_kmz_overlay_map.put(file.getName(),true);
-            KmlDocument kml = new KmlDocument();
+            final KmlDocument kml = new KmlDocument();
             kml.parseKMZFile(file);
             final FolderOverlay kmlOverlay = (FolderOverlay)kml.mKmlRoot.buildOverlay(map, null, null, kml);
-
             Thread t = new Thread(new Runnable() {
                 @Override
                 public void run() {
                     for(int i=0;i<kmlOverlay.getItems().size();i++){
                         if(kmlOverlay.getItems().get(i) instanceof Polygon){
-
-                            ((Polygon) kmlOverlay.getItems().get(i)).setInfoWindow(new CustomInfoWindow(R.layout.custom_info_window,map,"Polygon","1,1"));
+                              String title = ((Polygon) kmlOverlay.getItems().get(i)).getTitle();
+                              String latlon = kml.mKmlRoot.getExtendedData("Lat Long");
+                              ((Polygon) kmlOverlay.getItems().get(i)).setInfoWindow(new CustomInfoWindow(R.layout.custom_info_window,map,title,latlon,file.getName()));
+                              allOverlays.add(((Polygon) kmlOverlay.getItems().get(i)));
+                        }
+                        else if(kmlOverlay.getItems().get(i) instanceof Marker){
+                            String title = ((Marker) kmlOverlay.getItems().get(i)).getTitle();
+                            String latlon = kml.mKmlRoot.getExtendedData("Lat Long");
+                            ((Marker) kmlOverlay.getItems().get(i)).setInfoWindow(new CustomInfoWindow(R.layout.custom_info_window,map,title,latlon,file.getName()));
+                            allOverlays.add(((Polygon) kmlOverlay.getItems().get(i)));
                         }
                     }
                 }

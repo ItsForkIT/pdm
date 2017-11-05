@@ -5,17 +5,20 @@
     android:orientation="vertical"
     android:background="@color/cardview_dark_background">
     <TextView
-        android:layout_width="match_parent"
+        android:padding="5dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textStyle="bold"
         android:textColor="@color/white"
         android:id="@+id/tv_iw_title"/>
     <TextView
-        android:layout_width="match_parent"
+        android:padding="5dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="@color/white"
         android:id="@+id/tv_iw_latlon"/>
     <Button
+        android:padding="5dp"
         android:id="@+id/btn_iw_open"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
