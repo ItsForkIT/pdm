@@ -186,8 +186,8 @@ public class UI_Map extends AppCompatActivity
     protected void onDestroy() {
         super.onDestroy();
         unbindAllService();
-        //Storage storage = new Storage(getApplicationContext());
-        //storage.deleteDirectory(Environment.getExternalStoragePublicDirectory("DMS/tmpOpen").toString());
+//        Storage storage = new Storage(getApplicationContext());
+//        storage.deleteDirectory(Environment.getExternalStoragePublicDirectory("DMS/tmpOpen").toString());
     }
 
     @Override
@@ -714,11 +714,13 @@ public class UI_Map extends AppCompatActivity
                               String title = ((Polygon) kmlOverlay.getItems().get(i)).getTitle();
                               String latlon = kml.mKmlRoot.getExtendedData("Lat Long");
                               ((Polygon) kmlOverlay.getItems().get(i)).setInfoWindow(new CustomInfoWindow(R.layout.custom_info_window,map,title,latlon,file.getName()));
+                              allOverlays.add(((Polygon) kmlOverlay.getItems().get(i)));
                         }
                         else if(kmlOverlay.getItems().get(i) instanceof Marker){
                             String title = ((Marker) kmlOverlay.getItems().get(i)).getTitle();
                             String latlon = kml.mKmlRoot.getExtendedData("Lat Long");
                             ((Marker) kmlOverlay.getItems().get(i)).setInfoWindow(new CustomInfoWindow(R.layout.custom_info_window,map,title,latlon,file.getName()));
+                            allOverlays.add(((Marker) kmlOverlay.getItems().get(i)));
                         }
                     }
                 }
