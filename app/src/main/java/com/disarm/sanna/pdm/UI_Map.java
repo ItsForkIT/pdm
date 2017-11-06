@@ -534,6 +534,7 @@ public class UI_Map extends AppCompatActivity
                     marker.setTitle(marker.getPosition().toString());
                     map.getOverlays().add(marker);
                     all_markers.add(marker);
+                    return true;
                 }
                 else{
                     removeInfoWindow();
@@ -590,7 +591,6 @@ public class UI_Map extends AppCompatActivity
                 for(Marker m : all_markers){
                     m.getInfoWindow().close();
                 }
-                //createDialog();
                 createTextDialog();
                 map.getOverlays().remove(polygon);
                 for(int i=0;i<all_markers.size();i++){
