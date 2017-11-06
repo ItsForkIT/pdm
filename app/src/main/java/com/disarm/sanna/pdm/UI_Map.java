@@ -109,6 +109,7 @@ public class UI_Map extends AppCompatActivity
     final ArrayList<Marker> all_markers = new ArrayList<>();
     final static HashMap<String,Boolean> all_kmz_overlay_map = new HashMap<>();
     final static ArrayList<Overlay> allOverlays = new ArrayList<>();
+    Handler refresh = new Handler();
 
     @Override
     protected void onCreate(Bundle drawdInstanceState) {
@@ -152,7 +153,7 @@ public class UI_Map extends AppCompatActivity
         setDrawClick();
         setCancelClick(fab);
         setSaveClick(fab);
-
+        refreshWorkingData();
     }
 
     @Override
@@ -858,6 +859,16 @@ public class UI_Map extends AppCompatActivity
             t.start();
             map.getOverlays().add(kmlOverlay);
         }
+    }
+    private void refreshWorkingData(){
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                setWorkingData();
+                refresh.postDelayed(this,10000);
+            }
+        };
+        refresh.postDelayed(r,10000);
     }
     public static Context getContextOfApplication(){
         return contextOfApplication;
