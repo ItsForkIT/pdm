@@ -660,6 +660,7 @@ public class UI_Map extends AppCompatActivity
                         Polygon polygon = new Polygon();
                         polygon_points.add(polygon_points.get(0));
                         polygon.setPoints(polygon_points);
+                        polygon.setSnippet(textmsg.getText().toString());
                         String latlng = FileTask.getloc(getContextOfApplication());
                         String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
                         String file_name = "TXT_50_data_"+
@@ -684,6 +685,7 @@ public class UI_Map extends AppCompatActivity
                     else{
                         Toast.makeText(getBaseContext(),"No info found to be saved!!!",Toast.LENGTH_SHORT).show();
                     }
+                    setWorkingData();
                     dialog.dismiss();
                 }
 
@@ -804,20 +806,25 @@ public class UI_Map extends AppCompatActivity
             }
             all_kmz_overlay_map.put(file.getName(),true);
             final KmlDocument kml = new KmlDocument();
-            kml.parseKMZFile(file);
+            if(file.getName().contains("kmz")){
+                kml.parseKMZFile(file);
+            }
+            else{
+                kml.parseKMLFile(file);
+            }
             final FolderOverlay kmlOverlay = (FolderOverlay)kml.mKmlRoot.buildOverlay(map, null, null, kml);
             Thread t = new Thread(new Runnable() {
                 @Override
                 public void run() {
                     for(int i=0;i<kmlOverlay.getItems().size();i++){
                         if(kmlOverlay.getItems().get(i) instanceof Polygon){
-                              String title = ((Polygon) kmlOverlay.getItems().get(i)).getTitle();
+                              String title = ((Polygon) kmlOverlay.getItems().get(i)).getSnippet();
                               String latlon = kml.mKmlRoot.getExtendedData("Lat Long");
                               ((Polygon) kmlOverlay.getItems().get(i)).setInfoWindow(new CustomInfoWindow(R.layout.custom_info_window,map,title,latlon,file.getName()));
                               allOverlays.add(((Polygon) kmlOverlay.getItems().get(i)));
                         }
                         else if(kmlOverlay.getItems().get(i) instanceof Marker){
-                            String title = ((Marker) kmlOverlay.getItems().get(i)).getTitle();
+                            String title = ((Marker) kmlOverlay.getItems().get(i)).getSnippet();
                             String latlon = kml.mKmlRoot.getExtendedData("Lat Long");
                             ((Marker) kmlOverlay.getItems().get(i)).setInfoWindow(new CustomInfoWindow(R.layout.custom_info_window,map,title,latlon,file.getName()));
                             allOverlays.add(((Marker) kmlOverlay.getItems().get(i)));
