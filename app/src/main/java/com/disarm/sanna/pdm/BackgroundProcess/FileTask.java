@@ -87,7 +87,7 @@ public class FileTask extends AsyncTask  {
             }
 
         }
-        String latlng = getloc();
+        String latlng = getloc(applicationContext);
 
         String pathFrom = applicationContext.getExternalFilesDir(TMP_FOLDER).toString();
         String pathTo = Environment.getExternalStorageDirectory().toString()+"/DMS/Working";
@@ -233,8 +233,8 @@ public class FileTask extends AsyncTask  {
         }
     }
 
-    public String getloc() {
-        Location l = MLocation.getLocation(applicationContext);
+    public static String getloc(Context context) {
+        Location l = MLocation.getLocation(context);
         String lat_long = null;
         if (l != null) {
             double lat = l.getLatitude();

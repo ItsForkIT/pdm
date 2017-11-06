@@ -55,6 +55,7 @@ import com.snatik.storage.Storage;
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.bonuspack.kml.KmlDocument;
+import org.osmdroid.bonuspack.kml.KmlPlacemark;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.tileprovider.tilesource.ITileSource;
@@ -77,6 +78,7 @@ import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Timer;
@@ -586,7 +588,8 @@ public class UI_Map extends AppCompatActivity
                 for(Marker m : all_markers){
                     m.getInfoWindow().close();
                 }
-                createDialog();
+                //createDialog();
+                createTextDialog();
                 map.getOverlays().remove(polygon);
                 for(int i=0;i<all_markers.size();i++){
                     map.getOverlays().remove(all_markers.get(i));
@@ -605,10 +608,92 @@ public class UI_Map extends AppCompatActivity
             m.getInfoWindow().close();
         }
     }
+    private void createTextDialog(){
+        View dialog_view = getLayoutInflater().inflate(R.layout.dialog_text,null);
+        final EditText textmsg;
+        Button save,add,cancel;
+        textmsg = (EditText) dialog_view.findViewById(R.id.dialog_text_description);
+        save = (Button) dialog_view.findViewById(R.id.dialog_button_save);
+        add = (Button) dialog_view.findViewById(R.id.dialog_button_add);
+        cancel = (Button) dialog_view.findViewById(R.id.dialog_button_cancel);
 
+        AlertDialog.Builder dialog_builder = new AlertDialog.Builder(UI_Map.this);
+        dialog_builder.setTitle("Please describe the situation in less than 50 words !!!");
+        dialog_builder.setView(dialog_view);
+        final AlertDialog dialog = dialog_builder.create();
+        dialog.show();
+
+
+        save.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(textmsg.getText().toString().length()>0){
+                    KmlDocument kml = new KmlDocument();
+                    if(polygon_points.size()==1){
+                        Marker marker = new Marker(map);
+                        marker.setPosition(polygon_points.get(0));
+                        marker.setSnippet(textmsg.getText().toString());
+                        KmlPlacemark placemark = new KmlPlacemark(marker);
+                        String latlng = FileTask.getloc(getContextOfApplication());
+                        String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
+                        String file_name = "TXT_50_data_"+
+                                SelectCategoryActivity.SOURCE_PHONE_NO+
+                                "_defaultMcs_"
+                                +latlng
+                                +"_"+timeStamp+
+                                "_1.kml";
+                        kml.mKmlRoot.add(placemark);
+                        kml.mKmlRoot.setExtendedData("Media Type","TXT");
+                        kml.mKmlRoot.setExtendedData("Group Type","data");
+                        kml.mKmlRoot.setExtendedData("Time Stamp",timeStamp);
+                        kml.mKmlRoot.setExtendedData("Source",SelectCategoryActivity.SOURCE_PHONE_NO);
+                        kml.mKmlRoot.setExtendedData("Destination","defaultMcs");
+                        kml.mKmlRoot.setExtendedData("Lat Long",latlng);
+                        kml.mKmlRoot.setExtendedData("Group ID","1");
+                        kml.mKmlRoot.setExtendedData("Priority","50");
+                        kml.mKmlRoot.setExtendedData("KML Type","Point");
+
+                        File file = Environment.getExternalStoragePublicDirectory("DMS/Working/"+file_name);
+                        kml.saveAsKML(file);
+                    }
+                    else if(polygon_points.size()>1){
+                        Polygon polygon = new Polygon();
+                        polygon_points.add(polygon_points.get(0));
+                        polygon.setPoints(polygon_points);
+                        String latlng = FileTask.getloc(getContextOfApplication());
+                        String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
+                        String file_name = "TXT_50_data_"+
+                                SelectCategoryActivity.SOURCE_PHONE_NO+
+                                "_defaultMcs_"
+                                +latlng
+                                +"_"+timeStamp+
+                                "_1.kml";
+                        kml.mKmlRoot.setExtendedData("Media Type","TXT");
+                        kml.mKmlRoot.setExtendedData("Group Type","data");
+                        kml.mKmlRoot.setExtendedData("Time Stamp",timeStamp);
+                        kml.mKmlRoot.setExtendedData("Source",SelectCategoryActivity.SOURCE_PHONE_NO);
+                        kml.mKmlRoot.setExtendedData("Destination","defaultMcs");
+                        kml.mKmlRoot.setExtendedData("Lat Long",latlng);
+                        kml.mKmlRoot.setExtendedData("Group ID","1");
+                        kml.mKmlRoot.setExtendedData("Priority","50");
+                        kml.mKmlRoot.setExtendedData("KML Type","Polygon");
+                        kml.mKmlRoot.addOverlay(polygon,kml);
+                        File file = Environment.getExternalStoragePublicDirectory("DMS/Working/"+file_name);
+                        kml.saveAsKML(file);
+                    }
+                    else{
+                        Toast.makeText(getBaseContext(),"No info found to be saved!!!",Toast.LENGTH_SHORT).show();
+                    }
+                    dialog.dismiss();
+                }
+
+
+            }
+        });
+    }
     private void createDialog(){
         View dialog_view = getLayoutInflater().inflate(R.layout.dialog_list_type,null);
-        final TextView img,vid,aud,txt;
+        final TextView img,vid,aud;
         Button submit,discard;
         final EditText importance,destination;
         dialog_view.setPadding(10,10,10,10);
@@ -616,7 +701,6 @@ public class UI_Map extends AppCompatActivity
         img = (TextView) dialog_view.findViewById(R.id.dialog_tv_image);
         vid = (TextView) dialog_view.findViewById(R.id.dialog_tv_video);
         aud = (TextView) dialog_view.findViewById(R.id.dialog_tv_audio);
-        txt = (TextView) dialog_view.findViewById(R.id.dialog_tv_text);
         submit = (Button) dialog_view.findViewById(R.id.dialog_save);
         discard = (Button) dialog_view.findViewById(R.id.dialog_discard);
         importance = (EditText) dialog_view.findViewById(R.id.dialog_importance);
