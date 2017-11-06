@@ -105,6 +105,7 @@ public class UI_Map extends AppCompatActivity
     ArrayList<GeoPoint> polygon_points;
     int draw_flag=1;
     final Polygon polygon = new Polygon();
+    String text_description="";
     final ArrayList<Marker> all_markers = new ArrayList<>();
     final static HashMap<String,Boolean> all_kmz_overlay_map = new HashMap<>();
     final static ArrayList<Overlay> allOverlays = new ArrayList<>();
@@ -609,6 +610,7 @@ public class UI_Map extends AppCompatActivity
         }
     }
     private void createTextDialog(){
+        text_description="";
         View dialog_view = getLayoutInflater().inflate(R.layout.dialog_text,null);
         final EditText textmsg;
         Button save,add,cancel;
@@ -623,7 +625,21 @@ public class UI_Map extends AppCompatActivity
         final AlertDialog dialog = dialog_builder.create();
         dialog.show();
 
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
 
+        add.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                text_description = textmsg.getText().toString();
+                createDialog();
+                dialog.dismiss();
+            }
+        });
         save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -755,7 +771,7 @@ public class UI_Map extends AppCompatActivity
                     imp = "50";
                 }
 
-                new FileTask().execute(imp,dest,polygon_points,map);
+                new FileTask().execute(imp,dest,polygon_points,map,text_description);
                 dialog.dismiss();
             }
         });

@@ -128,6 +128,7 @@ public class FileTask extends AsyncTask  {
             File to = new File(pathTo,acutalFileName);
             Log.d("File type","File format :"+fileFormat);
             KmlDocument kml = new KmlDocument();
+            String description = (String) objects[4];
             ArrayList<GeoPoint> polygon_points = (ArrayList)objects[2];
             if(polygon_points.size()==1){
                     GeoPoint point = polygon_points.get(0);
@@ -136,23 +137,21 @@ public class FileTask extends AsyncTask  {
                     m.setPosition(point);
                     m.setTitle("Point");
                     if(fileFormat.equals(".jpg")){
-                        m.setSnippet("<img source='"+acutalFileName+"'>");
-                        Log.d("Snippet","Image snippet");
+                        m.setSnippet("<img source='"+acutalFileName+"'>\n<p>" + description + "</p>");
                     }
                     else if(fileFormat.equals(".mp4")){
                         m.setSnippet("<video width=\"320\" height=\"240\" controls/>\n" +
                                 "<source src=\""+acutalFileName+"\" type=\"video/mp4\">\n" +
                                 "<source src=\""+actualKmzName+".ogg\" type=\"video/ogg\">\n" +
                                 "Your browser does not support the video tag.\n" +
-                                "</video>");
-                        Log.d("Snippet","Video snippet");
+                                "</video>\n<p>"+description+"</p>");
                     }
                     else if(fileFormat.equals(".mp3")){
                         m.setSnippet("<audio controls>\n" +
                                 "  <source src=\""+acutalFileName+"\" type=\"audio/mpeg\">\n" +
                                 "  <source src=\""+actualKmzName+".ogg\" type=\"audio/ogg\">\n" +
                                 "Your browser does not support the audio element.\n" +
-                                "</audio>");
+                                "</audio>\n<p>" + description + "</p>");
 
                         Log.d("Snippet","Audio snippet");
                     }
@@ -174,23 +173,22 @@ public class FileTask extends AsyncTask  {
                     polygon.setPoints(polygon_points);
                     polygon.setTitle("Polygon");
                     if(fileFormat.equals(".jpg")){
-                        polygon.setSnippet("<img source='"+acutalFileName+"'>");
-                        Log.d("Snippet","Image snippet");
+                        polygon.setSnippet("<img source='"+acutalFileName+"'>\n<p>" + description + "</p>");
                     }
                     else if(fileFormat.equals(".mp4")){
                         polygon.setSnippet("<video width=\"320\" height=\"240\" controls/>\n" +
                                 "<source src=\""+acutalFileName+"\" type=\"video/mp4\">\n" +
                                 "<source src=\""+actualKmzName+".ogg\" type=\"video/ogg\">\n" +
                                 "Your browser does not support the video tag.\n" +
-                                "</video>");
-                        Log.d("Snippet","Video snippet");
+                                "</video>\n<p>"+description+"</p>");
                     }
                     else if(fileFormat.equals(".mp3")){
                         polygon.setSnippet("<audio controls>\n" +
                                 "  <source src=\""+acutalFileName+"\" type=\"audio/mpeg\">\n" +
                                 "  <source src=\""+actualKmzName+".ogg\" type=\"audio/ogg\">\n" +
                                 "Your browser does not support the audio element.\n" +
-                                "</audio>");
+                                "</audio>\n<p>" + description + "</p>");
+
                         Log.d("Snippet","Audio snippet");
                     }
                     kml.mKmlRoot.setExtendedData("Media Type",fileType);
