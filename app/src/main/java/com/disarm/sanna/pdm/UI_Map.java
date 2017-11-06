@@ -129,7 +129,7 @@ public class UI_Map extends AppCompatActivity
                 save.setVisibility(View.VISIBLE);
                 polygon_points.clear();
                 removeInfo();
-                removeInfoWindow(); 
+                removeInfoWindow();
             }
         });
 
@@ -209,8 +209,6 @@ public class UI_Map extends AppCompatActivity
     protected void onDestroy() {
         super.onDestroy();
         unbindAllService();
-//        Storage storage = new Storage(getApplicationContext());
-//        storage.deleteDirectory(Environment.getExternalStoragePublicDirectory("DMS/tmpOpen").toString());
     }
 
     @Override
