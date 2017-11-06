@@ -152,6 +152,7 @@ public class UI_Map extends AppCompatActivity
         setDrawClick();
         setCancelClick(fab);
         setSaveClick(fab);
+
     }
 
     @Override
@@ -834,15 +835,15 @@ public class UI_Map extends AppCompatActivity
                 public void run() {
                     for(int i=0;i<kmlOverlay.getItems().size();i++){
                         if(kmlOverlay.getItems().get(i) instanceof Polygon){
-                              String title = ((Polygon) kmlOverlay.getItems().get(i)).getSnippet();
+                              String desciption = ((Polygon) kmlOverlay.getItems().get(i)).getSnippet();
                               String latlon = kml.mKmlRoot.getExtendedData("Lat Long");
-                              ((Polygon) kmlOverlay.getItems().get(i)).setInfoWindow(new CustomInfoWindow(R.layout.custom_info_window,map,title,latlon,file.getName()));
+                              ((Polygon) kmlOverlay.getItems().get(i)).setInfoWindow(new CustomInfoWindow(R.layout.custom_info_window,map,desciption,latlon,file.getName()));
                               allOverlays.add(((Polygon) kmlOverlay.getItems().get(i)));
                         }
                         else if(kmlOverlay.getItems().get(i) instanceof Marker){
-                            String title = ((Marker) kmlOverlay.getItems().get(i)).getSnippet();
+                            String description = ((Marker) kmlOverlay.getItems().get(i)).getSnippet();
                             String latlon = kml.mKmlRoot.getExtendedData("Lat Long");
-                            ((Marker) kmlOverlay.getItems().get(i)).setInfoWindow(new CustomInfoWindow(R.layout.custom_info_window,map,title,latlon,file.getName()));
+                            ((Marker) kmlOverlay.getItems().get(i)).setInfoWindow(new CustomInfoWindow(R.layout.custom_info_window,map,description,latlon,file.getName()));
                             allOverlays.add(((Marker) kmlOverlay.getItems().get(i)));
                         }
                     }

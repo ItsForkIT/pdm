@@ -44,9 +44,17 @@ public class CustomInfoWindow extends InfoWindow {
         Button open = (Button) mView.findViewById(R.id.btn_iw_open);
         TextView title = (TextView) mView.findViewById(R.id.tv_iw_title);
         TextView latlon = (TextView) mView.findViewById(R.id.tv_iw_latlon);
-        title.setText(title_str);
         latlon.setText(latlon_str);
+        if(file_name.contains("kml")){
+            open.setVisibility(View.GONE);
+            title.setText(title_str);
+        }
+        else{
+            String description = "";
+            for(int i=2;i<title_str.length();i++){
 
+            }
+        }
         open.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
