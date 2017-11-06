@@ -636,8 +636,13 @@ public class UI_Map extends AppCompatActivity
         add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                text_description = textmsg.getText().toString();
-                createDialog();
+                if(textmsg.getText().toString().length()>0){
+                    text_description = textmsg.getText().toString();
+                    createDialog();
+                }
+                else{
+                    Toast.makeText(getBaseContext(),"No info found to be saved!!! Please describe the situation there",Toast.LENGTH_SHORT).show();
+                }
                 dialog.dismiss();
             }
         });
@@ -699,10 +704,11 @@ public class UI_Map extends AppCompatActivity
                         File file = Environment.getExternalStoragePublicDirectory("DMS/Working/"+file_name);
                         kml.saveAsKML(file);
                     }
-                    else{
-                        Toast.makeText(getBaseContext(),"No info found to be saved!!!",Toast.LENGTH_SHORT).show();
-                    }
                     setWorkingData();
+                    dialog.dismiss();
+                }
+                else {
+                    Toast.makeText(getBaseContext(),"No info found to be saved!!! Please describe the situation there",Toast.LENGTH_SHORT).show();
                     dialog.dismiss();
                 }
 
