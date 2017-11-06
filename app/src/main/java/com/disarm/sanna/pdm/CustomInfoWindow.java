@@ -50,10 +50,20 @@ public class CustomInfoWindow extends InfoWindow {
             title.setText(title_str);
         }
         else{
+            int start_index=0,end_index=0;
             String description = "";
             for(int i=2;i<title_str.length();i++){
-
+                if(title_str.charAt(i-2)=='<'&&title_str.charAt(i-1)=='p'&&title_str.charAt(i)=='>'){
+                    start_index = i+1;
+                }
+                if(i!=2){
+                    if(title_str.charAt(i-3)=='<'&&title_str.charAt(i-2)=='/'&&title_str.charAt(i)=='>'&&title_str.charAt(i-1)=='p'){
+                        end_index = i-3;
+                    }
+                }
             }
+            description = title_str.substring(start_index,end_index);
+            title.setText(description);
         }
         open.setOnClickListener(new View.OnClickListener() {
             @Override

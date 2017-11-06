@@ -102,7 +102,8 @@ public class FileTask extends AsyncTask  {
         {
             fileName = file[i].getName().split("_");
             fileType = fileName[0];
-            groupType = fileName[1];
+            groupType = "data";
+            //groupType = fileName[1];
             timestamp = fileName[2];
             fileFormat = fileName[3];
             groupID = idNumber;
