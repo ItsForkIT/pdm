@@ -59,6 +59,7 @@ public class SearchingDisarmDB implements Runnable {
         Log.v(DCService.TAG4,"searching DB");
         List<ScanResult> allScanResults = DCService.wifi.getScanResults();
         if (allScanResults.toString().contains(DCService.dbAPName)) {
+            Logger.addRecordToLog("DB found");
             // compare signal level
             int level = findDBSignalLevel(allScanResults);
             if (level < minDBLevel)

@@ -142,7 +142,7 @@ public class WifiConnect implements Runnable {
             else{
                 Log.v(DCService.TAG2,"Disarm Not Available");
 
-                Logger.addRecordToLog("no DH/DB network available");
+                Logger.addRecordToLog("no DH network available");
 
             }
 

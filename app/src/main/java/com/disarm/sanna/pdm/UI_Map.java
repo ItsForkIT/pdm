@@ -539,6 +539,8 @@ public class UI_Map extends AppCompatActivity
                 }
                 else{
                     removeInfoWindow();
+                    removeInfo();
+
                 }
                 return false;
             }
@@ -559,6 +561,7 @@ public class UI_Map extends AppCompatActivity
                 map.getOverlays().add(polygon);
                 map.invalidate();
                 removeInfoWindow();
+                removeInfo();
             }
         });
 
@@ -576,6 +579,7 @@ public class UI_Map extends AppCompatActivity
                 map.getOverlays().remove(polygon);
                 polygon_points.clear();
                 removeInfoWindow();
+                removeInfo();
                 for(int i=0;i<all_markers.size();i++){
                     map.getOverlays().remove(all_markers.get(i));
                 }
@@ -869,6 +873,25 @@ public class UI_Map extends AppCompatActivity
             }
         };
         refresh.postDelayed(r,10000);
+    }
+    private void removeInfo(){
+        Boolean isOpen = false;
+        for(Overlay overlay : allOverlays){
+            if(overlay instanceof Polygon){
+                if(((Polygon) overlay).getInfoWindow().isOpen()){
+                    isOpen = true;
+                    ((Polygon) overlay).getInfoWindow().close();
+                }
+
+            }
+            else if(overlay instanceof Marker){
+                if(((Marker) overlay).getInfoWindow().isOpen())
+                {
+                    isOpen = true;
+                    ((Marker) overlay).getInfoWindow().close();
+                }
+            }
+        }
     }
     public static Context getContextOfApplication(){
         return contextOfApplication;
