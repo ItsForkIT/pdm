@@ -129,7 +129,7 @@ public class UI_Map extends AppCompatActivity
                 save.setVisibility(View.VISIBLE);
                 polygon_points.clear();
                 removeInfo();
-                removeInfoWindow();
+                removeInfoWindow(); 
             }
         });
 
