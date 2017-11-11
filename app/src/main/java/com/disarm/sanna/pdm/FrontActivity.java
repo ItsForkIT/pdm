@@ -347,6 +347,7 @@ public class FrontActivity extends AppCompatActivity {
     }
 
     private void setFirstTime(){
+        try{
         lfr = new ArrayList<>();
         File dir = Environment.getExternalStoragePublicDirectory("DMS/Working");
         File[] files = dir.listFiles();
@@ -379,6 +380,9 @@ public class FrontActivity extends AppCompatActivity {
             RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
             rv.setLayoutManager(mLayoutManager);
             rv.setAdapter(f);
+        }}
+        catch (Exception e){
+
         }
     }
 

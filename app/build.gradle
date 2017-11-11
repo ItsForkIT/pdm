@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 
+final BUILD_DATE = new Date().format('yyyy_MM_dd_HHmm')
 android {
     compileSdkVersion 25
     buildToolsVersion '26.0.2'
@@ -19,8 +20,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             applicationVariants.all { variant ->
                 variant.outputs.all {
-                    outputFileName = "Surakshit_Mod_Bishak.apk"
-
+                    outputFileName = "Surakshit_Mod_Bishak_"+BUILD_DATE+".apk"
                 }
             }
         }
