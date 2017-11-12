@@ -1,10 +1,12 @@
 package com.disarm.sanna.pdm;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.graphics.Point;
@@ -55,10 +57,14 @@ import com.snatik.storage.Storage;
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.bonuspack.kml.KmlDocument;
+import org.osmdroid.bonuspack.kml.KmlFolder;
 import org.osmdroid.bonuspack.kml.KmlPlacemark;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.events.MapEventsReceiver;
+import org.osmdroid.tileprovider.IRegisterReceiver;
+import org.osmdroid.tileprovider.modules.OfflineTileProvider;
 import org.osmdroid.tileprovider.tilesource.ITileSource;
+import org.osmdroid.tileprovider.tilesource.XYTileSource;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.FolderOverlay;
@@ -80,9 +86,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class UI_Map extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -94,7 +97,7 @@ public class UI_Map extends AppCompatActivity
     CompassOverlay mCompassOverlay;
     ScaleBarOverlay mScaleBarOverlay;
     IMapController mapController;
-    final int MIN_ZOOM=13,MAX_ZOOM=19,PIXEL=256;
+    final int MIN_ZOOM=14,MAX_ZOOM=19,PIXEL=256;
     SyncService syncService;
     public DCService myService;
     private boolean syncServiceBound = false;
@@ -117,6 +120,7 @@ public class UI_Map extends AppCompatActivity
         setContentView(R.layout.activity_ui__map);
         contextOfApplication = getApplicationContext();
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+
         setSupportActionBar(toolbar);
         final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -261,8 +265,10 @@ public class UI_Map extends AppCompatActivity
     private void intialize(){
         map = (MapView) findViewById(R.id.ui_map);
         String[] s = {"http://127.0.0.1:8080/getTile/"};
-        tileSource = new MyOSMTileSource(
-                "Mapnik", MIN_ZOOM, MAX_ZOOM, PIXEL, ".png", s);
+
+        //tileSource = new MyOSMTileSource(
+        //        "Mapnik", MIN_ZOOM, MAX_ZOOM, PIXEL, ".png", s);
+        tileSource = new XYTileSource("tiles",MIN_ZOOM,MAX_ZOOM,PIXEL,".png",new String[]{});
         map.setTileSource(tileSource);
         draw = (Button) findViewById(R.id.btn_map_draw);
         cancel = (Button) findViewById(R.id.btn_map_cancel);

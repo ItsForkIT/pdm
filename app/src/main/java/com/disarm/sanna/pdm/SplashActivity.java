@@ -210,7 +210,9 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
 
             CopyAssets copy = new CopyAssets(this);
             copy.copyFileOrDir("");
-            extractZip();
+            //extractZip();
+            //move zip
+            moveZip();
             // mark first time has runned.
             SharedPreferences.Editor editor = prefs.edit();
             editor.putBoolean("firstTime", true);
@@ -228,6 +230,16 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
             }
         });
         t.start();
+    }
+
+    public void moveZip(){
+        String root = Environment.getExternalStoragePublicDirectory("DMS/Map/tiles/tiles.zip").getPath();
+        Storage storage = new Storage(getApplicationContext());
+        File osm = Environment.getExternalStoragePublicDirectory("osmdroid");
+        if(!osm.exists())
+            osm.mkdir();
+
+        storage.move(root,osm.getPath()+"/tiles.zip");
     }
 
     public void setLocale(String lang) {
