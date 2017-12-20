@@ -69,32 +69,7 @@ public class WifiConnect implements Runnable {
 
         else
         {
-            /*Log.v(DCService.TAG2,"Checking For Disarm Hotspot");
-            // Connecting to DisarmHotspot WIfi on Button Click
 
-            if (allScanResults.toString().contains("DisarmHotspotDB")) {
-                int level = findDBSignalLevel(allScanResults);
-                if (level > minDBLevel)
-                {
-                    Log.v(DCService.TAG2, "Connecting DisarmDB");
-
-                    String ssid = "DisarmHotspotDB";
-                    WifiConfiguration wc = new WifiConfiguration();
-                    wc.SSID = "\"" + ssid + "\""; //IMPORTANT! This should be in Quotes!!
-
-                    wc.preSharedKey = "\""+ DCService.dbPass +"\"";
-                    wc.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
-
-                    int res = DCService.wifi.addNetwork(wc);
-
-                    boolean b = DCService.wifi.enableNetwork(res, true);
-                    Log.v(DCService.TAG2, "Connected");
-
-                    Logger.addRecordToLog("DB Connected Successfully");
-                    isDBConnected = 1;
-                }
-            }
-            else*/
             if (allScanResults.toString().contains("DH-")) {
                 // Store all DH available in allDHAvailable
                 Map allDHAvailable = new HashMap<String, Integer>();
@@ -131,13 +106,18 @@ public class WifiConnect implements Runnable {
                 wc.SSID = "\"" + bestFoundSSID + "\""; //IMPORTANT! This should be in Quotes!!
                 wc.preSharedKey = "\""+ pass +"\"";
                 wc.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
-                //wc.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
-                int res = DCService.wifi.addNetwork(wc);
-                boolean b = DCService.wifi.enableNetwork(res, true);
-                Log.v("WifiConnect:","Res:" + res + ",b:" + b);
-                Log.v(DCService.TAG2, "Connected");
-                Log.v("Parameters:" ,wc.SSID + "," + wc.BSSID + "," + wc.allowedAuthAlgorithms + "," + wc.allowedProtocols + "," + wc.allowedKeyManagement + "," + wc.allowedGroupCiphers + "," + wc.allowedPairwiseCiphers + "," + wc.FQDN + "," + wc.status);
-                Logger.addRecordToLog("DH Connected Successfully," + bestFoundSSID);
+                if(DCService.wifi.pingSupplicant()){
+                    DCService.wifi.disconnect();
+                    DCService.wifi.disableNetwork(wifiInfo.getNetworkId());
+                    int res = DCService.wifi.addNetwork(wc);
+                    boolean b = DCService.wifi.enableNetwork(res, true);
+                    Log.v("WifiConnect:","Res:" + res + ",b:" + b);
+                    if(res != -1 ) {
+                        Log.v(DCService.TAG2, "Connected");
+                        Log.v("Parameters:", wc.SSID + "," + wc.BSSID + "," + wc.allowedAuthAlgorithms + "," + wc.allowedProtocols + "," + wc.allowedKeyManagement + "," + wc.allowedGroupCiphers + "," + wc.allowedPairwiseCiphers + "," + wc.FQDN + "," + wc.status);
+                        Logger.addRecordToLog("DH Connected Successfully," + bestFoundSSID);
+                    }
+                }
             }
             else{
                 Log.v(DCService.TAG2,"Disarm Not Available");
