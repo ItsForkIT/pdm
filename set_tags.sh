@@ -1,4 +1,4 @@
-BRANCH="Surakshit_mod"
+BRANCH="Surakshit_New_UI"
 
 # Are we on the right branch?
 if [ "$TRAVIS_BRANCH" = "$BRANCH" ]; then
