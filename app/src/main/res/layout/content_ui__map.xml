@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.disarm.sanna.pdm.UI_Map"
+    tools:context="com.disarm.surakshit.pdm.UI_Map"
     tools:showIn="@layout/app_bar_ui__map"
     tools:layout_editor_absoluteY="81dp"
     tools:layout_editor_absoluteX="0dp">

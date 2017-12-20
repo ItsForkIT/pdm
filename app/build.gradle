@@ -6,7 +6,7 @@ android {
 
 
     defaultConfig {
-        applicationId "com.disarm.sanna.pdm"
+        applicationId "com.disarm.surakshit.pdm"
         minSdkVersion 19
         targetSdkVersion 25
         versionCode 1
