@@ -30,7 +30,7 @@ deploy:
   provider: releases
   api_key:
     secure: jx+Cqnmz9sqNesZrjs2e+/bH5VTP9NU0K/QJEA4CBqC4ofR7B+SEU+xeKZ+gl8Rw68V5cvxV/ZoTB6ZH4Zh/+sTM0CTzLhmvMyNitIS/PtbnILakYIf/jt0L8TEaS0Q9wLwzChgCXoEyF+hT3fE2kHIwB92pN5MBcpiC/LNrQpctTxbyWjb9fV+JGXXTFfhXqY81M9Od2Y8ipDzn4OFljgoYpMz3QUV/MfeUs6cziXnxwq4TNkFSTZ+j2Xm6VG3zVMP/zbARMvCEYU0DQM6TzSLFRHFfspPpfVE3CdjuRlQJ7mTx+UaukXoOIUuDJwunodEYIOCXzXoMZs3tsnElm1c160yFYfxN7vm/QMQyv2Nm861ojhI28G4RpVyiB0f7RS6AY7l5hxBdKU6NwSMQiAWi4kJwwhqIy+/TmXU5CFkGHhWNMQPqMbdwiJRK8EEchdWYKSeaJFLiZ311dRiLxRXPJxWzz6p9vHQDfYyM0BU5AihzQrLuDSqKoe/uSJWohZb4kCqwZCanyLiD3vw7V6uZSONws6hOouMyhNYcKlZzYG+qZgJTrzE5AeNxt8VaXWae/ombi87w0oGVcuBNdLUnwLIIzNevmn5y5b/HemS9FDHhpGYiMpdHOo/1cr/5nSpUAlKTuuC7l/dWEegZ5PNUu0YAyVnTGBJEycGB6vk=
-  file: "./app/build/outputs/apk/app_Su*.apk"
+  file: "./app/build/outputs/apk/Surakshit_New_UI.apk"
   file_glob: true
   skip_cleanup : true
   on:
