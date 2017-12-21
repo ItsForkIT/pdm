@@ -66,7 +66,6 @@ import org.osmdroid.views.overlay.Polygon;
 import org.osmdroid.views.overlay.ScaleBarOverlay;
 import org.osmdroid.views.overlay.compass.CompassOverlay;
 import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
@@ -106,20 +105,17 @@ public class UI_Map extends AppCompatActivity
     final static ArrayList<Overlay> allOverlays = new ArrayList<>();
     Handler refresh = new Handler();
     private int flag=0;
-
     @Override
     protected void onCreate(Bundle drawdInstanceState) {
         super.onCreate(drawdInstanceState);
         setContentView(R.layout.activity_ui__map);
         contextOfApplication = getApplicationContext();
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-
         setSupportActionBar(toolbar);
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 fab.setVisibility(View.INVISIBLE);
                 draw_save.setVisibility(View.VISIBLE);
                 cancel.setVisibility(View.VISIBLE);
@@ -270,6 +266,7 @@ public class UI_Map extends AppCompatActivity
         undo = (Button) findViewById(R.id.btn_map_undo);
         bottomsheet = findViewById(R.id.map_bottomsheet);
 
+
     }
 
     private void setBottomsheet(){
@@ -321,7 +318,6 @@ public class UI_Map extends AppCompatActivity
         map.setMultiTouchControls(true);
         mapController = map.getController();
         mapController.setZoom(15);
-
         GeoPoint startPoint = new GeoPoint(23.548512,87.2894873);
         mapController.setCenter(startPoint);
         mCompassOverlay = new CompassOverlay(ctx, new InternalCompassOrientationProvider(ctx), map);
@@ -486,8 +482,11 @@ public class UI_Map extends AppCompatActivity
         MapEventsReceiver mReceive = new MapEventsReceiver() {
             @Override
             public boolean singleTapConfirmedHelper(GeoPoint p) {
+                draw_save.setEnabled(true);
+                undo.setEnabled(true);
 
                 if(draw_save.getVisibility()==View.VISIBLE){
+
                     polygon_points.add(p);
                     final Marker marker = new Marker(map);
                     markerpoints.add(marker);
@@ -510,6 +509,7 @@ public class UI_Map extends AppCompatActivity
                             polygon.getPoints().clear();
                             polygon.setPoints(polygon_points);
                             map.getOverlays().add(polygon);
+
                             g.setLatitude(new_marker.getPosition().getLatitude());
                             g.setLongitude(new_marker.getPosition().getLongitude());
                             g.setAltitude(new_marker.getPosition().getAltitude());
@@ -562,14 +562,18 @@ public class UI_Map extends AppCompatActivity
 
                 if(flag==0)
                 {
-                    polygon.setPoints(polygon_points);
-                    map.getOverlays().add(polygon);
-                    map.invalidate();
-                    removeInfoWindow();
-                    removeInfo();
-                    undo.setVisibility(View.INVISIBLE);
-                    draw_save.setText("SAVE");
-                    flag=1;
+                    if(polygon_points.size()!=0)
+                    {
+                        polygon.setPoints(polygon_points);
+                        map.getOverlays().add(polygon);
+                        map.invalidate();
+                        removeInfoWindow();
+                        removeInfo();
+                        undo.setVisibility(View.INVISIBLE);
+                        draw_save.setText("SAVE");
+                        flag = 1;
+                    }
+                    else Toast.makeText(getBaseContext(), "No marker is selected..", Toast.LENGTH_SHORT).show();
                 }
                 else {
 
@@ -599,6 +603,7 @@ public class UI_Map extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 flag=0;
+                draw_save.setText("Draw");
                 fab.setVisibility(View.VISIBLE);
                 draw_save.setVisibility(View.GONE);
                 cancel.setVisibility(View.GONE);
@@ -620,15 +625,18 @@ public class UI_Map extends AppCompatActivity
         undo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                    if(markerpoints.size()!=0) {
+                    if(markerpoints.size()!=0 && polygon_points.size()!=0) {
                         markerpoints.get(markerpoints.size() - 1).remove(map);
                         markerpoints.remove(markerpoints.size() - 1);
                         polygon_points.remove(polygon_points.size()-1);
 
+
                     }
                     else
                     {
-                        Toast.makeText(syncService, "Sorry! All marker has been removed", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getBaseContext(), "There is no marker ", Toast.LENGTH_SHORT).show();
+
+
                     }
 
 
@@ -663,6 +671,8 @@ public class UI_Map extends AppCompatActivity
         cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                flag=0;
+                draw_save.setText("Draw");
                 dialog.dismiss();
             }
         });
