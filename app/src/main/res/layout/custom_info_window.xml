@@ -18,13 +18,35 @@
         android:layout_height="wrap_content"
         android:textColor="@color/white"
         android:id="@+id/tv_iw_latlon"/>
-    <Button
-        android:padding="5dp"
-        android:id="@+id/btn_iw_open"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        style="@style/Widget.AppCompat.Button.Colored"
-        android:text="Open File"
-        android:textSize="10sp"/>
+        android:orientation="horizontal">
+        <Button
+            android:padding="5dp"
+            android:id="@+id/btn_iw_open"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:text="Open File"
+            android:textSize="10sp"/>
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.25" />
+
+        <Button
+            android:padding="5dp"
+            android:id="@+id/btn_iw_edit"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:text="Edit File"
+            android:textSize="10sp"/>
+    </LinearLayout>
+
 
 </LinearLayout>

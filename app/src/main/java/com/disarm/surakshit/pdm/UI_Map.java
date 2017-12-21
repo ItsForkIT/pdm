@@ -536,13 +536,12 @@ public class UI_Map extends AppCompatActivity
                     marker.setTitle(marker.getPosition().toString());
                     map.getOverlays().add(marker);
                     all_markers.add(marker);
-                    return true;
-                }
-                else{
                     removeInfoWindow();
                     removeInfo();
-
+                    return true;
                 }
+                removeInfoWindow();
+                removeInfo();
                 return false;
             }
             @Override
