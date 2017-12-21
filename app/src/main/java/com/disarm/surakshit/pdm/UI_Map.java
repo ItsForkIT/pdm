@@ -80,9 +80,10 @@ import java.util.HashMap;
 public class UI_Map extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     public static Context contextOfApplication;
-    Button save,draw,cancel;
+    Button draw_save,undo,cancel;
     static MapView map;
     View bottomsheet;
+    ArrayList<Marker> markerpoints=new ArrayList<>();
     ITileSource tileSource;
     CompassOverlay mCompassOverlay;
     ScaleBarOverlay mScaleBarOverlay;
@@ -95,7 +96,8 @@ public class UI_Map extends AppCompatActivity
     private boolean gpsService = false;
     LocationManager lm;
     LocationListener locationListener;
-    ArrayList<GeoPoint> polygon_points;
+    ArrayList<GeoPoint> polygon_points=new ArrayList<>();
+    FloatingActionButton fab;
     int draw_flag=1;
     final Polygon polygon = new Polygon();
     String text_description="";
@@ -103,6 +105,7 @@ public class UI_Map extends AppCompatActivity
     final static HashMap<String,Boolean> all_kmz_overlay_map = new HashMap<>();
     final static ArrayList<Overlay> allOverlays = new ArrayList<>();
     Handler refresh = new Handler();
+    private int flag=0;
 
     @Override
     protected void onCreate(Bundle drawdInstanceState) {
@@ -112,15 +115,15 @@ public class UI_Map extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 
         setSupportActionBar(toolbar);
-        final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
                 fab.setVisibility(View.INVISIBLE);
-                draw.setVisibility(View.VISIBLE);
+                draw_save.setVisibility(View.VISIBLE);
                 cancel.setVisibility(View.VISIBLE);
-                save.setVisibility(View.VISIBLE);
+                undo.setVisibility(View.VISIBLE);
                 polygon_points.clear();
                 removeInfo();
                 removeInfoWindow();
@@ -150,8 +153,10 @@ public class UI_Map extends AppCompatActivity
         setCancelClick(fab);
         setSaveClick(fab);
         refreshWorkingData();
-    }
+        markerpoints.clear();
 
+
+    }
     @Override
     public void onBackPressed() {
 
@@ -260,11 +265,11 @@ public class UI_Map extends AppCompatActivity
         //        "Mapnik", MIN_ZOOM, MAX_ZOOM, PIXEL, ".png", s);
         tileSource = new XYTileSource("tiles",MIN_ZOOM,MAX_ZOOM,PIXEL,".png",new String[]{});
         map.setTileSource(tileSource);
-        draw = (Button) findViewById(R.id.btn_map_draw);
+        draw_save = (Button) findViewById(R.id.btn_map_draw_save);
         cancel = (Button) findViewById(R.id.btn_map_cancel);
-        save = (Button) findViewById(R.id.btn_map_save);
+        undo = (Button) findViewById(R.id.btn_map_undo);
         bottomsheet = findViewById(R.id.map_bottomsheet);
-        polygon_points = new ArrayList<>();
+
     }
 
     private void setBottomsheet(){
@@ -482,10 +487,10 @@ public class UI_Map extends AppCompatActivity
             @Override
             public boolean singleTapConfirmedHelper(GeoPoint p) {
 
-                if(draw.getVisibility()==View.VISIBLE){
-
+                if(draw_save.getVisibility()==View.VISIBLE){
                     polygon_points.add(p);
                     final Marker marker = new Marker(map);
+                    markerpoints.add(marker);
                     marker.setPosition(p);
                     marker.setDraggable(true);
                     final GeoPoint g = new GeoPoint(p);
@@ -550,14 +555,40 @@ public class UI_Map extends AppCompatActivity
     }
 
     private void setDrawClick(){
-        draw.setOnClickListener(new View.OnClickListener() {
+        draw_save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                polygon.setPoints(polygon_points);
-                map.getOverlays().add(polygon);
-                map.invalidate();
-                removeInfoWindow();
-                removeInfo();
+
+
+                if(flag==0)
+                {
+                    polygon.setPoints(polygon_points);
+                    map.getOverlays().add(polygon);
+                    map.invalidate();
+                    removeInfoWindow();
+                    removeInfo();
+                    undo.setVisibility(View.INVISIBLE);
+                    draw_save.setText("SAVE");
+                    flag=1;
+                }
+                else {
+
+                    for (Marker m : all_markers) {
+                        m.getInfoWindow().close();
+                    }
+                    createTextDialog();
+                    map.getOverlays().remove(polygon);
+                    for (int i = 0; i < all_markers.size(); i++) {
+                        map.getOverlays().remove(all_markers.get(i));
+                    }
+                    map.invalidate();
+                    draw_save.setText("DRAW");
+                    draw_save.setVisibility(View.GONE);
+                    cancel.setVisibility(View.GONE);
+                    undo.setVisibility(View.GONE);
+                    fab.setVisibility(View.VISIBLE);
+
+                }
             }
         });
 
@@ -567,10 +598,11 @@ public class UI_Map extends AppCompatActivity
         cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                flag=0;
                 fab.setVisibility(View.VISIBLE);
-                draw.setVisibility(View.GONE);
+                draw_save.setVisibility(View.GONE);
                 cancel.setVisibility(View.GONE);
-                save.setVisibility(View.GONE);
+                undo.setVisibility(View.GONE);
                 draw_flag=1;
                 map.getOverlays().remove(polygon);
                 polygon_points.clear();
@@ -585,24 +617,25 @@ public class UI_Map extends AppCompatActivity
     }
 
     private void setSaveClick(final FloatingActionButton fab){
-        save.setOnClickListener(new View.OnClickListener() {
+        undo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                    if(markerpoints.size()!=0) {
+                        markerpoints.get(markerpoints.size() - 1).remove(map);
+                        markerpoints.remove(markerpoints.size() - 1);
+                        polygon_points.remove(polygon_points.size()-1);
 
-                for(Marker m : all_markers){
-                    m.getInfoWindow().close();
-                }
-                createTextDialog();
-                map.getOverlays().remove(polygon);
-                for(int i=0;i<all_markers.size();i++){
-                    map.getOverlays().remove(all_markers.get(i));
-                }
-                map.invalidate();
-                draw.setVisibility(View.GONE);
-                cancel.setVisibility(View.GONE);
-                save.setVisibility(View.GONE);
-                fab.setVisibility(View.VISIBLE);
+                    }
+                    else
+                    {
+                        Toast.makeText(syncService, "Sorry! All marker has been removed", Toast.LENGTH_SHORT).show();
+                    }
+
+
+
+
             }
+
         });
     }
 
@@ -650,6 +683,7 @@ public class UI_Map extends AppCompatActivity
         save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                flag=0;
                 if(textmsg.getText().toString().length()>0){
                     KmlDocument kml = new KmlDocument();
                     if(polygon_points.size()==1){
@@ -872,6 +906,7 @@ public class UI_Map extends AppCompatActivity
     }
     private void removeInfo(){
         Boolean isOpen = false;
+
         for(Overlay overlay : allOverlays){
             if(overlay instanceof Polygon){
                 if(((Polygon) overlay).getInfoWindow().isOpen()){

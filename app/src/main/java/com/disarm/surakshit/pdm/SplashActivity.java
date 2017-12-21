@@ -168,7 +168,6 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
             }
         }
     }
-
     private boolean checkPermissions(Context context, String[] permissions) {
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && context != null && permissions != null) {
             for (String permission : permissions) {

@@ -34,7 +34,7 @@
         app:srcCompat="@android:drawable/ic_input_add" />
 
     <Button
-        android:id="@+id/btn_map_draw"
+        android:id="@+id/btn_map_draw_save"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|right"
@@ -58,12 +58,12 @@
 
 
     <Button
-        android:id="@+id/btn_map_save"
+        android:id="@+id/btn_map_undo"
         style="@style/Widget.AppCompat.Button.Colored"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center_horizontal"
-        android:text="SAVE"
+        android:text="UNDO"
         android:visibility="gone"
         app:layout_anchor="@+id/include2"
         app:layout_anchorGravity="top|center_horizontal" />
