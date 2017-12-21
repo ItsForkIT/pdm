@@ -8,6 +8,8 @@ import android.util.Log;
 
 import java.util.List;
 
+import static com.disarm.surakshit.pdm.DisarmConnect.DCService.wifiInfo;
+
 /**
  * Created by hridoy on 21/8/16.
  */
@@ -74,18 +76,23 @@ public class SearchingDisarmDB implements Runnable {
             else {
                 Log.v(DCService.TAG4, "Connecting DisarmDB");
 
-              //  handler.removeCallbacksAndMessages(null); !-- Dont use it all other handler will be closed
                 String ssid = DCService.dbAPName;
                 WifiConfiguration wc = new WifiConfiguration();
                 wc.SSID = "\"" + ssid + "\""; //IMPORTANT! This should be in Quotes!!
-               // wc.preSharedKey = "\""+ DCService.dbPass +"\"";
-                //wc.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
-
                 wc.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
 
-                int res = DCService.wifi.addNetwork(wc);
-                boolean b = DCService.wifi.enableNetwork(res, true);
                 Log.v(DCService.TAG4, "Connected to DB");
+                if(DCService.wifi.pingSupplicant()){
+                    DCService.wifi.disconnect();
+                    DCService.wifi.disableNetwork(wifiInfo.getNetworkId());
+                    int res = DCService.wifi.addNetwork(wc);
+                    boolean b = DCService.wifi.enableNetwork(res, true);
+                    Log.v("DB:","Res:" + res + ",b:" + b);
+                    if(res != -1 ) {
+                        Log.v(DCService.TAG2, " DB Connected");
+                    }
+                }
+
             }
 
         }
