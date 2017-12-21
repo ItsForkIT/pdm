@@ -109,14 +109,14 @@ public class WifiConnect implements Runnable {
                 if(DCService.wifi.pingSupplicant()){
                     DCService.wifi.disconnect();
                     DCService.wifi.disableNetwork(wifiInfo.getNetworkId());
-                    int res = DCService.wifi.addNetwork(wc);
-                    boolean b = DCService.wifi.enableNetwork(res, true);
-                    Log.v("WifiConnect:","Res:" + res + ",b:" + b);
-                    if(res != -1 ) {
-                        Log.v(DCService.TAG2, "Connected");
-                        Log.v("Parameters:", wc.SSID + "," + wc.BSSID + "," + wc.allowedAuthAlgorithms + "," + wc.allowedProtocols + "," + wc.allowedKeyManagement + "," + wc.allowedGroupCiphers + "," + wc.allowedPairwiseCiphers + "," + wc.FQDN + "," + wc.status);
-                        Logger.addRecordToLog("DH Connected Successfully," + bestFoundSSID);
-                    }
+                }
+                int res = DCService.wifi.addNetwork(wc);
+                boolean b = DCService.wifi.enableNetwork(res, true);
+                Log.v("WifiConnect:","Res:" + res + ",b:" + b);
+                if(res != -1 ) {
+                    Log.v(DCService.TAG2, "Connected");
+                    Log.v("Parameters:", wc.SSID + "," + wc.BSSID + "," + wc.allowedAuthAlgorithms + "," + wc.allowedProtocols + "," + wc.allowedKeyManagement + "," + wc.allowedGroupCiphers + "," + wc.allowedPairwiseCiphers + "," + wc.FQDN + "," + wc.status);
+                    Logger.addRecordToLog("DH Connected Successfully," + bestFoundSSID);
                 }
             }
             else{

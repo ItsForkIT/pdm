@@ -81,16 +81,18 @@ public class SearchingDisarmDB implements Runnable {
                 wc.SSID = "\"" + ssid + "\""; //IMPORTANT! This should be in Quotes!!
                 wc.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
 
-                Log.v(DCService.TAG4, "Connected to DB");
+                //Log.v(DCService.TAG4, "Connected to DB");
                 if(DCService.wifi.pingSupplicant()){
-                    DCService.wifi.disconnect();
-                    DCService.wifi.disableNetwork(wifiInfo.getNetworkId());
-                    int res = DCService.wifi.addNetwork(wc);
-                    boolean b = DCService.wifi.enableNetwork(res, true);
-                    Log.v("DB:","Res:" + res + ",b:" + b);
-                    if(res != -1 ) {
-                        Log.v(DCService.TAG2, " DB Connected");
+                    if(!DCService.wifiInfo.getSSID().contains("DB")){
+                        DCService.wifi.disconnect();
+                        DCService.wifi.disableNetwork(wifiInfo.getNetworkId());
                     }
+                }
+                int res = DCService.wifi.addNetwork(wc);
+                boolean b = DCService.wifi.enableNetwork(res, true);
+                Log.v("DB:","Res:" + res + ",b:" + b);
+                if(res != -1 ) {
+                    Log.v(DCService.TAG4, " DB Connected");
                 }
 
             }
