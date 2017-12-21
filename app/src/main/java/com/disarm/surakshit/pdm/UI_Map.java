@@ -79,7 +79,7 @@ import java.util.HashMap;
 public class UI_Map extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     public static Context contextOfApplication;
-    Button draw_save,undo,cancel;
+    Button draw_save,undo_back,cancel;
     static MapView map;
     View bottomsheet;
     ArrayList<Marker> markerpoints=new ArrayList<>();
@@ -119,7 +119,7 @@ public class UI_Map extends AppCompatActivity
                 fab.setVisibility(View.INVISIBLE);
                 draw_save.setVisibility(View.VISIBLE);
                 cancel.setVisibility(View.VISIBLE);
-                undo.setVisibility(View.VISIBLE);
+                undo_back.setVisibility(View.VISIBLE);
                 polygon_points.clear();
                 removeInfo();
                 removeInfoWindow();
@@ -263,7 +263,7 @@ public class UI_Map extends AppCompatActivity
         map.setTileSource(tileSource);
         draw_save = (Button) findViewById(R.id.btn_map_draw_save);
         cancel = (Button) findViewById(R.id.btn_map_cancel);
-        undo = (Button) findViewById(R.id.btn_map_undo);
+        undo_back = (Button) findViewById(R.id.btn_map_undo_back);
         bottomsheet = findViewById(R.id.map_bottomsheet);
 
 
@@ -483,7 +483,7 @@ public class UI_Map extends AppCompatActivity
             @Override
             public boolean singleTapConfirmedHelper(GeoPoint p) {
                 draw_save.setEnabled(true);
-                undo.setEnabled(true);
+                undo_back.setEnabled(true);
 
                 if(draw_save.getVisibility()==View.VISIBLE){
 
@@ -569,11 +569,11 @@ public class UI_Map extends AppCompatActivity
                         map.invalidate();
                         removeInfoWindow();
                         removeInfo();
-                        undo.setVisibility(View.INVISIBLE);
+                        undo_back.setText("BACK");
                         draw_save.setText("SAVE");
                         flag = 1;
                     }
-                    else Toast.makeText(getBaseContext(), "No marker is selected..", Toast.LENGTH_SHORT).show();
+                    else Toast.makeText(getBaseContext(), "No marker is selected.", Toast.LENGTH_SHORT).show();
                 }
                 else {
 
@@ -586,10 +586,11 @@ public class UI_Map extends AppCompatActivity
                         map.getOverlays().remove(all_markers.get(i));
                     }
                     map.invalidate();
+                    undo_back.setText("UNDO");
                     draw_save.setText("DRAW");
                     draw_save.setVisibility(View.GONE);
                     cancel.setVisibility(View.GONE);
-                    undo.setVisibility(View.GONE);
+                    undo_back.setVisibility(View.GONE);
                     fab.setVisibility(View.VISIBLE);
 
                 }
@@ -602,12 +603,13 @@ public class UI_Map extends AppCompatActivity
         cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                undo_back.setText("UNDO");
                 flag=0;
                 draw_save.setText("Draw");
                 fab.setVisibility(View.VISIBLE);
                 draw_save.setVisibility(View.GONE);
                 cancel.setVisibility(View.GONE);
-                undo.setVisibility(View.GONE);
+                undo_back.setVisibility(View.GONE);
                 draw_flag=1;
                 map.getOverlays().remove(polygon);
                 polygon_points.clear();
@@ -622,26 +624,30 @@ public class UI_Map extends AppCompatActivity
     }
 
     private void setSaveClick(final FloatingActionButton fab){
-        undo.setOnClickListener(new View.OnClickListener() {
+        undo_back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                    if(markerpoints.size()!=0 && polygon_points.size()!=0) {
+                if(undo_back.getText().toString().equals("UNDO"))
+                {
+                    if (markerpoints.size() != 0 && polygon_points.size() != 0) {
                         markerpoints.get(markerpoints.size() - 1).remove(map);
                         markerpoints.remove(markerpoints.size() - 1);
-                        polygon_points.remove(polygon_points.size()-1);
+                        polygon_points.remove(polygon_points.size() - 1);
 
 
-                    }
-                    else
-                    {
+                    } else {
+
                         Toast.makeText(getBaseContext(), "There is no marker ", Toast.LENGTH_SHORT).show();
 
-
                     }
-
-
-
-
+                }
+                else
+                {
+                    flag=0;
+                    draw_save.setText("DRAW");
+                    undo_back.setText("UNDO");
+                    map.getOverlays().remove(polygon);
+                }
             }
 
         });
@@ -672,6 +678,7 @@ public class UI_Map extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 flag=0;
+
                 draw_save.setText("Draw");
                 dialog.dismiss();
             }
