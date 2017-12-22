@@ -7,9 +7,13 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.drawable.Drawable;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.media.MediaPlayer;
+import android.media.RingtoneManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -80,6 +84,7 @@ public class UI_Map extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     public static Context contextOfApplication;
     Button draw_save,undo_back,cancel;
+    public static boolean first_time = true;
     static MapView map;
     View bottomsheet;
     ArrayList<Marker> markerpoints=new ArrayList<>();
@@ -123,6 +128,7 @@ public class UI_Map extends AppCompatActivity
                 undo_back.setVisibility(View.VISIBLE);
                 polygon_points.clear();
                 total_file=0;
+                flag=0;
                 removeInfo();
                 removeInfoWindow();
             }
@@ -329,7 +335,7 @@ public class UI_Map extends AppCompatActivity
         mScaleBarOverlay.setCentred(true);
         mScaleBarOverlay.setScaleBarOffset(width/2, 10);
         map.getOverlays().add(mScaleBarOverlay);
-        setWorkingData();
+        setWorkingData(true);
     }
 
     private void startService(){
@@ -762,7 +768,7 @@ public class UI_Map extends AppCompatActivity
                         File file = Environment.getExternalStoragePublicDirectory("DMS/Working/"+file_name);
                         kml.saveAsKML(file);
                     }
-                    setWorkingData();
+                    setWorkingData(true);
                     dialog.dismiss();
                 }
                 else {
@@ -894,7 +900,7 @@ public class UI_Map extends AppCompatActivity
 
 
 
-    public static void setWorkingData(){
+    public static void setWorkingData(final boolean is_mine){
         File working = Environment.getExternalStoragePublicDirectory("DMS/Working");
         File[] files = working.listFiles();
         for(final File file : files){
@@ -912,7 +918,12 @@ public class UI_Map extends AppCompatActivity
             else{
                 kml.parseKMLFile(file);
             }
-
+            if(!first_time) {
+                Log.d("Media", "Before");
+                MediaPlayer thePlayer = MediaPlayer.create(contextOfApplication, RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
+                thePlayer.start();
+                Log.d("Media", "After");
+            }
             final FolderOverlay kmlOverlay = (FolderOverlay)kml.mKmlRoot.buildOverlay(map, null, null, kml);
             Thread t = new Thread(new Runnable() {
                 @Override
@@ -921,12 +932,23 @@ public class UI_Map extends AppCompatActivity
                         if(kmlOverlay.getItems().get(i) instanceof Polygon){
                               String desciption = ((Polygon) kmlOverlay.getItems().get(i)).getSnippet();
                               String latlon = kml.mKmlRoot.getExtendedData("Lat Long");
+                              if(!first_time && !is_mine){
+                                  ((Polygon) kmlOverlay.getItems().get(i)).setStrokeColor(Color.BLUE);
+                              }
                               ((Polygon) kmlOverlay.getItems().get(i)).setInfoWindow(new CustomInfoWindow(R.layout.custom_info_window,map,desciption,latlon,file.getName()));
                               allOverlays.add(((Polygon) kmlOverlay.getItems().get(i)));
                         }
                         else if(kmlOverlay.getItems().get(i) instanceof Marker){
                             String description = ((Marker) kmlOverlay.getItems().get(i)).getSnippet();
                             String latlon = kml.mKmlRoot.getExtendedData("Lat Long");
+                            Drawable draw = null;
+                            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                                if(!first_time && !is_mine)
+                                    draw = getContextOfApplication().getDrawable(R.drawable.marker_blue);
+                                else
+                                    draw = getContextOfApplication().getDrawable(R.drawable.marker_red);
+                            }
+                            ((Marker) kmlOverlay.getItems().get(i)).setIcon(draw);
                             ((Marker) kmlOverlay.getItems().get(i)).setInfoWindow(new CustomInfoWindow(R.layout.custom_info_window,map,description,latlon,file.getName()));
                             allOverlays.add(((Marker) kmlOverlay.getItems().get(i)));
                         }
@@ -936,12 +958,13 @@ public class UI_Map extends AppCompatActivity
             t.start();
             map.getOverlays().add(kmlOverlay);
         }
+        first_time=false;
     }
     private void refreshWorkingData(){
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                setWorkingData();
+                setWorkingData(false);
                 refresh.postDelayed(this,10000);
             }
         };

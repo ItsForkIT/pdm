@@ -2,6 +2,8 @@ package com.disarm.surakshit.pdm;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Environment;
 import android.support.v4.content.FileProvider;
@@ -14,6 +16,8 @@ import android.widget.Toast;
 import com.disarm.surakshit.pdm.Util.UnZip;
 
 import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.Marker;
+import org.osmdroid.views.overlay.Polygon;
 import org.osmdroid.views.overlay.infowindow.InfoWindow;
 
 import java.io.File;
@@ -40,6 +44,14 @@ public class CustomInfoWindow extends InfoWindow {
 
     @Override
     public void onOpen(Object item) {
+        Drawable draw = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                draw = context.getDrawable(R.drawable.marker_red);
+        }
+        if(item instanceof Polygon)
+            ((Polygon)item).setStrokeColor(Color.BLACK);
+        if(item instanceof Marker)
+            ((Marker)item).setIcon(draw);
         Button open = (Button) mView.findViewById(R.id.btn_iw_open);
         TextView title = (TextView) mView.findViewById(R.id.tv_iw_title);
         TextView latlon = (TextView) mView.findViewById(R.id.tv_iw_latlon);
