@@ -634,13 +634,7 @@ public class UI_Map extends AppCompatActivity
                     else
                     {
                         Toast.makeText(getBaseContext(), "There is no marker ", Toast.LENGTH_SHORT).show();
-
-
                     }
-
-
-
-
             }
 
         });
@@ -879,6 +873,7 @@ public class UI_Map extends AppCompatActivity
             else{
                 kml.parseKMLFile(file);
             }
+
             final FolderOverlay kmlOverlay = (FolderOverlay)kml.mKmlRoot.buildOverlay(map, null, null, kml);
             Thread t = new Thread(new Runnable() {
                 @Override
