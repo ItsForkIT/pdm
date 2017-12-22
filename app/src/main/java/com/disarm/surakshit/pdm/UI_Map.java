@@ -93,6 +93,7 @@ public class UI_Map extends AppCompatActivity
     private boolean syncServiceBound = false;
     private boolean myServiceBound = false;
     private boolean gpsService = false;
+    public static int total_file=0;
     LocationManager lm;
     LocationListener locationListener;
     ArrayList<GeoPoint> polygon_points=new ArrayList<>();
@@ -121,6 +122,7 @@ public class UI_Map extends AppCompatActivity
                 cancel.setVisibility(View.VISIBLE);
                 undo_back.setVisibility(View.VISIBLE);
                 polygon_points.clear();
+                total_file=0;
                 removeInfo();
                 removeInfoWindow();
             }
@@ -604,6 +606,7 @@ public class UI_Map extends AppCompatActivity
             public void onClick(View v) {
                 undo_back.setText("UNDO");
                 flag=0;
+                total_file=0;
                 draw_save.setText("Draw");
                 fab.setVisibility(View.VISIBLE);
                 draw_save.setVisibility(View.GONE);
@@ -631,6 +634,7 @@ public class UI_Map extends AppCompatActivity
                     if (markerpoints.size() != 0 && polygon_points.size() != 0) {
                         markerpoints.get(markerpoints.size() - 1).remove(map);
                         markerpoints.remove(markerpoints.size() - 1);
+
                         polygon_points.remove(polygon_points.size() - 1);
 
 
@@ -647,6 +651,8 @@ public class UI_Map extends AppCompatActivity
                     undo_back.setText("UNDO");
                     map.getOverlays().remove(polygon);
                 }
+
+
             }
 
         });
@@ -679,6 +685,7 @@ public class UI_Map extends AppCompatActivity
                 flag=0;
 
                 draw_save.setText("Draw");
+                total_file=0;
                 dialog.dismiss();
             }
         });
@@ -791,27 +798,45 @@ public class UI_Map extends AppCompatActivity
         img.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(UI_Map.this, Photo.class);
-                intent.putExtra("Intent type","Data");
-                startActivity(intent);
+                if(total_file==0) {
+                    total_file++;
+                    Intent intent = new Intent(UI_Map.this, Photo.class);
+                    intent.putExtra("Intent type", "Data");
+                    startActivity(intent);
+                }
+                else{
+                    Toast.makeText(getBaseContext(),"Only one media is allowed",Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
         vid.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(UI_Map.this, Video.class);
-                intent.putExtra("Intent type","Data");
-                startActivity(intent);
+                if(total_file==0){
+                    total_file++;
+                    Intent intent = new Intent(UI_Map.this, Video.class);
+                    intent.putExtra("Intent type","Data");
+                    startActivity(intent);
+                }
+                else{
+                    Toast.makeText(getBaseContext(),"Only one media is allowed",Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
         aud.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(UI_Map.this, AudioCapture.class);
-                intent.putExtra("Intent type","Data");
-                startActivity(intent);
+                if(total_file==0){
+                    total_file++;
+                    Intent intent = new Intent(UI_Map.this, AudioCapture.class);
+                    intent.putExtra("Intent type","Data");
+                    startActivity(intent);
+                }
+                else{
+                    Toast.makeText(getBaseContext(),"Only one media is allowed",Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -828,7 +853,7 @@ public class UI_Map extends AppCompatActivity
                 if(imp.isEmpty() || img.length() ==0 || imp.equals("") || imp == null){
                     imp = "50";
                 }
-
+                total_file=0;
                 new FileTask().execute(imp,dest,polygon_points,map,text_description);
                 dialog.dismiss();
             }
@@ -849,6 +874,7 @@ public class UI_Map extends AppCompatActivity
                                         File dir = new File(Environment.getExternalStorageDirectory() + "/DMS/tmp");
                                         if (Reset.deleteContents(dir)) {
                                             Toast.makeText(UI_Map.this, R.string.files_discarded, Toast.LENGTH_SHORT).show();
+                                            total_file=0;
                                         }
                                         dialog.dismiss();
                                     }
@@ -886,6 +912,7 @@ public class UI_Map extends AppCompatActivity
             else{
                 kml.parseKMLFile(file);
             }
+
             final FolderOverlay kmlOverlay = (FolderOverlay)kml.mKmlRoot.buildOverlay(map, null, null, kml);
             Thread t = new Thread(new Runnable() {
                 @Override
