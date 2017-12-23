@@ -41,11 +41,9 @@ public class KmzCreator
 
             FileOutputStream fos = new FileOutputStream(zipFile);
             ZipOutputStream zos = new ZipOutputStream(fos);
-
             System.out.println("Output to Zip : " + zipFile);
 
             for(String file : this.fileList){
-
                 System.out.println("File Added : " + file);
                 ZipEntry ze= new ZipEntry(file);
                 zos.putNextEntry(ze);
