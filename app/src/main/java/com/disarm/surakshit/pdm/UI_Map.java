@@ -276,7 +276,6 @@ public class UI_Map extends AppCompatActivity
 
 
     }
-
     private void setBottomsheet(){
 
         final BottomSheetBehavior behave = BottomSheetBehavior.from(bottomsheet);
@@ -314,7 +313,6 @@ public class UI_Map extends AppCompatActivity
             }
         });
     }
-
     private void setMapData(){
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
@@ -337,7 +335,6 @@ public class UI_Map extends AppCompatActivity
         map.getOverlays().add(mScaleBarOverlay);
         setWorkingData(true);
     }
-
     private void startService(){
         final Intent syncServiceIntent = new Intent(getBaseContext(), SyncService.class);
         bindService(syncServiceIntent, syncServiceConnection, Context.BIND_AUTO_CREATE);
@@ -352,7 +349,6 @@ public class UI_Map extends AppCompatActivity
         }
         MLocation.subscribe(UI_Map.this);
     }
-
     private void unbindAllService() {
         final Intent syncServiceIntent = new Intent(getBaseContext(), SyncService.class);
         if (syncServiceBound) {
@@ -393,7 +389,6 @@ public class UI_Map extends AppCompatActivity
             syncServiceBound = false;
         }
     };
-
     private ServiceConnection myServiceConnection = new ServiceConnection() {
 
         @Override
@@ -409,7 +404,6 @@ public class UI_Map extends AppCompatActivity
             myServiceBound = false;
         }
     };
-
     public void enableGPS() {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
         alertDialogBuilder
@@ -434,7 +428,6 @@ public class UI_Map extends AppCompatActivity
         AlertDialog alert = alertDialogBuilder.create();
         alert.show();
     }
-
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 5 && resultCode == 0) {
             String provider = Settings.Secure.getString(getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
@@ -455,7 +448,6 @@ public class UI_Map extends AppCompatActivity
             enableGPS();
         }
     }
-
     private void crashLog(){
         // draw crash logs in a file every time the application crashes
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
@@ -484,8 +476,6 @@ public class UI_Map extends AppCompatActivity
             }
         });
     }
-
-
     private void setMapClick(){
         MapEventsReceiver mReceive = new MapEventsReceiver() {
             @Override
@@ -560,7 +550,6 @@ public class UI_Map extends AppCompatActivity
         MapEventsOverlay OverlayEvents = new MapEventsOverlay(getBaseContext(), mReceive);
         map.getOverlays().add(OverlayEvents);
     }
-
     private void setDrawClick(){
         draw_save.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -605,7 +594,6 @@ public class UI_Map extends AppCompatActivity
         });
 
     }
-
     private void setCancelClick(final FloatingActionButton fab){
         cancel.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -630,7 +618,6 @@ public class UI_Map extends AppCompatActivity
             }
         });
     }
-
     private void setSaveClick(final FloatingActionButton fab){
         undo_back.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -662,12 +649,6 @@ public class UI_Map extends AppCompatActivity
             }
 
         });
-    }
-
-    private void removeInfoWindow(){
-        for(Marker m : all_markers){
-            m.getInfoWindow().close();
-        }
     }
     private void createTextDialog(){
         text_description="";
@@ -897,9 +878,6 @@ public class UI_Map extends AppCompatActivity
             }
         });
     }
-
-
-
     public static void setWorkingData(final boolean is_mine){
         File working = Environment.getExternalStoragePublicDirectory("DMS/Working");
         File[] files = working.listFiles();
@@ -990,6 +968,11 @@ public class UI_Map extends AppCompatActivity
                     ((Marker) overlay).getInfoWindow().close();
                 }
             }
+        }
+    }
+    private void removeInfoWindow(){
+        for(Marker m : all_markers){
+            m.getInfoWindow().close();
         }
     }
     public static Context getContextOfApplication(){
