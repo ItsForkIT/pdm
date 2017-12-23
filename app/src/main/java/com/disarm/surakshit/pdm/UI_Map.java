@@ -907,6 +907,8 @@ public class UI_Map extends AppCompatActivity
             if(file.getName().contains("MapDisarm")){
                 continue;
             }
+
+
             if(all_kmz_overlay_map.containsKey(file.getName())){
                 continue;
             }
@@ -965,10 +967,10 @@ public class UI_Map extends AppCompatActivity
             @Override
             public void run() {
                 setWorkingData(false);
-                refresh.postDelayed(this,10000);
+                refresh.postDelayed(this,5000);
             }
         };
-        refresh.postDelayed(r,10000);
+        refresh.postDelayed(r,5000);
     }
     private void removeInfo(){
         Boolean isOpen = false;
