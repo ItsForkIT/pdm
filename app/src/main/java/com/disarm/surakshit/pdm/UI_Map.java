@@ -47,6 +47,7 @@ import com.disarm.surakshit.pdm.Capture.Photo;
 import com.disarm.surakshit.pdm.Capture.Video;
 import com.disarm.surakshit.pdm.DisarmConnect.DCService;
 import com.disarm.surakshit.pdm.Service.SyncService;
+import com.disarm.surakshit.pdm.Util.KmzCreator;
 import com.disarm.surakshit.pdm.Util.PrefUtils;
 import com.disarm.surakshit.pdm.Util.Reset;
 import com.disarm.surakshit.pdm.location.LocationState;
@@ -727,7 +728,7 @@ public class UI_Map extends AppCompatActivity
                                 "_defaultMcs_"
                                 +latlng
                                 +"_"+timeStamp+
-                                "_1.kml";
+                                "_1.kmz";
                         kml.mKmlRoot.add(placemark);
                         kml.mKmlRoot.setExtendedData("Media Type","TXT");
                         kml.mKmlRoot.setExtendedData("Group Type","data");
@@ -738,9 +739,16 @@ public class UI_Map extends AppCompatActivity
                         kml.mKmlRoot.setExtendedData("Group ID","1");
                         kml.mKmlRoot.setExtendedData("Priority","50");
                         kml.mKmlRoot.setExtendedData("KML Type","Point");
-
-                        File file = Environment.getExternalStoragePublicDirectory("DMS/Working/"+file_name);
+                        File tempKmzFolder = Environment.getExternalStoragePublicDirectory("DMS/tmpKMZ");
+                        if(!tempKmzFolder.exists()){
+                            tempKmzFolder.mkdir();
+                        }
+                        File file = Environment.getExternalStoragePublicDirectory("DMS/tmpKMZ/index.kml");
                         kml.saveAsKML(file);
+                        KmzCreator kmz = new KmzCreator();
+                        kmz.zipIt(Environment.getExternalStoragePublicDirectory("DMS/Working/"+file_name).toString());
+                        Storage storage = new Storage(getContextOfApplication());
+                        storage.deleteDirectory(tempKmzFolder.toString());
                     }
                     else if(polygon_points.size()>1){
                         Polygon polygon = new Polygon();
@@ -754,7 +762,7 @@ public class UI_Map extends AppCompatActivity
                                 "_defaultMcs_"
                                 +latlng
                                 +"_"+timeStamp+
-                                "_1.kml";
+                                "_1.kmz";
                         kml.mKmlRoot.setExtendedData("Media Type","TXT");
                         kml.mKmlRoot.setExtendedData("Group Type","data");
                         kml.mKmlRoot.setExtendedData("Time Stamp",timeStamp);
@@ -765,8 +773,18 @@ public class UI_Map extends AppCompatActivity
                         kml.mKmlRoot.setExtendedData("Priority","50");
                         kml.mKmlRoot.setExtendedData("KML Type","Polygon");
                         kml.mKmlRoot.addOverlay(polygon,kml);
-                        File file = Environment.getExternalStoragePublicDirectory("DMS/Working/"+file_name);
+                        File tempKmzFolder = Environment.getExternalStoragePublicDirectory("DMS/tmpKMZ");
+                        if(!tempKmzFolder.exists()){
+                            tempKmzFolder.mkdir();
+                        }
+
+                        File file = Environment.getExternalStoragePublicDirectory("DMS/tmpKMZ/index.kml");
                         kml.saveAsKML(file);
+                        KmzCreator kmz = new KmzCreator();
+                        kmz.zipIt(Environment.getExternalStoragePublicDirectory("DMS/Working/"+file_name).toString());
+                        Storage storage = new Storage(getContextOfApplication());
+
+                        storage.deleteDirectory(tempKmzFolder.toString());
                     }
                     setWorkingData(true);
                     dialog.dismiss();

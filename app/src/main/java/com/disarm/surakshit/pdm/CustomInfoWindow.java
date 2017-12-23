@@ -56,7 +56,7 @@ public class CustomInfoWindow extends InfoWindow {
         TextView title = (TextView) mView.findViewById(R.id.tv_iw_title);
         TextView latlon = (TextView) mView.findViewById(R.id.tv_iw_latlon);
         latlon.setText(latlon_str);
-        if(file_name.contains("kml")){
+        if(file_name.contains("TXT")){
             open.setVisibility(View.GONE);
             title.setText(title_str);
         }
