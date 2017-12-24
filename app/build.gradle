@@ -28,6 +28,7 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile files('libs/psync-pc-jar-with-dependencies.jar')
+    compile files('libs/jbdiff.jar')
     compile(name: 'osmbonuspack_6.4', ext: 'aar')
     compile 'com.android.support:support-v4:25.3.1'
     compile 'org.apache.commons:commons-lang3:3.3.2'

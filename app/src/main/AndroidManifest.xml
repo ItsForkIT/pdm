@@ -102,7 +102,6 @@
         <service android:name="com.disarm.surakshit.pdm.DisarmConnect.DCService" />
         <service android:name="com.disarm.surakshit.pdm.DisarmConnect.DataMuleService" />
 
-        <activity android:name="com.disarm.surakshit.pdm.OSMMapView" />
         <activity
             android:name="com.disarm.surakshit.pdm.UI_Map"
             android:label="@string/title_activity_ui__map"

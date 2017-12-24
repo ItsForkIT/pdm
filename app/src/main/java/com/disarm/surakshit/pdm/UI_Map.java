@@ -159,7 +159,6 @@ public class UI_Map extends AppCompatActivity
         refreshWorkingData();
         markerpoints.clear();
 
-
     }
     @Override
     public void onBackPressed() {
