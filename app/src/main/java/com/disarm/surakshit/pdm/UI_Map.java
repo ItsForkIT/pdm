@@ -73,6 +73,7 @@ import org.osmdroid.views.overlay.compass.CompassOverlay;
 import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
@@ -80,6 +81,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.zip.ZipFile;
 
 public class UI_Map extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -926,10 +928,11 @@ public class UI_Map extends AppCompatActivity
                 continue;
             }
 
-
             if(all_kmz_overlay_map.containsKey(file.getName())){
                 continue;
             }
+            if(!isValid(file))
+                continue;
             all_kmz_overlay_map.put(file.getName(),true);
             final KmlDocument kml = new KmlDocument();
             if(file.getName().contains("kmz")){
@@ -938,7 +941,7 @@ public class UI_Map extends AppCompatActivity
             else{
                 kml.parseKMLFile(file);
             }
-            if(!first_time) {
+            if(!first_time && !is_mine) {
                 Log.d("Media", "Before");
                 MediaPlayer thePlayer = MediaPlayer.create(contextOfApplication, RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
                 thePlayer.start();
@@ -1012,5 +1015,23 @@ public class UI_Map extends AppCompatActivity
     }
     public static Context getContextOfApplication(){
         return contextOfApplication;
+    }
+
+    public static boolean isValid(File file){
+        ZipFile zipfile = null;
+        try {
+            zipfile = new ZipFile(file);
+            return true;
+        } catch (IOException e) {
+            return false;
+        } finally {
+            try {
+                if (zipfile != null) {
+                    zipfile.close();
+                    zipfile = null;
+                }
+            } catch (IOException e) {
+            }
+        }
     }
 }
