@@ -1,6 +1,10 @@
 package com.disarm.surakshit.pdm.Util;
 
+import android.content.Context;
 import android.os.Environment;
+
+import com.disarm.surakshit.pdm.UI_Map;
+import com.snatik.storage.Storage;
 
 import java.io.File;
 
@@ -20,22 +24,28 @@ public class GetFolders {
 
     public static File getTmpKMZExtractForKMLDir(){
         File dir = Environment.getExternalStoragePublicDirectory("DMS/TmpKMZExtractForKML");
-        if(!dir.exists())
-            dir.mkdir();
+        Storage storage = new Storage(UI_Map.contextOfApplication);
+        if(dir.exists())
+            storage.deleteDirectory(dir.toString());
+        dir.mkdir();
         return dir;
     }
 
     public static File getDiffDir(){
         File dir = Environment.getExternalStoragePublicDirectory("DMS/CreateDiff");
-        if(!dir.exists())
-            dir.mkdir();
+        Storage storage = new Storage(UI_Map.contextOfApplication);
+        if(dir.exists())
+            storage.deleteDirectory(dir.toString());
+        dir.mkdir();
         return dir;
     }
 
     public static File getPatchDir(){
         File dir = Environment.getExternalStoragePublicDirectory("DMS/PatchDiff");
-        if(!dir.exists())
-            dir.mkdir();
+        Storage storage = new Storage(UI_Map.contextOfApplication);
+        if(dir.exists())
+            storage.deleteDirectory(dir.toString());
+        dir.mkdir();
         return dir;
     }
 
@@ -45,6 +55,4 @@ public class GetFolders {
             dir.mkdir();
         return dir;
     }
-
-
 }

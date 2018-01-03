@@ -4,6 +4,8 @@ import android.content.Context;
 import android.os.Environment;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Created by naman on 24/12/17.
@@ -17,5 +19,9 @@ public class KmzUtils {
 
     private void extractKMLformKMZ(File kmzFile){
 
+    }
+
+    public static String getTimeStamp(){
+        return new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
     }
 }

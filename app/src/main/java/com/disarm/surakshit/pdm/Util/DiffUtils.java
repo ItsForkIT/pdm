@@ -17,21 +17,39 @@ public class DiffUtils {
         this.context = context;
     }
 
+
+    //Source file KMZ format
+    //Destination file KML format
     private void createDiff(File source,File destination){
         Storage storage = new Storage(context);
-
+        File tmpKMZExtractDir = GetFolders.getTmpKMZExtractForKMLDir();
+        UnZip unZip = new UnZip(tmpKMZExtractDir.getPath()+"/",source.toString());
     }
 
 
 
-    private void getDeltaName(String fileName){
-
+    private String getDeltaName(String fileName){
+        String absolutueFileName = getAbsoluteFileName(fileName);
+        int old_version = getLatestDiffVersionNo(fileName);
+        int new_version = old_version++;
+        String timestamp = KmzUtils.getTimeStamp();
+        return absolutueFileName+timestamp+"_"+new_version+".diff";
     }
 
-    private void getLatestDiffVersionNo(String fileName){
+    private int getLatestDiffVersionNo(String fileName){
+        int version_number = 0;
         File working = GetFolders.getWorkingDir();
         File[] workingFiles = working.listFiles();
         String absoluteFileName = getAbsoluteFileName(fileName);
+        for(int i=0;i<workingFiles.length;i++){
+            if(workingFiles[i].getName().contains(absoluteFileName) && !workingFiles[i].getName().contains("kmz")){
+                String oldDiffName = workingFiles[i].getName();
+                Pattern pattern = Pattern.compile("_");
+                String[] result = pattern.split(oldDiffName);
+                version_number = Integer.parseInt(result[10]);
+            }
+        }
+        return version_number;
     }
 
     private String getAbsoluteFileName(String fileName){
@@ -39,8 +57,9 @@ public class DiffUtils {
         String[] result = pattern.split(fileName);
         String absoluteFileName = "";
         for(int i=0;i<9;i++){
-            absoluteFileName = absoluteFileName+result[i];
+            absoluteFileName = absoluteFileName+result[i]+"_";
         }
         return absoluteFileName;
     }
+
 }

@@ -84,7 +84,7 @@ public class CustomInfoWindow extends InfoWindow {
                     destFolder.mkdir();
                 }
                 File sourceFile = Environment.getExternalStoragePublicDirectory("DMS/Working/"+file_name);
-                UnZip unzip = new UnZip(destFolder.getPath().toString()+"/",sourceFile.toString());
+                UnZip unzip = new UnZip(destFolder.getPath()+"/",sourceFile.toString());
                 destFolder  = Environment.getExternalStoragePublicDirectory("DMS/tmpOpen");
                 String absolute_file_name = "";
                 for(int i=0;i<file_name.length();i++){
