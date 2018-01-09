@@ -10,6 +10,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
+import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.media.MediaPlayer;
@@ -62,6 +63,7 @@ import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.tileprovider.tilesource.ITileSource;
 import org.osmdroid.tileprovider.tilesource.XYTileSource;
 import org.osmdroid.util.GeoPoint;
+import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.FolderOverlay;
 import org.osmdroid.views.overlay.MapEventsOverlay;
@@ -113,6 +115,8 @@ public class UI_Map extends AppCompatActivity
     final static HashMap<String,Boolean> all_kmz_overlay_map = new HashMap<>();
     final static ArrayList<Overlay> allOverlays = new ArrayList<>();
     Handler refresh = new Handler();
+    Handler setCenter = new Handler();
+    boolean center = false;
     private int flag=0;
     @Override
     protected void onCreate(Bundle drawdInstanceState) {
@@ -329,8 +333,9 @@ public class UI_Map extends AppCompatActivity
         map.setMultiTouchControls(true);
         mapController = map.getController();
         mapController.setZoom(15);
-        GeoPoint startPoint = new GeoPoint(23.548512,87.2894873);
+        GeoPoint startPoint = new GeoPoint(13.0169435,77.5649295);
         mapController.setCenter(startPoint);
+        setCenter(mapController);
         mCompassOverlay = new CompassOverlay(ctx, new InternalCompassOrientationProvider(ctx), map);
         mCompassOverlay.enableCompass();
         map.getOverlays().add(mCompassOverlay);
@@ -340,7 +345,26 @@ public class UI_Map extends AppCompatActivity
         map.getOverlays().add(mScaleBarOverlay);
         setWorkingData(true);
     }
+    private void setCenter(final IMapController mapController){
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                if(!center){
+                    Location l = MLocation.getLocation(getApplicationContext());
+                    if(l != null){
+                        GeoPoint g = new GeoPoint(l.getLatitude(),l.getLongitude());
+                        center = true;
+                        mapController.setCenter(g);
+                    }
+                    else{
+                        setCenter.postDelayed(this,500);
+                    }
+                }
+            }
+        };
+        setCenter.postDelayed(r,500);
 
+    }
     private void startService(){
         final Intent syncServiceIntent = new Intent(getBaseContext(), SyncService.class);
         bindService(syncServiceIntent, syncServiceConnection, Context.BIND_AUTO_CREATE);
