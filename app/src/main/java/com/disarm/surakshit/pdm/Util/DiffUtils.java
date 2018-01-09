@@ -54,7 +54,8 @@ public class DiffUtils {
         }
     }
 
-
+    //Returns diff file
+    //Param - KMZ file name
     private File getLatestDeltaFile(String source){
         File[] workingFiles = Environment.getExternalStoragePublicDirectory("/DMS/Working").listFiles();
         for(File file : workingFiles){
@@ -89,6 +90,7 @@ public class DiffUtils {
         return version_number;
     }
 
+    //Returns the absolute file name without having any extensions and _ at last
     private String getAbsoluteFileName(String fileName){
         Pattern pattern = Pattern.compile("_");
         String[] result = pattern.split(fileName);
@@ -99,6 +101,7 @@ public class DiffUtils {
         return absoluteFileName;
     }
 
+
     private File getDestinationFile(String deltaName){
         String fileName=getAbsoluteFileName(deltaName);
         Pattern pattern = Pattern.compile("_");
@@ -106,5 +109,21 @@ public class DiffUtils {
         fileName = fileName+result[9]+".kml";
         return Environment.getExternalStoragePublicDirectory("DMS/Show/"+fileName);
     }
+
+
+    //Param - Name of the kmz file
+    //Return true if there is a diff available to a kmz file
+    private boolean isDiffAvailable(String source){
+        boolean available = false;
+        String absoluteFileName = getAbsoluteFileName(source);
+        File working = GetFolders.getWorkingDir();
+        for(File file : working.listFiles()){
+            if(file.getName().contains(".diff")&&file.getName().contains(absoluteFileName)){
+                available = true;
+            }
+        }
+        return available;
+    }
+
 
 }

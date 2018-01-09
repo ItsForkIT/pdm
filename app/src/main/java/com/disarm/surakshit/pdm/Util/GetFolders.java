@@ -22,8 +22,22 @@ public class GetFolders {
         return dir;
     }
 
+    public static File getShowDir(){
+        File dir = Environment.getExternalStoragePublicDirectory("DMS/Show");
+        return dir;
+    }
+
     public static File getTmpKMZExtractForKMLDir(){
         File dir = Environment.getExternalStoragePublicDirectory("DMS/TmpKMZExtractForKML");
+        Storage storage = new Storage(UI_Map.contextOfApplication);
+        if(dir.exists())
+            storage.deleteDirectory(dir.toString());
+        dir.mkdir();
+        return dir;
+    }
+
+    public static File getTmpKMZExtractForCopyToShow(){
+        File dir = Environment.getExternalStoragePublicDirectory("DMS/TmpCopy");
         Storage storage = new Storage(UI_Map.contextOfApplication);
         if(dir.exists())
             storage.deleteDirectory(dir.toString());

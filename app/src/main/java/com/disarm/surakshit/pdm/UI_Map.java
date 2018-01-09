@@ -47,6 +47,7 @@ import com.disarm.surakshit.pdm.Capture.Photo;
 import com.disarm.surakshit.pdm.Capture.Video;
 import com.disarm.surakshit.pdm.DisarmConnect.DCService;
 import com.disarm.surakshit.pdm.Service.SyncService;
+import com.disarm.surakshit.pdm.Util.GetFolders;
 import com.disarm.surakshit.pdm.Util.PrefUtils;
 import com.disarm.surakshit.pdm.Util.Reset;
 import com.disarm.surakshit.pdm.location.LocationState;
@@ -79,38 +80,43 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 
 public class UI_Map extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     public static Context contextOfApplication;
-    Button draw_save,undo_back,cancel;
     public static boolean first_time = true;
-    static MapView map;
+    private boolean syncServiceBound = false;
+    private boolean myServiceBound = false;
+    private boolean gpsService = false;
+    public final static HashMap<String,Boolean> all_kmz_overlay_map = new HashMap<>();
+    public static MapView map;
+    final int MIN_ZOOM=14,MAX_ZOOM=19,PIXEL=256;
+    public DCService myService;
+    public static int total_file=0;
+    int draw_flag=1;
+    final Polygon polygon = new Polygon();
+    final ArrayList<Marker> all_markers = new ArrayList<>();
+    final static ArrayList<Overlay> allOverlays = new ArrayList<>();
+    private int flag=0;
     View bottomsheet;
-    ArrayList<Marker> markerpoints=new ArrayList<>();
     ITileSource tileSource;
     CompassOverlay mCompassOverlay;
     ScaleBarOverlay mScaleBarOverlay;
     IMapController mapController;
-    final int MIN_ZOOM=14,MAX_ZOOM=19,PIXEL=256;
     SyncService syncService;
-    public DCService myService;
-    private boolean syncServiceBound = false;
-    private boolean myServiceBound = false;
-    private boolean gpsService = false;
-    public static int total_file=0;
     LocationManager lm;
     LocationListener locationListener;
-    ArrayList<GeoPoint> polygon_points=new ArrayList<>();
     FloatingActionButton fab;
-    int draw_flag=1;
-    final Polygon polygon = new Polygon();
     String text_description="";
-    final ArrayList<Marker> all_markers = new ArrayList<>();
-    final static HashMap<String,Boolean> all_kmz_overlay_map = new HashMap<>();
-    final static ArrayList<Overlay> allOverlays = new ArrayList<>();
+    ArrayList<Marker> markerpoints=new ArrayList<>();
+    ArrayList<GeoPoint> polygon_points=new ArrayList<>();
+    HashSet<String> workingFiles = new HashSet<String>();
+    HashSet<String> showFiles = new HashSet<String>();
+    HashSet<String> diffFiles = new HashSet<String>();
     Handler refresh = new Handler();
-    private int flag=0;
+    Handler syncFolder = new Handler();
+    Button draw_save,undo_back,cancel;
     @Override
     protected void onCreate(Bundle drawdInstanceState) {
         super.onCreate(drawdInstanceState);
@@ -149,6 +155,7 @@ public class UI_Map extends AppCompatActivity
 
         crashLog();
         startService();
+        createDatabase();
         intialize();
         setBottomsheet();
         setMapData();
@@ -260,6 +267,24 @@ public class UI_Map extends AppCompatActivity
         return true;
     }
 
+    private void createDatabase(){
+        File working = GetFolders.getWorkingDir();
+        for(File file : working.listFiles()){
+            if(file.getName().contains(".diff")){
+                diffFiles.add(file.getName());
+            }
+            if(file.getName().contains(".kmz")){
+                workingFiles.add(file.getName());
+            }
+        }
+        File show = GetFolders.getShowDir();
+        for(File file : show.listFiles()){
+            if(file.getName().contains(".kml")){
+                showFiles.add(file.getName());
+            }
+        }
+    }
+    
     private void intialize(){
         map = (MapView) findViewById(R.id.ui_map);
         String[] s = {"http://127.0.0.1:8080/getTile/"};
