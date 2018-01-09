@@ -17,7 +17,7 @@ public class KmzUtils {
         this.context = context;
     }
 
-    private void extractKMLformKMZ(File kmzFile){
+    private void extractKMLfromKMZ(File kmzFile){
 
     }
 
