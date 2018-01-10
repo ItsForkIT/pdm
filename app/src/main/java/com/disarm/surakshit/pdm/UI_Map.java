@@ -156,7 +156,7 @@ public class UI_Map extends AppCompatActivity
         crashLog();
         startService();
         createDatabase();
-        intialize();
+        initialize();
         setBottomsheet();
         setMapData();
         setMapClick();
@@ -164,8 +164,24 @@ public class UI_Map extends AppCompatActivity
         setCancelClick(fab);
         setSaveClick(fab);
         refreshWorkingData();
+        startSyncFolder();
         markerpoints.clear();
 
+    }
+
+    private void startSyncFolder(){
+        Runnable run = new Runnable() {
+            @Override
+            public void run() {
+                File working = GetFolders.getWorkingDir();
+                File show = GetFolders.getShowDir();
+                for(File file : working.listFiles()){
+                    if(file.getName().contains(".kmz")){
+                        
+                    }
+                }
+            }
+        };
     }
     @Override
     public void onBackPressed() {
@@ -284,8 +300,8 @@ public class UI_Map extends AppCompatActivity
             }
         }
     }
-    
-    private void intialize(){
+
+    private void initialize(){
         map = (MapView) findViewById(R.id.ui_map);
         String[] s = {"http://127.0.0.1:8080/getTile/"};
 
