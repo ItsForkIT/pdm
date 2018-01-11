@@ -45,6 +45,7 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
     public File workingFolder = Environment.getExternalStoragePublicDirectory("DMS/Working");
     public File tmpFolder = Environment.getExternalStoragePublicDirectory("DMS/tmp");
     public File mapFolder = Environment.getExternalStoragePublicDirectory("DMS/Map");
+    public File showFolder = Environment.getExternalStoragePublicDirectory("DMS/Show");
     public static String PHONE_NO = "phone_no";
     private EditText phoneText1;
     private Button submitButton;
@@ -134,9 +135,10 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
             tmpFolder.mkdir();
         }if (!mapFolder.exists()){
             mapFolder.mkdir();
+        }if(!showFolder.exists()){
+            showFolder.mkdir();
         }
         run1stTimeOnly();
-
     }
 
     private boolean checkPhoneNo() {
@@ -208,26 +210,12 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
 
             CopyAssets copy = new CopyAssets(this);
             copy.copyFileOrDir("");
-            //extractZip();
-            //move zip
             moveZip();
             // mark first time has runned.
             SharedPreferences.Editor editor = prefs.edit();
             editor.putBoolean("firstTime", true);
             editor.commit();
         }
-    }
-
-    public void extractZip(){
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                String root = Environment.getExternalStorageDirectory().toString();
-                String path = root+"/DMS/Map/tiles/";
-                UnZip unzip = new UnZip(path,path+"/tiles.zip");
-            }
-        });
-        t.start();
     }
 
     public void moveZip(){

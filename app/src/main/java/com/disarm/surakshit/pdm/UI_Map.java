@@ -161,6 +161,7 @@ public class UI_Map extends AppCompatActivity
         Log.d("Phone No",SelectCategoryActivity.SOURCE_PHONE_NO);
 
         crashLog();
+        checkFolders();
         startService();
         createDatabase();
         initialize();
@@ -176,6 +177,29 @@ public class UI_Map extends AppCompatActivity
 
     }
 
+    private void checkFolders(){
+        File dmsFolder = Environment.getExternalStoragePublicDirectory("DMS/");
+        File workingFolder = Environment.getExternalStoragePublicDirectory("DMS/Working");
+        File tmpFolder = Environment.getExternalStoragePublicDirectory("DMS/tmp");
+        File mapFolder = Environment.getExternalStoragePublicDirectory("DMS/Map");
+        File showFolder = Environment.getExternalStoragePublicDirectory("DMS/Show");
+        if (!dmsFolder.exists()){
+            dmsFolder.mkdir();
+        }
+        if (!workingFolder.exists()){
+            workingFolder.mkdir();
+        }
+        if (!tmpFolder.exists()){
+            tmpFolder.mkdir();
+        }
+        if (!mapFolder.exists()){
+            mapFolder.mkdir();
+        }
+        if(!showFolder.exists()){
+            showFolder.mkdir();
+        }
+
+    }
     private void startSyncFolder(){
         Runnable run = new Runnable() {
             @Override
