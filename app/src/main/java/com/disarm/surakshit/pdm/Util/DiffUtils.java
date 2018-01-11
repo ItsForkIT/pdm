@@ -5,6 +5,8 @@ import android.os.Environment;
 
 import com.snatik.storage.Storage;
 
+import org.osmdroid.views.overlay.infowindow.InfoWindow;
+
 import java.io.File;
 import java.util.regex.Pattern;
 
@@ -24,34 +26,38 @@ public class DiffUtils {
 
     //Source file KMZ format
     //Destination file KML format
-    private void createDiff(File source,File destination){
+    public boolean createDiff(File source,File destination){
         File tmpKMZExtractDir = GetFolders.getTmpKMZExtractForKMLDir();
         UnZip unZip = new UnZip(tmpKMZExtractDir.getPath()+"/",source.toString());
         File sourceKML = Environment.getExternalStoragePublicDirectory(tmpKMZExtractDir.getPath()+"/index.kml");
         File delta = Environment.getExternalStoragePublicDirectory("/DMS/Working/"+getDeltaName(source.getName()));
         try {
             JBDiff.bsdiff(sourceKML, destination, delta);
+            return true;
         }
         catch (Exception e){
             e.printStackTrace();
+            return false;
         }
     }
 
     //Source file KMZ format
-    private void applyPatch(File source){
+    public boolean applyPatch(File source,File delta){
         File tmpKMZExtractDir = GetFolders.getTmpKMZExtractForKMLDir();
         UnZip unZip = new UnZip(tmpKMZExtractDir.getPath()+"/",source.toString());
         File sourceKML = Environment.getExternalStoragePublicDirectory(tmpKMZExtractDir.getPath()+"/index.kml");
-        File delta = getLatestDeltaFile(source.getName());
         if(delta!=null){
             File destination = getDestinationFile(delta.getName());
             try {
                 JBPatch.bspatch(sourceKML, destination, delta);
+                return true;
             }
             catch (Exception  e){
                 e.printStackTrace();
+                return false;
             }
         }
+        return false;
     }
 
     //Returns diff file
@@ -80,7 +86,7 @@ public class DiffUtils {
         File[] workingFiles = working.listFiles();
         String absoluteFileName = getAbsoluteFileName(fileName);
         for(int i=0;i<workingFiles.length;i++){
-            if(workingFiles[i].getName().contains(absoluteFileName) && !workingFiles[i].getName().contains("diff")){
+            if(workingFiles[i].getName().contains(absoluteFileName) && workingFiles[i].getName().contains("diff")){
                 String oldDiffName = workingFiles[i].getName();
                 Pattern pattern = Pattern.compile("_");
                 String[] result = pattern.split(oldDiffName);
@@ -106,24 +112,38 @@ public class DiffUtils {
         String fileName=getAbsoluteFileName(deltaName);
         Pattern pattern = Pattern.compile("_");
         String result[] = pattern.split(deltaName);
-        fileName = fileName+result[9]+".kml";
+        fileName = fileName+result[9]+"_"+result[10]+".kml";
         return Environment.getExternalStoragePublicDirectory("DMS/Show/"+fileName);
     }
 
-
-    //Param - Name of the kmz file
-    //Return true if there is a diff available to a kmz file
-    private boolean isDiffAvailable(String source){
-        boolean available = false;
-        String absoluteFileName = getAbsoluteFileName(source);
+    public File getSourceOfDelta(String delta_name){
         File working = GetFolders.getWorkingDir();
         for(File file : working.listFiles()){
-            if(file.getName().contains(".diff")&&file.getName().contains(absoluteFileName)){
-                available = true;
+            if(file.getName().contains(".kmz") && delta_name.contains(getAbsoluteFileName(file.getName()))){
+                return file;
             }
         }
-        return available;
+        return null;
     }
 
+    public boolean compareDiffVersionWithShowDirKMLVersion(String deltaName){
+        File show = GetFolders.getShowDir();
+        for(File file : show.listFiles()){
+            if(file.getName().contains(getAbsoluteFileName(deltaName))){
+                Pattern pattern = Pattern.compile("_");
+                String[] showName = pattern.split(file.getName());
+                String[] delta = pattern.split(deltaName);
+                int s_version = Integer.parseInt(showName[9]);
+                int d_version = Integer.parseInt(delta[9]);
+                if(s_version==d_version){
+                    return true;
+                }
+                else{
+                    return false;
+                }
+            }
+        }
+        return false;
+    }
 
 }

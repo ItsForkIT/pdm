@@ -25,6 +25,7 @@ import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.util.DiffUtil;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
@@ -47,7 +48,9 @@ import com.disarm.surakshit.pdm.Capture.Photo;
 import com.disarm.surakshit.pdm.Capture.Video;
 import com.disarm.surakshit.pdm.DisarmConnect.DCService;
 import com.disarm.surakshit.pdm.Service.SyncService;
+import com.disarm.surakshit.pdm.Util.DiffUtils;
 import com.disarm.surakshit.pdm.Util.GetFolders;
+import com.disarm.surakshit.pdm.Util.KmzUtils;
 import com.disarm.surakshit.pdm.Util.PrefUtils;
 import com.disarm.surakshit.pdm.Util.Reset;
 import com.disarm.surakshit.pdm.location.LocationState;
@@ -119,6 +122,8 @@ public class UI_Map extends AppCompatActivity
     Handler refresh = new Handler();
     Handler syncFolder = new Handler();
     Button draw_save,undo_back,cancel;
+    KmzUtils kmzutils = new KmzUtils(getApplicationContext());
+    DiffUtils diffutils = new DiffUtils(getApplicationContext());
     @Override
     protected void onCreate(Bundle drawdInstanceState) {
         super.onCreate(drawdInstanceState);
@@ -176,14 +181,37 @@ public class UI_Map extends AppCompatActivity
             @Override
             public void run() {
                 File working = GetFolders.getWorkingDir();
-                File show = GetFolders.getShowDir();
                 for(File file : working.listFiles()){
                     if(file.getName().contains(".kmz")){
-                        
+                        if(isValid(file)){
+                            if(workingFiles.contains(file.getName()) && !showFiles.contains(file.getName())){
+                                if(kmzutils.copyKMLfromKMZToShow(file)){
+                                    showFiles.add(file.getName());
+                                }
+                            }
+                            else if(!workingFiles.contains(file.getName())){
+                                workingFiles.add(file.getName());
+                                if(kmzutils.copyKMLfromKMZToShow(file)){
+                                    showFiles.add(file.getName());
+                                }
+                            }
+                        }
+                    }
+                    if(file.getName().contains(".diff")){
+                        if(!diffFiles.contains(file.getName())){
+                            File source = diffutils.getSourceOfDelta(file.getName());
+                            if(source!=null){
+                                if(diffutils.applyPatch(source,file)){
+                                    diffFiles.add(file.getName());
+                                }
+                            }
+                        }
                     }
                 }
+                syncFolder.postDelayed(this,1000);
             }
         };
+        syncFolder.postDelayed(run,1000);
     }
     @Override
     public void onBackPressed() {
@@ -288,7 +316,7 @@ public class UI_Map extends AppCompatActivity
     private void createDatabase(){
         File working = GetFolders.getWorkingDir();
         for(File file : working.listFiles()){
-            if(file.getName().contains(".diff")){
+            if(file.getName().contains(".diff") && diffutils.compareDiffVersionWithShowDirKMLVersion(file.getName())){
                 diffFiles.add(file.getName());
             }
             if(file.getName().contains(".kmz")){
@@ -302,6 +330,7 @@ public class UI_Map extends AppCompatActivity
             }
         }
     }
+
 
     private void initialize(){
         map = (MapView) findViewById(R.id.ui_map);

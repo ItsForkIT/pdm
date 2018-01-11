@@ -23,15 +23,21 @@ public class KmzUtils {
     }
 
     //Extract kml file from a kmz file and copy it to Show directory
-    private void copyKMLfromKMZToShow(File kmzFile){
-        File tmpFolder = GetFolders.getTmpKMZExtractForCopyToShow();
-        UnZip unZip = new UnZip(tmpFolder.getPath()+"/",kmzFile.toString());
-        String absoluteFileName = getAbsoluteFileName(kmzFile.getName());
-        int versionNo = getLatestDiffVersionNo(kmzFile.getName());
-        String source = tmpFolder.getPath()+"/index.kml";
-        String destination = "DMS/Show/"+absoluteFileName+versionNo+".kml";
-        Storage storage = new Storage(context);
-        storage.move(source,destination);
+    public boolean copyKMLfromKMZToShow(File kmzFile){
+        try {
+            File tmpFolder = GetFolders.getTmpKMZExtractForCopyToShow();
+            UnZip unZip = new UnZip(tmpFolder.getPath() + "/", kmzFile.toString());
+            String absoluteFileName = getAbsoluteFileName(kmzFile.getName());
+            int versionNo = getLatestDiffVersionNo(kmzFile.getName());
+            String source = tmpFolder.getPath() + "/index.kml";
+            String destination = "DMS/Show/" + absoluteFileName + versionNo + ".kml";
+            Storage storage = new Storage(context);
+            storage.move(source, destination);
+            return true;
+        }
+        catch (Exception e){
+            return false;
+        }
     }
 
     public static String getTimeStamp(){
