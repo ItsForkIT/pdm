@@ -214,7 +214,7 @@ public class FileTask extends AsyncTask  {
             KmzCreator kmz = new KmzCreator();
             kmz.zipIt(Environment.getExternalStoragePublicDirectory("DMS/Working/"+actualKmzName+".kmz").toString());
             storage.deleteDirectory(tempKmzFolder.toString());
-            UI_Map.setWorkingData(true);
+            UI_Map.setShowData(true);
         }
         return null;
     }

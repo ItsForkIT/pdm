@@ -60,18 +60,6 @@ public class DiffUtils {
         return false;
     }
 
-    //Returns diff file
-    //Param - KMZ file name
-    private File getLatestDeltaFile(String source){
-        File[] workingFiles = Environment.getExternalStoragePublicDirectory("/DMS/Working").listFiles();
-        for(File file : workingFiles){
-            if(file.getName().contains(".diff") && file.getName().contains(getAbsoluteFileName(source))){
-                return file;
-            }
-        }
-        return null;
-    }
-
     private String getDeltaName(String fileName){
         String absoluteFileName = getAbsoluteFileName(fileName);
         int old_version = getLatestDiffVersionNo(fileName);

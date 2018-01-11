@@ -25,7 +25,6 @@ import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.util.DiffUtil;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
@@ -171,7 +170,7 @@ public class UI_Map extends AppCompatActivity
         setDrawClick();
         setCancelClick(fab);
         setSaveClick(fab);
-        refreshWorkingData();
+        refreshShowData();
         startSyncFolder();
         markerpoints.clear();
 
@@ -344,7 +343,8 @@ public class UI_Map extends AppCompatActivity
                 diffFiles.add(file.getName());
             }
             if(file.getName().contains(".kmz")){
-                workingFiles.add(file.getName());
+                if(isValid(file))
+                    workingFiles.add(file.getName());
             }
         }
         File show = GetFolders.getShowDir();
@@ -428,7 +428,7 @@ public class UI_Map extends AppCompatActivity
         mScaleBarOverlay.setCentred(true);
         mScaleBarOverlay.setScaleBarOffset(width/2, 10);
         map.getOverlays().add(mScaleBarOverlay);
-        setWorkingData(true);
+        setShowData(true);
     }
     private void startService(){
         final Intent syncServiceIntent = new Intent(getBaseContext(), SyncService.class);
@@ -844,7 +844,7 @@ public class UI_Map extends AppCompatActivity
                         File file = Environment.getExternalStoragePublicDirectory("DMS/Working/"+file_name);
                         kml.saveAsKML(file);
                     }
-                    setWorkingData(true);
+                    setShowData(true);
                     dialog.dismiss();
                 }
                 else {
@@ -973,32 +973,24 @@ public class UI_Map extends AppCompatActivity
             }
         });
     }
-    public static void setWorkingData(final boolean is_mine){
-        File working = Environment.getExternalStoragePublicDirectory("DMS/Working");
-        File[] files = working.listFiles();
+    public static void setShowData(final boolean is_mine){
+        File show = Environment.getExternalStoragePublicDirectory("DMS/Show");
+        File[] files = show.listFiles();
         for(final File file : files){
             if(file.getName().contains("MapDisarm")){
                 continue;
             }
-
             if(all_kmz_overlay_map.containsKey(file.getName())){
                 continue;
             }
-            if(!isValid(file))
-                continue;
             all_kmz_overlay_map.put(file.getName(),true);
             final KmlDocument kml = new KmlDocument();
-            if(file.getName().contains("kmz")){
-                kml.parseKMZFile(file);
-            }
-            else{
+            if(file.getName().contains("kml")){
                 kml.parseKMLFile(file);
             }
             if(!first_time && !is_mine) {
-                Log.d("Media", "Before");
                 MediaPlayer thePlayer = MediaPlayer.create(contextOfApplication, RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
                 thePlayer.start();
-                Log.d("Media", "After");
             }
             final FolderOverlay kmlOverlay = (FolderOverlay)kml.mKmlRoot.buildOverlay(map, null, null, kml);
             Thread t = new Thread(new Runnable() {
@@ -1036,16 +1028,17 @@ public class UI_Map extends AppCompatActivity
         }
         first_time=false;
     }
-    private void refreshWorkingData(){
+    private void refreshShowData(){
         Runnable r = new Runnable() {
             @Override
             public void run() {
-                setWorkingData(false);
-                refresh.postDelayed(this,5000);
+                setShowData(false);
+                refresh.postDelayed(this,1000);
             }
         };
-        refresh.postDelayed(r,5000);
+        refresh.postDelayed(r,1000);
     }
+
     private void removeInfo(){
         Boolean isOpen = false;
 
