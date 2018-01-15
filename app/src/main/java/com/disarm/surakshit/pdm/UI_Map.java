@@ -17,6 +17,7 @@ import android.media.RingtoneManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore;
@@ -119,8 +120,10 @@ public class UI_Map extends AppCompatActivity
     HashSet<String> workingFiles = new HashSet<>();
     HashSet<String> showFiles = new HashSet<>();
     HashSet<String> diffFiles = new HashSet<>();
-    Handler refresh = new Handler();
-    Handler syncFolder = new Handler();
+    Handler refresh;
+    Handler syncFolder;
+    HandlerThread handlerThread;
+    HandlerThread refreshHandlerThread;
     Button draw_save,undo_back,cancel;
     KmzUtils kmzutils;
     DiffUtils diffutils;
@@ -203,6 +206,9 @@ public class UI_Map extends AppCompatActivity
 
     }
     private void startSyncFolder(){
+        handlerThread = new HandlerThread("SyncFolderThread");
+        handlerThread.start();
+        syncFolder = new Handler(handlerThread.getLooper());
         Runnable run = new Runnable() {
             @Override
             public void run() {
@@ -1042,6 +1048,9 @@ public class UI_Map extends AppCompatActivity
         first_time=false;
     }
     private void refreshShowData(){
+        refreshHandlerThread = new HandlerThread("RefreshHandlerThread");
+        refreshHandlerThread.start();
+        refresh = new Handler(refreshHandlerThread.getLooper());
         Runnable r = new Runnable() {
             @Override
             public void run() {
