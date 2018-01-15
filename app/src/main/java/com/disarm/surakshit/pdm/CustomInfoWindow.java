@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.disarm.surakshit.pdm.Util.DiffUtils;
 import com.disarm.surakshit.pdm.Util.GetFolders;
 import com.disarm.surakshit.pdm.Util.UnZip;
 import com.snatik.storage.Storage;
@@ -85,19 +86,6 @@ public class CustomInfoWindow extends InfoWindow {
             @Override
             public void onClick(View v) {
                 File destFolder  = GetFolders.getTmpMediaDir();
-                File working = GetFolders.getWorkingDir();
-                String kmzFileName ="";
-                Pattern pattern = Pattern.compile("_");
-                String[] result = pattern.split(file_name);
-
-                File sourceFile = Environment.getExternalStoragePublicDirectory("DMS/Working/"+file_name);
-                UnZip unzip = new UnZip(destFolder.getPath()+"/",sourceFile.toString());
-                destFolder  = GetFolders.getTmpMediaDir();
-                for(File file : destFolder.listFiles()){
-                    if(file.getName().contains("kml")){
-                        storage.deleteFile(file.getPath());
-                    }
-                }
                 String absolute_file_name = "";
                 for(int i=0;i<file_name.length();i++){
                     if(file_name.charAt(i)=='.'){
@@ -109,6 +97,30 @@ public class CustomInfoWindow extends InfoWindow {
                 }
                 File[] files = destFolder.listFiles();
                 for(File file : files){
+                    if(file.getName().contains(absolute_file_name)){
+                        openFile(file);
+                        return;
+                    }
+                }
+                File working = GetFolders.getWorkingDir();
+                File sourceFile = null;
+                for(File file : working.listFiles()){
+                    if(file.getName().contains(DiffUtils.absoluteFileName(file_name))&&file.getName().contains(".kmz")){
+                        sourceFile = file;
+                    }
+                }
+                if(sourceFile == null){
+                    return;
+                }
+                UnZip unzip = new UnZip(destFolder.getPath()+"/",sourceFile.toString());
+                destFolder  = GetFolders.getTmpMediaDir();
+                for(File file : destFolder.listFiles()){
+                    if(file.getName().contains("kml")){
+                        storage.deleteFile(file.getPath());
+                    }
+                }
+                File[] filess = destFolder.listFiles();
+                for(File file : filess){
                     if(file.getName().contains(absolute_file_name)){
                         openFile(file);
                     }
@@ -124,7 +136,7 @@ public class CustomInfoWindow extends InfoWindow {
     }
 
 
-    private void openFile(File file) {
+    private boolean openFile(File file) {
         MimeTypeMap map = MimeTypeMap.getSingleton();
         String ext = MimeTypeMap.getFileExtensionFromUrl(file.getName());
         String type = map.getMimeTypeFromExtension(ext);
@@ -139,9 +151,11 @@ public class CustomInfoWindow extends InfoWindow {
         intent.setDataAndType(data, type);
         try{
             context.startActivity(intent);
+            return true;
         }
         catch (Exception e){
             Toast.makeText(context,"Sorry !!! Can't open file", Toast.LENGTH_LONG).show();
+            return false;
         }
     }
 }
