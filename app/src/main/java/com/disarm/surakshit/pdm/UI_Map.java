@@ -19,6 +19,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
@@ -93,7 +94,7 @@ public class UI_Map extends AppCompatActivity
     private boolean syncServiceBound = false;
     private boolean myServiceBound = false;
     private boolean gpsService = false;
-    public final static HashMap<String,Boolean> all_kmz_overlay_map = new HashMap<>();
+    public final static HashMap<String,Overlay> all_kmz_overlay_map = new HashMap<>();
     public static MapView map;
     final int MIN_ZOOM=14,MAX_ZOOM=19,PIXEL=256;
     public DCService myService;
@@ -115,9 +116,9 @@ public class UI_Map extends AppCompatActivity
     String text_description="";
     ArrayList<Marker> markerpoints=new ArrayList<>();
     ArrayList<GeoPoint> polygon_points=new ArrayList<>();
-    HashSet<String> workingFiles = new HashSet<String>();
-    HashSet<String> showFiles = new HashSet<String>();
-    HashSet<String> diffFiles = new HashSet<String>();
+    HashSet<String> workingFiles = new HashSet<>();
+    HashSet<String> showFiles = new HashSet<>();
+    HashSet<String> diffFiles = new HashSet<>();
     Handler refresh = new Handler();
     Handler syncFolder = new Handler();
     Button draw_save,undo_back,cancel;
@@ -236,6 +237,7 @@ public class UI_Map extends AppCompatActivity
         };
         syncFolder.postDelayed(run,1000);
     }
+
     @Override
     public void onBackPressed() {
 
@@ -983,7 +985,7 @@ public class UI_Map extends AppCompatActivity
             if(all_kmz_overlay_map.containsKey(file.getName())){
                 continue;
             }
-            all_kmz_overlay_map.put(file.getName(),true);
+            //all_kmz_overlay_map.put(file.getName(),true);
             final KmlDocument kml = new KmlDocument();
             if(file.getName().contains("kml")){
                 kml.parseKMLFile(file);
@@ -1024,6 +1026,15 @@ public class UI_Map extends AppCompatActivity
                 }
             });
             t.start();
+            all_kmz_overlay_map.put(file.getName(),kmlOverlay);
+            DiffUtils diff = new DiffUtils(getContextOfApplication());
+            String absFileName = diff.getAbsoluteFileName(file.getName());
+            File[] showDir = GetFolders.getShowDir().listFiles();
+            for(File file1 : showDir){
+                if(file1.getName().contains(absFileName) && !file1.getName().equals(file.getName())){
+                    map.getOverlays().remove(all_kmz_overlay_map.get(file1.getName()));
+                }
+            }
             map.getOverlays().add(kmlOverlay);
         }
         first_time=false;
@@ -1038,7 +1049,6 @@ public class UI_Map extends AppCompatActivity
         };
         refresh.postDelayed(r,1000);
     }
-
     private void removeInfo(){
         Boolean isOpen = false;
 

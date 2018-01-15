@@ -85,7 +85,7 @@ public class DiffUtils {
     }
 
     //Returns the absolute file name without having any extensions and _ at last
-    private String getAbsoluteFileName(String fileName){
+    public String getAbsoluteFileName(String fileName){
         Pattern pattern = Pattern.compile("_");
         String[] result = pattern.split(fileName);
         String absoluteFileName = "";
