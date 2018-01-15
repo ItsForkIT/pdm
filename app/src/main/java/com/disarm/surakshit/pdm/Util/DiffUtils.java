@@ -84,15 +84,23 @@ public class DiffUtils {
         return version_number;
     }
 
-    //Returns the absolute file name without having any extensions and _ at last
     public String getAbsoluteFileName(String fileName){
         Pattern pattern = Pattern.compile("_");
         String[] result = pattern.split(fileName);
         String absoluteFileName = "";
-        for(int i=0;i<9;i++){
+        for(int i=0;i<8;i++){
             absoluteFileName = absoluteFileName+result[i]+"_";
         }
-        return absoluteFileName;
+        char[] last = result[8].toCharArray();
+        String groupID="";
+        for(int i=0;i<last.length;i++){
+            if(last[i]>='0' && last[i]<='9'){
+                groupID = groupID + last[i];
+            }
+            else
+                break;
+        }
+        return absoluteFileName+groupID+"_";
     }
 
 
@@ -133,5 +141,23 @@ public class DiffUtils {
         }
         return false;
     }
-
+    //Without _
+    public static String absoluteFileName(String fileName){
+        Pattern pattern = Pattern.compile("_");
+        String[] result = pattern.split(fileName);
+        String absoluteFileName = "";
+        for(int i=0;i<8;i++){
+            absoluteFileName = absoluteFileName+result[i]+"_";
+        }
+        char[] last = result[8].toCharArray();
+        String groupID="";
+        for(int i=0;i<last.length;i++){
+            if(last[i]>='0' && last[i]<='9'){
+                groupID = groupID + last[i];
+            }
+            else
+                break;
+        }
+        return absoluteFileName+groupID;
+    }
 }

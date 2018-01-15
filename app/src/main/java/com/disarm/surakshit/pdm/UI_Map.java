@@ -122,8 +122,8 @@ public class UI_Map extends AppCompatActivity
     Handler refresh = new Handler();
     Handler syncFolder = new Handler();
     Button draw_save,undo_back,cancel;
-    KmzUtils kmzutils = new KmzUtils(getApplicationContext());
-    DiffUtils diffutils = new DiffUtils(getApplicationContext());
+    KmzUtils kmzutils;
+    DiffUtils diffutils;
     @Override
     protected void onCreate(Bundle drawdInstanceState) {
         super.onCreate(drawdInstanceState);
@@ -148,6 +148,8 @@ public class UI_Map extends AppCompatActivity
         });
 
         Storage storage = new Storage(getApplicationContext());
+        kmzutils = new KmzUtils(getApplicationContext());
+        diffutils = new DiffUtils(getApplicationContext());
         storage.deleteDirectory(Environment.getExternalStoragePublicDirectory("DMS/tmpOpen").toString());
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -208,7 +210,7 @@ public class UI_Map extends AppCompatActivity
                 for(File file : working.listFiles()){
                     if(file.getName().contains(".kmz")){
                         if(isValid(file)){
-                            if(workingFiles.contains(file.getName()) && !showFiles.contains(file.getName())){
+                            if(workingFiles.contains(file.getName()) && !showFiles.contains(DiffUtils.absoluteFileName(file.getName()))){
                                 if(kmzutils.copyKMLfromKMZToShow(file)){
                                     showFiles.add(file.getName());
                                 }

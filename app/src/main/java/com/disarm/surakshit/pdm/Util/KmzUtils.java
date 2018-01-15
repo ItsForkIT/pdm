@@ -2,6 +2,7 @@ package com.disarm.surakshit.pdm.Util;
 
 import android.content.Context;
 import android.os.Environment;
+import android.util.Log;
 
 import com.snatik.storage.Storage;
 
@@ -30,7 +31,9 @@ public class KmzUtils {
             String absoluteFileName = getAbsoluteFileName(kmzFile.getName());
             int versionNo = getLatestDiffVersionNo(kmzFile.getName());
             String source = tmpFolder.getPath() + "/index.kml";
-            String destination = "DMS/Show/" + absoluteFileName + versionNo + ".kml";
+            File showDir = GetFolders.getShowDir();
+            Log.i("ABS",absoluteFileName);
+            String destination = showDir.getPath()+"/" + absoluteFileName + versionNo + ".kml";
             Storage storage = new Storage(context);
             storage.move(source, destination);
             return true;
@@ -48,10 +51,19 @@ public class KmzUtils {
         Pattern pattern = Pattern.compile("_");
         String[] result = pattern.split(fileName);
         String absoluteFileName = "";
-        for(int i=0;i<9;i++){
+        for(int i=0;i<8;i++){
             absoluteFileName = absoluteFileName+result[i]+"_";
         }
-        return absoluteFileName;
+        char[] last = result[8].toCharArray();
+        String groupID="";
+        for(int i=0;i<last.length;i++){
+            if(last[i]>='0' && last[i]<='9'){
+                groupID = groupID + last[i];
+            }
+            else
+                break;
+        }
+        return absoluteFileName+groupID+"_";
     }
 
     private int getLatestDiffVersionNo(String fileName){
@@ -65,6 +77,7 @@ public class KmzUtils {
                 Pattern pattern = Pattern.compile("_");
                 String[] result = pattern.split(oldDiffName);
                 version_number = Integer.parseInt(result[9]);
+                break;
             }
         }
         return version_number;

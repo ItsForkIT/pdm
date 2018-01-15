@@ -13,7 +13,9 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.disarm.surakshit.pdm.Util.GetFolders;
 import com.disarm.surakshit.pdm.Util.UnZip;
+import com.snatik.storage.Storage;
 
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Marker;
@@ -21,6 +23,7 @@ import org.osmdroid.views.overlay.Polygon;
 import org.osmdroid.views.overlay.infowindow.InfoWindow;
 
 import java.io.File;
+import java.util.regex.Pattern;
 
 /**
  * Created by naman on 30/10/17.
@@ -30,6 +33,7 @@ public class CustomInfoWindow extends InfoWindow {
 
     String title_str,latlon_str,file_name;
     Context context;
+    Storage storage;
     /**
      * @param layoutResId the id of the view resource.
      * @param mapView     the mapview on which is hooked the view
@@ -40,6 +44,7 @@ public class CustomInfoWindow extends InfoWindow {
         this.latlon_str = latlon_str;
         this.file_name = file_name;
         this.context = UI_Map.contextOfApplication;
+        storage = new Storage(context);
     }
 
     @Override
@@ -56,7 +61,7 @@ public class CustomInfoWindow extends InfoWindow {
         TextView title = (TextView) mView.findViewById(R.id.tv_iw_title);
         TextView latlon = (TextView) mView.findViewById(R.id.tv_iw_latlon);
         latlon.setText(latlon_str);
-        if(file_name.contains("kml")){
+        if(file_name.contains("TXT")){
             open.setVisibility(View.GONE);
             title.setText(title_str);
         }
@@ -79,13 +84,20 @@ public class CustomInfoWindow extends InfoWindow {
         open.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                File destFolder  = Environment.getExternalStoragePublicDirectory("DMS/tmpOpen/");
-                if(!destFolder.exists()){
-                    destFolder.mkdir();
-                }
+                File destFolder  = GetFolders.getTmpMediaDir();
+                File working = GetFolders.getWorkingDir();
+                String kmzFileName ="";
+                Pattern pattern = Pattern.compile("_");
+                String[] result = pattern.split(file_name);
+
                 File sourceFile = Environment.getExternalStoragePublicDirectory("DMS/Working/"+file_name);
                 UnZip unzip = new UnZip(destFolder.getPath()+"/",sourceFile.toString());
-                destFolder  = Environment.getExternalStoragePublicDirectory("DMS/tmpOpen");
+                destFolder  = GetFolders.getTmpMediaDir();
+                for(File file : destFolder.listFiles()){
+                    if(file.getName().contains("kml")){
+                        storage.deleteFile(file.getPath());
+                    }
+                }
                 String absolute_file_name = "";
                 for(int i=0;i<file_name.length();i++){
                     if(file_name.charAt(i)=='.'){
