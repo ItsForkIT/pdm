@@ -219,13 +219,20 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     public void moveZip(){
-        String root = Environment.getExternalStoragePublicDirectory("DMS/Map/tiles/tiles.zip").getPath();
-        Storage storage = new Storage(getApplicationContext());
-        File osm = Environment.getExternalStoragePublicDirectory("osmdroid");
-        if(!osm.exists())
-            osm.mkdir();
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String root = Environment.getExternalStoragePublicDirectory("DMS/Map/tiles/tiles.zip").getPath();
+                Storage storage = new Storage(getApplicationContext());
+                File osm = Environment.getExternalStoragePublicDirectory("osmdroid");
+                if(!osm.exists())
+                    osm.mkdir();
 
-        storage.move(root,osm.getPath()+"/tiles.zip");
+                storage.move(root,osm.getPath()+"/tiles.zip");
+            }
+        });
+        t.start();
+
     }
 
     public void setLocale(String lang) {
