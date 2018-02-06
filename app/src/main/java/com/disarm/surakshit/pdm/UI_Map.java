@@ -124,8 +124,8 @@ public class UI_Map extends AppCompatActivity
         super.onCreate(drawdInstanceState);
         setContentView(R.layout.activity_ui__map);
         contextOfApplication = getApplicationContext();
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        //Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        //setSupportActionBar(toolbar);
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -146,7 +146,7 @@ public class UI_Map extends AppCompatActivity
         storage.deleteDirectory(Environment.getExternalStoragePublicDirectory("DMS/tmpOpen").toString());
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+                this, drawer, null, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
@@ -154,7 +154,7 @@ public class UI_Map extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
         SelectCategoryActivity.SOURCE_PHONE_NO = PrefUtils.getFromPrefs(this, SplashActivity.PHONE_NO, "NA");
         Log.d("Phone No",SelectCategoryActivity.SOURCE_PHONE_NO);
-
+        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
         crashLog();
         startService();
         intialize();
@@ -286,7 +286,7 @@ public class UI_Map extends AppCompatActivity
     }
 
     private void setBottomsheet(){
-
+        bottomsheet.setVisibility(View.GONE);
         final BottomSheetBehavior behave = BottomSheetBehavior.from(bottomsheet);
         bottomsheet.setOnClickListener(new View.OnClickListener() {
             @Override
