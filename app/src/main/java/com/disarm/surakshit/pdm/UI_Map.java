@@ -116,6 +116,7 @@ public class UI_Map extends AppCompatActivity
     final static ArrayList<Overlay> allOverlays = new ArrayList<>();
     Handler refresh = new Handler();
     Handler setCenter = new Handler();
+    Handler syncServiceHandle = new Handler();
     boolean center = false;
     private int flag=0;
     @Override
@@ -333,7 +334,7 @@ public class UI_Map extends AppCompatActivity
         map.setMultiTouchControls(true);
         mapController = map.getController();
         mapController.setZoom(15);
-        GeoPoint startPoint = new GeoPoint(13.0169435,77.5649295);
+        GeoPoint startPoint = new GeoPoint(23.5477,87.2931);
         mapController.setCenter(startPoint);
         setCenter(mapController);
         mCompassOverlay = new CompassOverlay(ctx, new InternalCompassOrientationProvider(ctx), map);
@@ -366,9 +367,22 @@ public class UI_Map extends AppCompatActivity
 
     }
     private void startService(){
-        final Intent syncServiceIntent = new Intent(getBaseContext(), SyncService.class);
-        bindService(syncServiceIntent, syncServiceConnection, Context.BIND_AUTO_CREATE);
-        startService(syncServiceIntent);
+        Runnable run = new Runnable() {
+            @Override
+            public void run() {
+                if(SelectCategoryActivity.SOURCE_PHONE_NO!=null) {
+                    final Intent syncServiceIntent = new Intent(getBaseContext(), SyncService.class);
+                    bindService(syncServiceIntent, syncServiceConnection, Context.BIND_AUTO_CREATE);
+                    startService(syncServiceIntent);
+                }
+                else{
+                    SelectCategoryActivity.SOURCE_PHONE_NO = PrefUtils.getFromPrefs(UI_Map.this, SplashActivity.PHONE_NO, "NA");
+                    syncServiceHandle.postDelayed(this,1000);
+                }
+            }
+        };
+        syncServiceHandle.postDelayed(run,1000);
+
 
         final Intent myServiceIntent = new Intent(getBaseContext(), DCService.class);
         bindService(myServiceIntent, myServiceConnection, Context.BIND_AUTO_CREATE);
