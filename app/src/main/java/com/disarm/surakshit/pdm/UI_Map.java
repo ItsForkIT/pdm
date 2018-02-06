@@ -60,6 +60,7 @@ import org.osmdroid.bonuspack.kml.KmlDocument;
 import org.osmdroid.bonuspack.kml.KmlPlacemark;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.events.MapEventsReceiver;
+import org.osmdroid.tileprovider.constants.OpenStreetMapTileProviderConstants;
 import org.osmdroid.tileprovider.tilesource.ITileSource;
 import org.osmdroid.tileprovider.tilesource.XYTileSource;
 import org.osmdroid.util.GeoPoint;
@@ -171,23 +172,25 @@ public class UI_Map extends AppCompatActivity
     }
     @Override
     public void onBackPressed() {
-
         Boolean isOpen = false;
-        for(Overlay overlay : allOverlays){
-            if(overlay instanceof Polygon){
-                if(((Polygon) overlay).getInfoWindow().isOpen()){
-                    isOpen = true;
-                    ((Polygon) overlay).getInfoWindow().close();
-                }
+        try {
+            for (Overlay overlay : allOverlays) {
+                if (overlay instanceof Polygon) {
+                    if (((Polygon) overlay).getInfoWindow().isOpen()) {
+                        isOpen = true;
+                        ((Polygon) overlay).getInfoWindow().close();
+                    }
 
-            }
-            else if(overlay instanceof Marker){
-                if(((Marker) overlay).getInfoWindow().isOpen())
-                {
-                    isOpen = true;
-                    ((Marker) overlay).getInfoWindow().close();
+                } else if (overlay instanceof Marker) {
+                    if (((Marker) overlay).getInfoWindow().isOpen()) {
+                        isOpen = true;
+                        ((Marker) overlay).getInfoWindow().close();
+                    }
                 }
             }
+        }
+        catch (Exception ex){
+
         }
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
