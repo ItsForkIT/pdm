@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:maxLength="50"
-        android:hint="Describe the situation in less than 50 words"
+        android:hint="Describe the situation in less than 50 words !!! (It's mandatory) "
         android:inputType="textMultiLine" />
 
     <LinearLayout

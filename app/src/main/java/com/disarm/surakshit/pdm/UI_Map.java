@@ -20,6 +20,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.provider.Contacts;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomSheetBehavior;
@@ -726,8 +727,8 @@ public class UI_Map extends AppCompatActivity
         AlertDialog.Builder dialog_builder = new AlertDialog.Builder(UI_Map.this);
         dialog_builder.setTitle("Please describe the situation in less than 50 words !!!");
         dialog_builder.setView(dialog_view);
-        final AlertDialog dialog = dialog_builder.create();
-        dialog.show();
+        final AlertDialog dialog_parent = dialog_builder.create();
+        dialog_parent.show();
 
         cancel.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -736,7 +737,7 @@ public class UI_Map extends AppCompatActivity
 
                 draw_save.setText("Draw");
                 total_file=0;
-                dialog.dismiss();
+                dialog_parent.dismiss();
             }
         });
 
@@ -750,94 +751,121 @@ public class UI_Map extends AppCompatActivity
                 else{
                     Toast.makeText(getBaseContext(),"No info found to be saved!!! Please describe the situation there",Toast.LENGTH_SHORT).show();
                 }
-                dialog.dismiss();
+                dialog_parent.dismiss();
             }
         });
         save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                flag=0;
-                if(textmsg.getText().toString().length()>0){
-                    KmlDocument kml = new KmlDocument();
-                    if(polygon_points.size()==1){
-                        Marker marker = new Marker(map);
-                        marker.setPosition(polygon_points.get(0));
-                        marker.setSnippet(textmsg.getText().toString());
-                        KmlPlacemark placemark = new KmlPlacemark(marker);
-                        String latlng = FileTask.getloc(getContextOfApplication());
-                        String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
-                        String file_name = "TXT_50_data_"+
-                                SelectCategoryActivity.SOURCE_PHONE_NO+
-                                "_defaultMcs_"
-                                +latlng
-                                +"_"+timeStamp+
-                                "_1.kmz";
-                        kml.mKmlRoot.add(placemark);
-                        kml.mKmlRoot.setExtendedData("Media Type","TXT");
-                        kml.mKmlRoot.setExtendedData("Group Type","data");
-                        kml.mKmlRoot.setExtendedData("Time Stamp",timeStamp);
-                        kml.mKmlRoot.setExtendedData("Source",SelectCategoryActivity.SOURCE_PHONE_NO);
-                        kml.mKmlRoot.setExtendedData("Destination","defaultMcs");
-                        kml.mKmlRoot.setExtendedData("Lat Long",latlng);
-                        kml.mKmlRoot.setExtendedData("Group ID","1");
-                        kml.mKmlRoot.setExtendedData("Priority","50");
-                        kml.mKmlRoot.setExtendedData("KML Type","Point");
-                        File tempKmzFolder = Environment.getExternalStoragePublicDirectory("DMS/tmpKMZ");
-                        if(!tempKmzFolder.exists()){
-                            tempKmzFolder.mkdir();
+                AlertDialog.Builder dialogxyz = new AlertDialog.Builder(UI_Map.this);
+                dialogxyz.setNeutralButton("Save", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        flag=0;
+                        if(textmsg.getText().toString().length()>0){
+                            KmlDocument kml = new KmlDocument();
+                            if(polygon_points.size()==1){
+                                Marker marker = new Marker(map);
+                                marker.setPosition(polygon_points.get(0));
+                                marker.setSnippet(textmsg.getText().toString());
+                                KmlPlacemark placemark = new KmlPlacemark(marker);
+                                String latlng = FileTask.getloc(getContextOfApplication());
+                                String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
+                                String file_name = "TXT_50_data_"+
+                                        SelectCategoryActivity.SOURCE_PHONE_NO+
+                                        "_defaultMcs_"
+                                        +latlng
+                                        +"_"+timeStamp+
+                                        "_1.kmz";
+                                kml.mKmlRoot.add(placemark);
+                                kml.mKmlRoot.setExtendedData("Media Type","TXT");
+                                kml.mKmlRoot.setExtendedData("Group Type","data");
+                                kml.mKmlRoot.setExtendedData("Time Stamp",timeStamp);
+                                kml.mKmlRoot.setExtendedData("Source",SelectCategoryActivity.SOURCE_PHONE_NO);
+                                kml.mKmlRoot.setExtendedData("Destination","defaultMcs");
+                                kml.mKmlRoot.setExtendedData("Lat Long",latlng);
+                                kml.mKmlRoot.setExtendedData("Group ID","1");
+                                kml.mKmlRoot.setExtendedData("Priority","50");
+                                kml.mKmlRoot.setExtendedData("KML Type","Point");
+                                File tempKmzFolder = Environment.getExternalStoragePublicDirectory("DMS/tmpKMZ");
+                                if(!tempKmzFolder.exists()){
+                                    tempKmzFolder.mkdir();
+                                }
+                                File file = Environment.getExternalStoragePublicDirectory("DMS/tmpKMZ/index.kml");
+                                kml.saveAsKML(file);
+                                KmzCreator kmz = new KmzCreator();
+                                kmz.zipIt(Environment.getExternalStoragePublicDirectory("DMS/Working/"+file_name).toString());
+                                Storage storage = new Storage(getContextOfApplication());
+                                storage.deleteDirectory(tempKmzFolder.toString());
+                            }
+                            else if(polygon_points.size()>1){
+                                Polygon polygon = new Polygon();
+                                polygon_points.add(polygon_points.get(0));
+                                polygon.setPoints(polygon_points);
+                                polygon.setSnippet(textmsg.getText().toString());
+                                String latlng = FileTask.getloc(getContextOfApplication());
+                                String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
+                                String file_name = "TXT_50_data_"+
+                                        SelectCategoryActivity.SOURCE_PHONE_NO+
+                                        "_defaultMcs_"
+                                        +latlng
+                                        +"_"+timeStamp+
+                                        "_1.kmz";
+                                kml.mKmlRoot.setExtendedData("Media Type","TXT");
+                                kml.mKmlRoot.setExtendedData("Group Type","data");
+                                kml.mKmlRoot.setExtendedData("Time Stamp",timeStamp);
+                                kml.mKmlRoot.setExtendedData("Source",SelectCategoryActivity.SOURCE_PHONE_NO);
+                                kml.mKmlRoot.setExtendedData("Destination","defaultMcs");
+                                kml.mKmlRoot.setExtendedData("Lat Long",latlng);
+                                kml.mKmlRoot.setExtendedData("Group ID","1");
+                                kml.mKmlRoot.setExtendedData("Priority","50");
+                                kml.mKmlRoot.setExtendedData("KML Type","Polygon");
+                                kml.mKmlRoot.addOverlay(polygon,kml);
+                                File tempKmzFolder = Environment.getExternalStoragePublicDirectory("DMS/tmpKMZ");
+                                if(!tempKmzFolder.exists()){
+                                    tempKmzFolder.mkdir();
+                                }
+
+                                File file = Environment.getExternalStoragePublicDirectory("DMS/tmpKMZ/index.kml");
+                                kml.saveAsKML(file);
+                                KmzCreator kmz = new KmzCreator();
+                                kmz.zipIt(Environment.getExternalStoragePublicDirectory("DMS/Working/"+file_name).toString());
+                                Storage storage = new Storage(getContextOfApplication());
+
+                                storage.deleteDirectory(tempKmzFolder.toString());
+                            }
+                            setWorkingData(true);
+                            dialog.dismiss();
+                            dialog_parent.dismiss();
                         }
-                        File file = Environment.getExternalStoragePublicDirectory("DMS/tmpKMZ/index.kml");
-                        kml.saveAsKML(file);
-                        KmzCreator kmz = new KmzCreator();
-                        kmz.zipIt(Environment.getExternalStoragePublicDirectory("DMS/Working/"+file_name).toString());
-                        Storage storage = new Storage(getContextOfApplication());
-                        storage.deleteDirectory(tempKmzFolder.toString());
-                    }
-                    else if(polygon_points.size()>1){
-                        Polygon polygon = new Polygon();
-                        polygon_points.add(polygon_points.get(0));
-                        polygon.setPoints(polygon_points);
-                        polygon.setSnippet(textmsg.getText().toString());
-                        String latlng = FileTask.getloc(getContextOfApplication());
-                        String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
-                        String file_name = "TXT_50_data_"+
-                                SelectCategoryActivity.SOURCE_PHONE_NO+
-                                "_defaultMcs_"
-                                +latlng
-                                +"_"+timeStamp+
-                                "_1.kmz";
-                        kml.mKmlRoot.setExtendedData("Media Type","TXT");
-                        kml.mKmlRoot.setExtendedData("Group Type","data");
-                        kml.mKmlRoot.setExtendedData("Time Stamp",timeStamp);
-                        kml.mKmlRoot.setExtendedData("Source",SelectCategoryActivity.SOURCE_PHONE_NO);
-                        kml.mKmlRoot.setExtendedData("Destination","defaultMcs");
-                        kml.mKmlRoot.setExtendedData("Lat Long",latlng);
-                        kml.mKmlRoot.setExtendedData("Group ID","1");
-                        kml.mKmlRoot.setExtendedData("Priority","50");
-                        kml.mKmlRoot.setExtendedData("KML Type","Polygon");
-                        kml.mKmlRoot.addOverlay(polygon,kml);
-                        File tempKmzFolder = Environment.getExternalStoragePublicDirectory("DMS/tmpKMZ");
-                        if(!tempKmzFolder.exists()){
-                            tempKmzFolder.mkdir();
+                        else {
+                            Toast.makeText(getBaseContext(),"No info found to be saved!!! Please describe the situation there",Toast.LENGTH_SHORT).show();
+                            dialog.dismiss();
+                            dialog_parent.dismiss();
                         }
 
-                        File file = Environment.getExternalStoragePublicDirectory("DMS/tmpKMZ/index.kml");
-                        kml.saveAsKML(file);
-                        KmzCreator kmz = new KmzCreator();
-                        kmz.zipIt(Environment.getExternalStoragePublicDirectory("DMS/Working/"+file_name).toString());
-                        Storage storage = new Storage(getContextOfApplication());
 
-                        storage.deleteDirectory(tempKmzFolder.toString());
                     }
-                    setWorkingData(true);
-                    dialog.dismiss();
-                }
-                else {
-                    Toast.makeText(getBaseContext(),"No info found to be saved!!! Please describe the situation there",Toast.LENGTH_SHORT).show();
-                    dialog.dismiss();
-                }
+                });
+                dialogxyz.setPositiveButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        dialog_parent.dismiss();
+                    }
+                });
+                dialogxyz.setNegativeButton("Add Media", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        dialog_parent.dismiss();
+                        createDialog();
 
-
+                    }
+                });
+                dialogxyz.setTitle("Do you really want to save?");
+                AlertDialog ad = dialogxyz.create();
+                ad.show();
             }
         });
     }
@@ -954,7 +982,7 @@ public class UI_Map extends AppCompatActivity
                         });
                 AlertDialog alert = alertDialogBuilder.create();
                 alert.show();
-
+                dialog.dismiss();
             }
         });
     }
@@ -1036,23 +1064,28 @@ public class UI_Map extends AppCompatActivity
     }
     private void removeInfo(){
         Boolean isOpen = false;
+        try{
+            for(Overlay overlay : allOverlays){
+                if(overlay instanceof Polygon){
+                    if(((Polygon) overlay).getInfoWindow().isOpen()){
+                        isOpen = true;
+                        ((Polygon) overlay).getInfoWindow().close();
+                    }
 
-        for(Overlay overlay : allOverlays){
-            if(overlay instanceof Polygon){
-                if(((Polygon) overlay).getInfoWindow().isOpen()){
-                    isOpen = true;
-                    ((Polygon) overlay).getInfoWindow().close();
                 }
-
-            }
-            else if(overlay instanceof Marker){
-                if(((Marker) overlay).getInfoWindow().isOpen())
-                {
-                    isOpen = true;
-                    ((Marker) overlay).getInfoWindow().close();
+                else if(overlay instanceof Marker){
+                    if(((Marker) overlay).getInfoWindow().isOpen())
+                    {
+                        isOpen = true;
+                        ((Marker) overlay).getInfoWindow().close();
+                    }
                 }
             }
         }
+        catch (Exception ex){
+
+        }
+
     }
     public static Context getContextOfApplication(){
         return contextOfApplication;
