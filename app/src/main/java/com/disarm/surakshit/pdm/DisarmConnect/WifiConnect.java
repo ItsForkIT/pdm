@@ -118,6 +118,9 @@ public class WifiConnect implements Runnable {
                     Log.v("Parameters:", wc.SSID + "," + wc.BSSID + "," + wc.allowedAuthAlgorithms + "," + wc.allowedProtocols + "," + wc.allowedKeyManagement + "," + wc.allowedGroupCiphers + "," + wc.allowedPairwiseCiphers + "," + wc.FQDN + "," + wc.status);
                     Logger.addRecordToLog("DH Connected Successfully," + bestFoundSSID);
                 }
+                else{
+                    Logger.addRecordToLog("DH not connected");
+                }
             }
             else{
                 Log.v(DCService.TAG2,"Disarm Not Available");

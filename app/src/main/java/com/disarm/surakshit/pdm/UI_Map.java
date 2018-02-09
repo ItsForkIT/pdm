@@ -18,7 +18,9 @@ import android.media.RingtoneManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.provider.Contacts;
 import android.provider.Settings;
@@ -116,9 +118,11 @@ public class UI_Map extends AppCompatActivity
     final ArrayList<Marker> all_markers = new ArrayList<>();
     final static HashMap<String,Boolean> all_kmz_overlay_map = new HashMap<>();
     final static ArrayList<Overlay> allOverlays = new ArrayList<>();
-    Handler refresh = new Handler();
+    HandlerThread refreshThread = new HandlerThread("refreshThread");
+    HandlerThread syncThread = new HandlerThread("syncHandler");
+    Handler refresh;
     Handler setCenter = new Handler();
-    Handler syncServiceHandle = new Handler();
+    Handler syncServiceHandle;
     boolean center = false;
     private int flag=0;
     @Override
@@ -143,7 +147,12 @@ public class UI_Map extends AppCompatActivity
                 removeInfoWindow();
             }
         });
-
+        refreshThread.start();
+        syncThread.start();
+        Looper refreshLoop = refreshThread.getLooper();
+        refresh = new Handler(refreshLoop);
+        Looper syncLoop = syncThread.getLooper();
+        syncServiceHandle = new Handler(syncLoop);
         Storage storage = new Storage(getApplicationContext());
         storage.deleteDirectory(Environment.getExternalStoragePublicDirectory("DMS/tmpOpen").toString());
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -1053,6 +1062,7 @@ public class UI_Map extends AppCompatActivity
         first_time=false;
     }
     private void refreshWorkingData(){
+
         Runnable r = new Runnable() {
             @Override
             public void run() {

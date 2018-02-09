@@ -72,10 +72,13 @@ public class SearchingDisarmDB implements Runnable {
                         Log.v(DCService.TAG1, "DB Disconnected as Level = " + level);
                     }
                 }
+                else{
+                    Logger.addRecordToLog("Not connecting DB low signal");
+                }
             }
             else {
                 Log.v(DCService.TAG4, "Connecting DisarmDB");
-
+                Logger.addRecordToLog("Connecting DB");
                 String ssid = DCService.dbAPName;
                 WifiConfiguration wc = new WifiConfiguration();
                 String pass = "password123";
@@ -95,6 +98,10 @@ public class SearchingDisarmDB implements Runnable {
                 Log.v("DB:","Res:" + res + ",b:" + b);
                 if(res != -1 ) {
                     Log.v(DCService.TAG4, " DB Connected");
+                    Logger.addRecordToLog("DB connected");
+                }
+                else{
+                    Logger.addRecordToLog("DB not connected");
                 }
 
             }
