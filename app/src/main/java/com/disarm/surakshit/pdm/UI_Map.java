@@ -766,6 +766,7 @@ public class UI_Map extends AppCompatActivity
         save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                text_description = textmsg.getText().toString();
                 AlertDialog.Builder dialogxyz = new AlertDialog.Builder(UI_Map.this);
                 dialogxyz.setNeutralButton("Save", new DialogInterface.OnClickListener() {
                     @Override
@@ -868,6 +869,7 @@ public class UI_Map extends AppCompatActivity
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
                         dialog_parent.dismiss();
+                        text_description = textmsg.getText().toString();
                         createDialog();
 
                     }
