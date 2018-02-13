@@ -109,6 +109,8 @@ public class UI_Map extends AppCompatActivity
     private boolean gpsService = false;
     public static int total_file=0;
     LocationManager lm;
+    Handler currentMarkerLocation;
+    Marker currentLocationMarker;
     LocationListener locationListener;
     ArrayList<GeoPoint> polygon_points=new ArrayList<>();
     FloatingActionButton fab;
@@ -119,6 +121,7 @@ public class UI_Map extends AppCompatActivity
     final static HashMap<String,Boolean> all_kmz_overlay_map = new HashMap<>();
     final static ArrayList<Overlay> allOverlays = new ArrayList<>();
     HandlerThread refreshThread = new HandlerThread("refreshThread");
+    HandlerThread currentMarkerLocationThread=new HandlerThread("currentMarkerLocation");
     HandlerThread syncThread = new HandlerThread("syncHandler");
     Handler refresh;
     Handler setCenter = new Handler();
@@ -149,10 +152,13 @@ public class UI_Map extends AppCompatActivity
         });
         refreshThread.start();
         syncThread.start();
+        currentMarkerLocationThread.start();
         Looper refreshLoop = refreshThread.getLooper();
         refresh = new Handler(refreshLoop);
         Looper syncLoop = syncThread.getLooper();
         syncServiceHandle = new Handler(syncLoop);
+        Looper currentLoc=currentMarkerLocationThread.getLooper();
+        currentMarkerLocation=new Handler(currentLoc);
         Storage storage = new Storage(getApplicationContext());
         storage.deleteDirectory(Environment.getExternalStoragePublicDirectory("DMS/tmpOpen").toString());
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -360,13 +366,15 @@ public class UI_Map extends AppCompatActivity
         setWorkingData(true);
     }
     private void setCenter(final IMapController mapController){
-        Runnable r = new Runnable() {
+        Runnable r = new Runnable()
+        {
             @Override
             public void run() {
                 if(!center){
                     Location l = MLocation.getLocation(getApplicationContext());
                     if(l != null){
                         GeoPoint g = new GeoPoint(l.getLatitude(),l.getLongitude());
+                        currentMarkerLocation();
                         center = true;
                         mapController.setCenter(g);
                     }
@@ -379,6 +387,37 @@ public class UI_Map extends AppCompatActivity
         setCenter.postDelayed(r,500);
 
     }
+
+    private void currentMarkerLocation()
+    {
+        Runnable r = new Runnable()
+        {
+            @Override
+            public void run() {
+                Location l = MLocation.getLocation(getApplicationContext());
+                GeoPoint g = new GeoPoint(l.getLatitude(),l.getLongitude());
+                if(currentLocationMarker==null)
+                {
+                    currentLocationMarker = new Marker(map);
+                    currentLocationMarker.setIcon(getResources().getDrawable(R.drawable.user_location32));
+                    currentLocationMarker.setTitle("You are here");
+                }
+                currentLocationMarker.setPosition(g);
+                if(map.getOverlays().contains(currentLocationMarker)){
+                    map.getOverlays().remove(currentLocationMarker);
+                    map.getOverlays().add(currentLocationMarker);
+                }
+                else
+                    map.getOverlays().add(currentLocationMarker);
+
+                currentMarkerLocation.postDelayed(this,500);
+            }
+        };
+        currentMarkerLocation.postDelayed(r,500);
+
+    }
+
+
     private void startService(){
         Runnable run = new Runnable() {
             @Override
@@ -1033,13 +1072,13 @@ public class UI_Map extends AppCompatActivity
                 public void run() {
                     for(int i=0;i<kmlOverlay.getItems().size();i++){
                         if(kmlOverlay.getItems().get(i) instanceof Polygon){
-                              String desciption = ((Polygon) kmlOverlay.getItems().get(i)).getSnippet();
-                              String latlon = kml.mKmlRoot.getExtendedData("Lat Long");
-                              if(!first_time && !is_mine){
-                                  ((Polygon) kmlOverlay.getItems().get(i)).setStrokeColor(Color.BLUE);
-                              }
-                              ((Polygon) kmlOverlay.getItems().get(i)).setInfoWindow(new CustomInfoWindow(R.layout.custom_info_window,map,desciption,latlon,file.getName()));
-                              allOverlays.add(((Polygon) kmlOverlay.getItems().get(i)));
+                            String desciption = ((Polygon) kmlOverlay.getItems().get(i)).getSnippet();
+                            String latlon = kml.mKmlRoot.getExtendedData("Lat Long");
+                            if(!first_time && !is_mine){
+                                ((Polygon) kmlOverlay.getItems().get(i)).setStrokeColor(Color.BLUE);
+                            }
+                            ((Polygon) kmlOverlay.getItems().get(i)).setInfoWindow(new CustomInfoWindow(R.layout.custom_info_window,map,desciption,latlon,file.getName()));
+                            allOverlays.add(((Polygon) kmlOverlay.getItems().get(i)));
                         }
                         else if(kmlOverlay.getItems().get(i) instanceof Marker){
                             String description = ((Marker) kmlOverlay.getItems().get(i)).getSnippet();
