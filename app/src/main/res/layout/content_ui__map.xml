@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -25,8 +26,19 @@
         android:layout_marginBottom="0dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent">
-
-        <org.osmdroid.views.MapView android:id="@+id/ui_map"
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="35dp"
+        android:text="SAVE"
+        android:textSize="15sp"
+        android:background="#FF4081"
+        android:textColor="#830707"
+        android:id="@+id/btn_current_loc"
+        android:layout_marginLeft="135dp"
+        android:layout_marginTop="19dp"
+        />
+        <org.osmdroid.views.MapView
+            android:id="@+id/ui_map"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 

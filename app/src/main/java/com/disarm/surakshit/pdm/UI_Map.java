@@ -92,7 +92,7 @@ import java.util.zip.ZipFile;
 public class UI_Map extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     public static Context contextOfApplication;
-    Button draw_save,undo_back,cancel;
+    Button draw_save,undo_back,cancel,btn_save_current_marker;
     public static boolean first_time = true;
     static MapView map;
     View bottomsheet;
@@ -114,7 +114,7 @@ public class UI_Map extends AppCompatActivity
     LocationListener locationListener;
     ArrayList<GeoPoint> polygon_points=new ArrayList<>();
     FloatingActionButton fab;
-    int draw_flag=1;
+    int draw_flag=1,curr_loation_flag=0;
     final Polygon polygon = new Polygon();
     String text_description="";
     final ArrayList<Marker> all_markers = new ArrayList<>();
@@ -139,6 +139,7 @@ public class UI_Map extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                btn_save_current_marker.setVisibility(View.INVISIBLE);
                 fab.setVisibility(View.INVISIBLE);
                 draw_save.setVisibility(View.VISIBLE);
                 cancel.setVisibility(View.VISIBLE);
@@ -179,13 +180,14 @@ public class UI_Map extends AppCompatActivity
         setMapData();
         setMapClick();
         setDrawClick();
+        setCurrentMarker();
         setCancelClick(fab);
         setSaveClick(fab);
         refreshWorkingData();
         markerpoints.clear();
-
-
     }
+
+
     @Override
     public void onBackPressed() {
         Boolean isOpen = false;
@@ -300,8 +302,7 @@ public class UI_Map extends AppCompatActivity
         cancel = (Button) findViewById(R.id.btn_map_cancel);
         undo_back = (Button) findViewById(R.id.btn_map_undo_back);
         bottomsheet = findViewById(R.id.map_bottomsheet);
-
-
+        btn_save_current_marker = (Button) findViewById(R.id.btn_current_loc);
     }
 
     private void setBottomsheet(){
@@ -342,7 +343,8 @@ public class UI_Map extends AppCompatActivity
         });
     }
 
-    private void setMapData(){
+    private void setMapData()
+    {
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
@@ -387,7 +389,7 @@ public class UI_Map extends AppCompatActivity
         setCenter.postDelayed(r,500);
 
     }
-
+    GeoPoint current_point;
     private void currentMarkerLocation()
     {
         Runnable r = new Runnable()
@@ -395,15 +397,16 @@ public class UI_Map extends AppCompatActivity
             @Override
             public void run() {
                 Location l = MLocation.getLocation(getApplicationContext());
-                GeoPoint g = new GeoPoint(l.getLatitude(),l.getLongitude());
+                current_point = new GeoPoint(l.getLatitude(),l.getLongitude());
                 if(currentLocationMarker==null)
                 {
                     currentLocationMarker = new Marker(map);
                     currentLocationMarker.setIcon(getResources().getDrawable(R.drawable.user_location32));
                     currentLocationMarker.setTitle("You are here");
                 }
-                currentLocationMarker.setPosition(g);
-                if(map.getOverlays().contains(currentLocationMarker)){
+                currentLocationMarker.setPosition(current_point);
+                if(map.getOverlays().contains(currentLocationMarker))
+                {
                     map.getOverlays().remove(currentLocationMarker);
                     map.getOverlays().add(currentLocationMarker);
                 }
@@ -653,13 +656,26 @@ public class UI_Map extends AppCompatActivity
         MapEventsOverlay OverlayEvents = new MapEventsOverlay(getBaseContext(), mReceive);
         map.getOverlays().add(OverlayEvents);
     }
+    private  void setCurrentMarker()
+    {
+        btn_save_current_marker.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+
+                curr_loation_flag=1;
+                createTextDialog();
+            }
+        });
+    }
 
     private void setDrawClick(){
         draw_save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-
+                // draw btn
                 if(flag==0)
                 {
                     if(polygon_points.size()!=0)
@@ -675,6 +691,7 @@ public class UI_Map extends AppCompatActivity
                     }
                     else Toast.makeText(getBaseContext(), "No marker is selected.", Toast.LENGTH_SHORT).show();
                 }
+                // else part for save data
                 else {
 
                     for (Marker m : all_markers) {
@@ -692,7 +709,7 @@ public class UI_Map extends AppCompatActivity
                     cancel.setVisibility(View.GONE);
                     undo_back.setVisibility(View.GONE);
                     fab.setVisibility(View.VISIBLE);
-
+                    btn_save_current_marker.setVisibility(View.VISIBLE);
                 }
             }
         });
@@ -708,9 +725,11 @@ public class UI_Map extends AppCompatActivity
                 total_file=0;
                 draw_save.setText("Draw");
                 fab.setVisibility(View.VISIBLE);
+
                 draw_save.setVisibility(View.GONE);
                 cancel.setVisibility(View.GONE);
                 undo_back.setVisibility(View.GONE);
+                btn_save_current_marker.setVisibility(View.VISIBLE);
                 draw_flag=1;
                 map.getOverlays().remove(polygon);
                 polygon_points.clear();
@@ -758,9 +777,11 @@ public class UI_Map extends AppCompatActivity
     }
 
     private void removeInfoWindow(){
+
         for(Marker m : all_markers){
             m.getInfoWindow().close();
         }
+        currentLocationMarker.getInfoWindow().close();
     }
     private void createTextDialog(){
         text_description="";
@@ -784,6 +805,7 @@ public class UI_Map extends AppCompatActivity
                 flag=0;
 
                 draw_save.setText("Draw");
+                btn_save_current_marker.setVisibility(View.VISIBLE);
                 total_file=0;
                 dialog_parent.dismiss();
             }
@@ -796,7 +818,8 @@ public class UI_Map extends AppCompatActivity
                     text_description = textmsg.getText().toString();
                     createDialog();
                 }
-                else{
+                else
+                {
                     Toast.makeText(getBaseContext(),"No info found to be saved!!! Please describe the situation there",Toast.LENGTH_SHORT).show();
                 }
                 dialog_parent.dismiss();
@@ -813,7 +836,15 @@ public class UI_Map extends AppCompatActivity
                         flag=0;
                         if(textmsg.getText().toString().length()>0){
                             KmlDocument kml = new KmlDocument();
-                            if(polygon_points.size()==1){
+                            if(polygon_points.size()==1 || curr_loation_flag==1)
+                            {
+                                if(curr_loation_flag==1)
+                                {
+                                    curr_loation_flag=0;
+                                    polygon_points.add(current_point);
+                                    all_markers.add(new Marker(map));
+                                }
+
                                 Marker marker = new Marker(map);
                                 marker.setPosition(polygon_points.get(0));
                                 marker.setSnippet(textmsg.getText().toString());
@@ -848,7 +879,6 @@ public class UI_Map extends AppCompatActivity
                                 storage.deleteDirectory(tempKmzFolder.toString());
                             }
                             else if(polygon_points.size()>1){
-                                Polygon polygon = new Polygon();
                                 polygon_points.add(polygon_points.get(0));
                                 polygon.setPoints(polygon_points);
                                 polygon.setSnippet(textmsg.getText().toString());
@@ -990,7 +1020,12 @@ public class UI_Map extends AppCompatActivity
             public void onClick(View v) {
                 String dest = destination.getText().toString().trim();
                 String imp = importance.getText().toString().trim();
-
+                if(curr_loation_flag==1)
+                {
+                    curr_loation_flag=0;
+                    polygon_points.add(current_point);
+                    all_markers.add(new Marker(map));
+                }
                 if(dest.isEmpty() || dest.length() == 0 || dest.equals("") || dest == null) {
                     dest = "defaultMcs";
                 }
