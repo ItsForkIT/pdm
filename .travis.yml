@@ -35,4 +35,4 @@ deploy:
   file: "./app/build/outputs/apk/debug/Surakshit*.apk"
   on:
     repo: ItsForkIT/pdm
-    branch: Surakshit_New_UI
+    branch: PlayStore

@@ -1,4 +1,4 @@
-BRANCH="Surakshit_New_UI"
+BRANCH="PlayStore"
 
 # Are we on the right branch?
 if [ "$TRAVIS_BRANCH" = "$BRANCH" ]; then
