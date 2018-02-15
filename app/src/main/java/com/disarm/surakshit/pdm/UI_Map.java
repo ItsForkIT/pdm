@@ -736,10 +736,7 @@ public class UI_Map extends AppCompatActivity
                 fab.setVisibility(View.VISIBLE);
                 if(current_point!=null)
                 btn_save_current_marker.setVisibility(View.VISIBLE);
-                else
-                {
-                    btn_save_current_marker.setVisibility(View.INVISIBLE);
-                }
+
                 draw_save.setVisibility(View.GONE);
                 cancel.setVisibility(View.GONE);
                 undo_back.setVisibility(View.GONE);
@@ -807,7 +804,13 @@ public class UI_Map extends AppCompatActivity
         save = (Button) dialog_view.findViewById(R.id.dialog_button_save);
         add = (Button) dialog_view.findViewById(R.id.dialog_button_add);
         cancel = (Button) dialog_view.findViewById(R.id.dialog_button_cancel);
-
+        if(current_point!=null)
+        {
+            if(btn_save_current_marker.getVisibility()==View.INVISIBLE)
+            {
+                btn_save_current_marker.setVisibility(View.VISIBLE);
+            }
+        }
         AlertDialog.Builder dialog_builder = new AlertDialog.Builder(UI_Map.this);
         dialog_builder.setTitle("Please describe the situation in less than 50 words !!!");
         dialog_builder.setView(dialog_view);
