@@ -29,13 +29,17 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="35dp"
-        android:text="SAVE"
-        android:textSize="15sp"
+        android:text="SAVE MY POSITION"
+        android:visibility="gone"
+        android:textSize="10sp"
         android:background="#FF4081"
         android:textColor="#830707"
         android:id="@+id/btn_current_loc"
-        android:layout_marginLeft="135dp"
-        android:layout_marginTop="19dp"
+        android:layout_marginLeft="130dp"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+
+        android:layout_marginTop="21dp"
         />
         <org.osmdroid.views.MapView
             android:id="@+id/ui_map"

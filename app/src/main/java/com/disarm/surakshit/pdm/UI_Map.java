@@ -139,10 +139,12 @@ public class UI_Map extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                btn_save_current_marker.setVisibility(View.INVISIBLE);
+                current_point=null;
+
                 fab.setVisibility(View.INVISIBLE);
                 draw_save.setVisibility(View.VISIBLE);
                 cancel.setVisibility(View.VISIBLE);
+                btn_save_current_marker.setVisibility(View.INVISIBLE);
                 undo_back.setVisibility(View.VISIBLE);
                 polygon_points.clear();
                 total_file=0;
@@ -303,6 +305,7 @@ public class UI_Map extends AppCompatActivity
         undo_back = (Button) findViewById(R.id.btn_map_undo_back);
         bottomsheet = findViewById(R.id.map_bottomsheet);
         btn_save_current_marker = (Button) findViewById(R.id.btn_current_loc);
+
     }
 
     private void setBottomsheet(){
@@ -379,6 +382,7 @@ public class UI_Map extends AppCompatActivity
                         currentMarkerLocation();
                         center = true;
                         mapController.setCenter(g);
+                        btn_save_current_marker.setVisibility(View.VISIBLE);
                     }
                     else{
                         setCenter.postDelayed(this,500);
@@ -398,10 +402,11 @@ public class UI_Map extends AppCompatActivity
             public void run() {
                 Location l = MLocation.getLocation(getApplicationContext());
                 current_point = new GeoPoint(l.getLatitude(),l.getLongitude());
+
                 if(currentLocationMarker==null)
                 {
                     currentLocationMarker = new Marker(map);
-                    currentLocationMarker.setIcon(getResources().getDrawable(R.drawable.user_location32));
+                    currentLocationMarker.setIcon(getResources().getDrawable(R.drawable.location_pin_32));
                     currentLocationMarker.setTitle("You are here");
                 }
                 currentLocationMarker.setPosition(current_point);
@@ -661,11 +666,15 @@ public class UI_Map extends AppCompatActivity
         btn_save_current_marker.setOnClickListener(new View.OnClickListener()
         {
             @Override
-            public void onClick(View view)
-            {
-
-                curr_loation_flag=1;
-                createTextDialog();
+            public void onClick(View view) {
+                if (currentLocationMarker != null) {
+                    curr_loation_flag = 1;
+                    createTextDialog();
+                }
+                else
+                {
+                    Toast.makeText(UI_Map.this, "Please turn on GPS.", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
@@ -709,7 +718,7 @@ public class UI_Map extends AppCompatActivity
                     cancel.setVisibility(View.GONE);
                     undo_back.setVisibility(View.GONE);
                     fab.setVisibility(View.VISIBLE);
-                    btn_save_current_marker.setVisibility(View.VISIBLE);
+
                 }
             }
         });
@@ -725,11 +734,15 @@ public class UI_Map extends AppCompatActivity
                 total_file=0;
                 draw_save.setText("Draw");
                 fab.setVisibility(View.VISIBLE);
-
+                if(current_point!=null)
+                btn_save_current_marker.setVisibility(View.VISIBLE);
+                else
+                {
+                    btn_save_current_marker.setVisibility(View.INVISIBLE);
+                }
                 draw_save.setVisibility(View.GONE);
                 cancel.setVisibility(View.GONE);
                 undo_back.setVisibility(View.GONE);
-                btn_save_current_marker.setVisibility(View.VISIBLE);
                 draw_flag=1;
                 map.getOverlays().remove(polygon);
                 polygon_points.clear();
@@ -781,7 +794,9 @@ public class UI_Map extends AppCompatActivity
         for(Marker m : all_markers){
             m.getInfoWindow().close();
         }
-        currentLocationMarker.getInfoWindow().close();
+
+        if(currentLocationMarker!=null)
+         currentLocationMarker.getInfoWindow().close();
     }
     private void createTextDialog(){
         text_description="";
@@ -805,7 +820,7 @@ public class UI_Map extends AppCompatActivity
                 flag=0;
 
                 draw_save.setText("Draw");
-                btn_save_current_marker.setVisibility(View.VISIBLE);
+
                 total_file=0;
                 dialog_parent.dismiss();
             }
