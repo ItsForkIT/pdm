@@ -66,11 +66,6 @@
         </provider>
 
         <activity
-            android:name="com.disarm.surakshit.pdm.SurakshitActivity"
-            android:label="@string/app_name"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
             android:name="com.disarm.surakshit.pdm.ActivityList"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"
@@ -101,7 +96,6 @@
         <service android:name="com.disarm.surakshit.pdm.DisarmConnect.DCService" />
         <service android:name="com.disarm.surakshit.pdm.DisarmConnect.DataMuleService" />
 
-        <activity android:name="com.disarm.surakshit.pdm.OSMMapView" />
         <activity
             android:name="com.disarm.surakshit.pdm.UI_Map"
             android:label = "@string/app_name"
