@@ -87,9 +87,15 @@ public class CustomInfoWindow extends InfoWindow {
                 UnZip unzip = new UnZip(destFolder.getPath().toString()+"/",sourceFile.toString());
                 destFolder  = Environment.getExternalStoragePublicDirectory("DMS/tmpOpen");
                 String absolute_file_name = "";
+                int count =0;
                 for(int i=0;i<file_name.length();i++){
                     if(file_name.charAt(i)=='.'){
-                        break;
+                        count++;
+                        if(count==3){
+                            break;
+                        }
+                        else
+                            absolute_file_name = absolute_file_name + file_name.charAt(i);
                     }
                     else{
                         absolute_file_name = absolute_file_name + file_name.charAt(i);
@@ -99,6 +105,7 @@ public class CustomInfoWindow extends InfoWindow {
                 for(File file : files){
                     if(file.getName().contains(absolute_file_name)){
                         openFile(file);
+
                     }
                 }
             }
