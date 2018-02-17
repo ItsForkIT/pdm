@@ -3,7 +3,6 @@
     <string name="action_settings">Settings</string>
     <string name="text_sync">Sync</string>
     <string name="text_start_connection">Connection</string>
-    <string name="text_connect"></string>
     <string name="text_GPS">GPS Trail</string>
     <string name="health">Health</string>
     <string name="food">Food</string>
@@ -49,128 +48,12 @@
     <string name="resetall">Reset All</string>
     <string name="exit">Exit</string>
 
-
-    <string-array name="health_array">
-        <item>Select</item>
-        <item>Fever</item>
-        <item>Typhoid</item>
-        <item>Jaundice</item>
-        <item>Stomach Upset</item>
-        <item>Skin Infection</item>
-        <item>Chicken Pox</item>
-        <item>Common Cold</item>
-        <item>Diarrhea</item>
-    </string-array>
-
-    <string-array name="food_array">
-        <item>Select</item>
-        <item>Rice</item>
-        <item>Wheat</item>
-        <item>Dal</item>
-        <item>Maize</item>
-        <item>Water</item>
-    </string-array>
-
-    <string-array name="victim_array">
-        <item>Select</item>
-        <item>Population affected estimated</item>
-        <item>Affected children under 5 years</item>
-        <item>Affected pregnant women</item>
-        <item>Affected Lactating mothers</item>
-        <item>Dead</item>
-        <item>Injured</item>
-        <item>Missing</item>
-        <item>Homeless</item>
-        <item>Displaced</item>
-        <item>Evacuated</item>
-        <item>Orphans</item>
-        <item>Destitute</item>
-        <item>Traumatised population</item>
-    </string-array>
-
-    <string-array name="shelter_array">
-        <item>Select</item>
-        <item>Where evacuees are taking shelter</item>
-        <item>Availability of temporary shelter</item>
-        <item>Availability of house building materials</item>
-        <item>Support from local government</item>
-    </string-array>
-
-    <string-array name="num_array">
-        <item>Select</item>
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-        <item>5</item>
-        <item>10</item>
-        <item>Custom</item>
-    </string-array>
-
     <string-array name="lang_list">
         <item>English</item>
         <item>বাংলা</item>
         <item>हिंदी</item>
     </string-array>
 
-
-    <!--duplicate array for translation-->
-
-
-    <string-array name="trans_health_array">
-        <item>Select</item>
-        <item>Fever</item>
-        <item>Typhoid</item>
-        <item>Jaundice</item>
-        <item>Stomach Upset</item>
-        <item>Skin Infection</item>
-        <item>Chicken Pox</item>
-        <item>Common Cold</item>
-        <item>Diarrhea</item>
-    </string-array>
-
-    <string-array name="trans_food_array">
-        <item>Select</item>
-        <item>Rice</item>
-        <item>Wheat</item>
-        <item>Dal</item>
-        <item>Maize</item>
-        <item>Water</item>
-    </string-array>
-
-    <string-array name="trans_victim_array">
-        <item>Select</item>
-        <item>Population affected estimated</item>
-        <item>Affected children under 5 years</item>
-        <item>Affected pregnant women</item>
-        <item>Affected Lactating mothers</item>
-        <item>Dead</item>
-        <item>Injured</item>
-        <item>Missing</item>
-        <item>Homeless</item>
-        <item>Displaced</item>
-        <item>Evacuated</item>
-        <item>Orphans</item>
-        <item>Destitute</item>
-        <item>Traumatised population</item>
-    </string-array>
-
-    <string-array name="trans_shelter_array">
-        <item>Select</item>
-        <item>Where evacuees are taking shelter</item>
-        <item>Availability of temporary shelter</item>
-        <item>Availability of house building materials</item>
-        <item>Support from local government</item>
-    </string-array>
-
-    <string-array name="trans_num_array">
-        <item>Select</item>
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-        <item>5</item>
-        <item>10</item>
-        <item>Custom</item>
-    </string-array>
     <string name="title_activity_ui__map">UI_Map</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>

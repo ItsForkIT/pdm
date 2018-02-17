@@ -418,6 +418,7 @@ public class UI_Map extends AppCompatActivity
                 else
                     map.getOverlays().add(currentLocationMarker);
 
+
                 currentMarkerLocation.postDelayed(this,500);
             }
         };
@@ -854,6 +855,7 @@ public class UI_Map extends AppCompatActivity
                         flag=0;
                         if(textmsg.getText().toString().length()>0){
                             KmlDocument kml = new KmlDocument();
+
                             if(polygon_points.size()==1 || curr_loation_flag==1)
                             {
                                 if(curr_loation_flag==1)
