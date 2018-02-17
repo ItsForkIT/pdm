@@ -75,12 +75,14 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
                 Log.i("permission","request permissions");
                 ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
             }
-        }else{
+        }
+        else{
             creatingFolders();
         }
         if (checkPhoneNo()){
             callWriteSettingActivity();
-        }else {
+        }
+        else {
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                     WindowManager.LayoutParams.FLAG_FULLSCREEN);
             setContentView(R.layout.activity_splash);
@@ -136,7 +138,6 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
             mapFolder.mkdir();
         }
         run1stTimeOnly();
-
     }
 
     private boolean checkPhoneNo() {
