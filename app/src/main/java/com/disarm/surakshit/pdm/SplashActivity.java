@@ -125,6 +125,7 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
             });
         }
 
+        
     }
 
     private void creatingFolders(){

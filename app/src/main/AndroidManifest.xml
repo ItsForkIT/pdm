@@ -28,7 +28,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name="com.disarm.surakshit.pdm.SplashActivity"
+            android:name=".SplashActivity"
             android:configChanges="orientation|screenSize"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden|adjustUnspecified">
@@ -50,7 +50,7 @@
         </provider>
 
         <activity
-            android:name="com.disarm.surakshit.pdm.SelectCategoryActivity"
+            android:name=".SelectCategoryActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/app_name"
             android:screenOrientation="sensor" />
@@ -66,41 +66,42 @@
         </provider>
 
         <activity
-            android:name="com.disarm.surakshit.pdm.ActivityList"
+            android:name=".ActivityList"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"
             android:windowSoftInputMode="stateHidden|adjustPan" />
         <activity
-            android:name="com.disarm.surakshit.pdm.Capture.Photo"
+            android:name=".Capture.Photo"
             android:screenOrientation="portrait"
             android:theme="@style/AppCompatAlertDialogStyle" />
         <activity
-            android:name="com.disarm.surakshit.pdm.Capture.Video"
+            android:name=".Capture.Video"
             android:screenOrientation="portrait"
             android:theme="@style/AppCompatAlertDialogStyle" />
         <activity
-            android:name="com.disarm.surakshit.pdm.Capture.AudioCapture"
+            android:name=".Capture.AudioCapture"
             android:label="Record Audio"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light.Dialog" />
         <activity
-            android:name="com.disarm.surakshit.pdm.WriteSettingActivity"
+            android:name=".WriteSettingActivity"
             android:label="@string/allow_setting"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme" />
 
         <service
-            android:name="com.disarm.surakshit.pdm.Service.SyncService"
+            android:name=".Service.SyncService"
             android:enabled="true"
             android:exported="true" />
-        <service android:name="com.disarm.surakshit.pdm.DisarmConnect.DCService" />
-        <service android:name="com.disarm.surakshit.pdm.DisarmConnect.DataMuleService" />
+        <service android:name=".DisarmConnect.DCService" />
+        <service android:name=".DisarmConnect.DataMuleService" />
 
         <activity
-            android:name="com.disarm.surakshit.pdm.UI_Map"
-            android:label = "@string/app_name"
+            android:name=".UI_Map"
+            android:label="@string/app_name"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".ContactActivity"></activity>
     </application>
 
 </manifest>
