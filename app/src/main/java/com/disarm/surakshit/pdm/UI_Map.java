@@ -95,13 +95,14 @@ public class UI_Map extends AppCompatActivity
     Button draw_save,undo_back,cancel,btn_save_current_marker;
     public static boolean first_time = true;
     static MapView map;
+    public static GeoPoint current_point;
     View bottomsheet;
     ArrayList<Marker> markerpoints=new ArrayList<>();
     ITileSource tileSource;
     CompassOverlay mCompassOverlay;
     ScaleBarOverlay mScaleBarOverlay;
     IMapController mapController;
-    final int MIN_ZOOM=14,MAX_ZOOM=19,PIXEL=256;
+    final int MIN_ZOOM=14,MAX_ZOOM=20,PIXEL=256;
     SyncService syncService;
     public DCService myService;
     private boolean syncServiceBound = false;
@@ -114,7 +115,7 @@ public class UI_Map extends AppCompatActivity
     LocationListener locationListener;
     ArrayList<GeoPoint> polygon_points=new ArrayList<>();
     FloatingActionButton fab;
-    int draw_flag=1,curr_loation_flag=0;
+    int draw_flag=1,curr_loation_flag=0,can_current_loc_flag=0;
     final Polygon polygon = new Polygon();
     String text_description="";
     final ArrayList<Marker> all_markers = new ArrayList<>();
@@ -139,18 +140,30 @@ public class UI_Map extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                current_point=null;
 
-                fab.setVisibility(View.INVISIBLE);
-                draw_save.setVisibility(View.VISIBLE);
-                cancel.setVisibility(View.VISIBLE);
-                btn_save_current_marker.setVisibility(View.INVISIBLE);
-                undo_back.setVisibility(View.VISIBLE);
-                polygon_points.clear();
-                total_file=0;
-                flag=0;
-                removeInfo();
-                removeInfoWindow();
+               // Toast.makeText(UI_Map.this, "", Toast.LENGTH_SHORT).show();
+                if(currentLocationMarker==null ) {
+                    draw_save.setVisibility(View.INVISIBLE);
+                    undo_back.setVisibility(View.INVISIBLE);
+                    cancel.setVisibility(View.INVISIBLE);
+                    fab.setVisibility(View.INVISIBLE);
+                    dialog_set_postion();
+                }
+                else
+                {
+
+                    draw_save.setVisibility(View.VISIBLE);
+                    cancel.setVisibility(View.VISIBLE);
+                    btn_save_current_marker.setVisibility(View.INVISIBLE);
+                    undo_back.setVisibility(View.VISIBLE);
+                    fab.setVisibility(View.INVISIBLE);
+                    polygon_points.clear();
+                    total_file=0;
+                    flag=0;
+                    removeInfo();
+                    removeInfoWindow();
+                }
+
             }
         });
         refreshThread.start();
@@ -188,6 +201,26 @@ public class UI_Map extends AppCompatActivity
         refreshWorkingData();
         markerpoints.clear();
     }
+
+    private void dialog_set_postion()
+    {
+        draw_save.setVisibility(View.INVISIBLE);
+        undo_back.setVisibility(View.INVISIBLE);
+
+        AlertDialog.Builder dialogxyz = new AlertDialog.Builder(UI_Map.this);
+        dialogxyz.setNegativeButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                
+               can_current_loc_flag=1;
+            }
+        });
+
+        dialogxyz.setTitle("Please select your current location");
+        dialogxyz.setCancelable(false);
+        dialogxyz.show();
+    }
+
 
 
     @Override
@@ -357,7 +390,7 @@ public class UI_Map extends AppCompatActivity
         map.setBuiltInZoomControls(true);
         map.setMultiTouchControls(true);
         mapController = map.getController();
-        mapController.setZoom(15);
+        mapController.setZoom(17);
         GeoPoint startPoint = new GeoPoint(23.5477,87.2931);
         mapController.setCenter(startPoint);
         setCenter(mapController);
@@ -380,6 +413,7 @@ public class UI_Map extends AppCompatActivity
                     if(l != null){
                         GeoPoint g = new GeoPoint(l.getLatitude(),l.getLongitude());
                         currentMarkerLocation();
+                        can_current_loc_flag=0;
                         center = true;
                         mapController.setCenter(g);
                         btn_save_current_marker.setVisibility(View.VISIBLE);
@@ -387,13 +421,20 @@ public class UI_Map extends AppCompatActivity
                     else{
                         setCenter.postDelayed(this,500);
                     }
+
                 }
             }
         };
         setCenter.postDelayed(r,500);
 
     }
-    GeoPoint current_point;
+
+    private void initCurrentLocationMarker()
+    {
+        currentLocationMarker = new Marker(map);
+        currentLocationMarker.setIcon(getResources().getDrawable(R.drawable.location_pin_32));
+        currentLocationMarker.setTitle("You are here");
+    }
     private void currentMarkerLocation()
     {
         Runnable r = new Runnable()
@@ -405,9 +446,8 @@ public class UI_Map extends AppCompatActivity
 
                 if(currentLocationMarker==null)
                 {
-                    currentLocationMarker = new Marker(map);
-                    currentLocationMarker.setIcon(getResources().getDrawable(R.drawable.location_pin_32));
-                    currentLocationMarker.setTitle("You are here");
+                    initCurrentLocationMarker();
+
                 }
                 currentLocationMarker.setPosition(current_point);
                 if(map.getOverlays().contains(currentLocationMarker))
@@ -590,12 +630,50 @@ public class UI_Map extends AppCompatActivity
     private void setMapClick(){
         MapEventsReceiver mReceive = new MapEventsReceiver() {
             @Override
-            public boolean singleTapConfirmedHelper(GeoPoint p) {
+            public boolean singleTapConfirmedHelper(final GeoPoint p) {
                 draw_save.setEnabled(true);
                 undo_back.setEnabled(true);
+                if(can_current_loc_flag==1 && currentLocationMarker==null && fab.getVisibility()==View.INVISIBLE)
+                {
+                    final Marker marker = new Marker(map);
+                    marker.setPosition(p);
+                    map.getOverlays().add(marker);
+                    AlertDialog.Builder dialogxyz=new AlertDialog.Builder(UI_Map.this);
+                    dialogxyz.setTitle("Are you sure to save current position?");
+                    dialogxyz.setCancelable(false);
+                    dialogxyz.setPositiveButton("yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i)
+                        {
+                            //save the current location
+                            map.getOverlays().remove(marker);
+                            can_current_loc_flag = 0;
+                            current_point = p;
+                            initCurrentLocationMarker();
+                            currentLocationMarker.setPosition(current_point);
+                                map.getOverlays().add(currentLocationMarker);
+                                fab.setVisibility(View.VISIBLE);
+                                cancel.setVisibility(View.INVISIBLE);
+                                btn_save_current_marker.setVisibility(View.VISIBLE);
+                        }
+                    });
+                    dialogxyz.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            // go to again map to click again marker in map
 
-                if(draw_save.getVisibility()==View.VISIBLE){
+                            can_current_loc_flag=1;
+                            map.getOverlays().remove(marker);
+                            cancel.setVisibility(View.INVISIBLE);
+                            fab.setVisibility(View.VISIBLE);
 
+                        }
+                    });
+
+                    dialogxyz.show();
+                }
+                if(draw_save.getVisibility()==View.VISIBLE && can_current_loc_flag==0)
+                {
                     polygon_points.add(p);
                     final Marker marker = new Marker(map);
                     markerpoints.add(marker);
@@ -734,7 +812,7 @@ public class UI_Map extends AppCompatActivity
                 total_file=0;
                 draw_save.setText("Draw");
                 fab.setVisibility(View.VISIBLE);
-                if(current_point!=null)
+                if(can_current_loc_flag==0)
                 btn_save_current_marker.setVisibility(View.VISIBLE);
 
                 draw_save.setVisibility(View.GONE);
@@ -934,6 +1012,12 @@ public class UI_Map extends AppCompatActivity
                             setWorkingData(true);
                             dialog.dismiss();
                             dialog_parent.dismiss();
+                            if(currentLocationMarker!=null)
+                            {
+                                map.getOverlays().remove(currentLocationMarker);
+                                currentLocationMarker=null;
+                                btn_save_current_marker.setVisibility(View.INVISIBLE);
+                            }
                         }
                         else {
                             Toast.makeText(getBaseContext(),"No info found to be saved!!! Please describe the situation there",Toast.LENGTH_SHORT).show();

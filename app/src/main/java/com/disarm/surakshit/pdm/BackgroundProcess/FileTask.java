@@ -241,6 +241,11 @@ public class FileTask extends AsyncTask  {
                 lat_long = String.valueOf(l.getLatitude()+"_"+l.getLongitude());
             }
         }
+        else
+        {
+
+            lat_long=String.valueOf(UI_Map.current_point.getLatitude()+"_"+UI_Map.current_point.getLongitude());
+        }
         return lat_long;
     }
 }
