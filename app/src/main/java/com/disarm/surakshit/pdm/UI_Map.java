@@ -212,12 +212,12 @@ public class UI_Map extends AppCompatActivity
         draw_save.setEnabled(false);
         draw_save.setVisibility(View.VISIBLE);
         undo_back.setVisibility(View.INVISIBLE);
-        cancel.setVisibility(View.VISIBLE);
+
         AlertDialog.Builder dialogxyz = new AlertDialog.Builder(UI_Map.this);
         dialogxyz.setNegativeButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-
+                cancel.setVisibility(View.VISIBLE);
                can_current_loc_flag=1;
             }
         });
@@ -659,7 +659,7 @@ public class UI_Map extends AppCompatActivity
                     marker.setDraggable(true);
                     final GeoPoint g = new GeoPoint(p);
                     marker.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
-                        .@Override
+                        @Override
                         public boolean onMarkerClick(Marker marker, MapView mapView) {
                             marker.getInfoWindow().close();
                             return false;
@@ -782,7 +782,7 @@ public class UI_Map extends AppCompatActivity
                     });
 
                      dialogxyz.show();
-                    Toast.makeText(UI_Map.this, "show dialog box", Toast.LENGTH_SHORT).show();
+
                 }
                 else
                 if(flag==0)
