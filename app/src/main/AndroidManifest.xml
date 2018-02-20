@@ -34,7 +34,6 @@
             android:windowSoftInputMode="stateHidden|adjustUnspecified">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -49,11 +48,6 @@
                 android:resource="@xml/provider_paths" />
         </provider>
 
-        <activity
-            android:name=".SelectCategoryActivity"
-            android:configChanges="orientation|screenSize"
-            android:label="@string/app_name"
-            android:screenOrientation="sensor" />
 
         <provider
             android:name="android.support.v4.content.FileProvider"
@@ -65,24 +59,7 @@
                 android:resource="@xml/provider_paths" />
         </provider>
 
-        <activity
-            android:name=".ActivityList"
-            android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"
-            android:windowSoftInputMode="stateHidden|adjustPan" />
-        <activity
-            android:name=".Capture.Photo"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppCompatAlertDialogStyle" />
-        <activity
-            android:name=".Capture.Video"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppCompatAlertDialogStyle" />
-        <activity
-            android:name=".Capture.AudioCapture"
-            android:label="Record Audio"
-            android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.Light.Dialog" />
+
         <activity
             android:name=".WriteSettingActivity"
             android:label="@string/allow_setting"
@@ -101,7 +78,15 @@
             android:label="@string/app_name"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".ContactActivity"></activity>
+
+        <activity android:name="com.onegravity.contactpicker.core.ContactPickerActivity"
+            android:enabled="true"
+            android:exported="false" >
+            <intent-filter>
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>
