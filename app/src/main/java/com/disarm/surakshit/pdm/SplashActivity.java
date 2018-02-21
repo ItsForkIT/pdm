@@ -210,7 +210,7 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
             copy.copyFileOrDir("");
             //extractZip();
             //move zip
-            moveZip();
+            //moveZip();
             // mark first time has runned.
             SharedPreferences.Editor editor = prefs.edit();
             editor.putBoolean("firstTime", true);
