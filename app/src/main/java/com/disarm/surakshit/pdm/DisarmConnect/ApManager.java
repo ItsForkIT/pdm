@@ -10,7 +10,8 @@ import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.util.Log;
 
-import com.disarm.surakshit.pdm.SelectCategoryActivity;
+
+import com.disarm.surakshit.pdm.Util.Params;
 
 import java.lang.reflect.Method;
 
@@ -61,7 +62,7 @@ public class ApManager {
                 wifiConfig.allowedKeyManagement.clear();
                 wifiConfig.allowedPairwiseCiphers.clear();
                 wifiConfig.allowedProtocols.clear();
-                wifiConfig.SSID = "DH-" + SelectCategoryActivity.SOURCE_PHONE_NO;
+                wifiConfig.SSID = "DH-" + Params.SOURCE_PHONE_NO;
 
 
                 wifiConfig.preSharedKey = "password123";

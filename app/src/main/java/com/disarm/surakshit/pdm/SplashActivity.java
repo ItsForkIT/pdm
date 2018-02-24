@@ -5,35 +5,29 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.content.res.Configuration;
-import android.content.res.Resources;
+import android.content.res.AssetManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Spinner;
+import android.widget.Toast;
 
-import com.disarm.surakshit.pdm.Util.CopyAssets;
+import com.disarm.surakshit.pdm.Util.Params;
 import com.disarm.surakshit.pdm.Util.PrefUtils;
-import com.disarm.surakshit.pdm.Util.UnZip;
-import com.snatik.storage.Storage;
-
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
+import flipagram.assetcopylib.AssetCopier;
 
 /**
  * Created by sanna on 11/7/16.
@@ -45,14 +39,10 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
     public File workingFolder = Environment.getExternalStoragePublicDirectory("DMS/Working");
     public File tmpFolder = Environment.getExternalStoragePublicDirectory("DMS/tmp");
     public File mapFolder = Environment.getExternalStoragePublicDirectory("DMS/Map");
-    public static String PHONE_NO = "phone_no";
     private EditText phoneText1;
     private Button submitButton;
-    private Spinner spinner2;
-    public Locale myLocale;
-    private String definedlanguage ;
-    public static final String Lang = "language";
-
+    private SharedPreferences sp;
+    private SharedPreferences.Editor editor;
     //Adding new param
     public static String ROOT                             = Environment.getExternalStorageDirectory().getAbsolutePath();
     public static String DMS_PATH                         = ROOT + "/DMS/";
@@ -69,6 +59,8 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        sp = getSharedPreferences("Surakshit",MODE_PRIVATE);
+        editor = sp.edit();
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (!checkPermissions(this, PERMISSIONS)) {
@@ -79,53 +71,22 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
         else{
             creatingFolders();
         }
-        if (checkPhoneNo()){
-            callWriteSettingActivity();
+
+        if (sp.getString("phone_no",null)!=null){
+            Params.SOURCE_PHONE_NO = sp.getString("phone_no",null);
+            Intent i = new Intent(this,RegisterActivity.class);
+            startActivity(i);
+            finish();
         }
+
         else {
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                     WindowManager.LayoutParams.FLAG_FULLSCREEN);
             setContentView(R.layout.activity_splash);
-
             submitButton = (Button) findViewById(R.id.submitButton);
             phoneText1 = (EditText) findViewById(R.id.phoneText);
-            spinner2 = (Spinner)findViewById(R.id.language);
-
-            definedlanguage = PrefUtils.getFromPrefs(this,Lang,"en");
-            setLocale(definedlanguage);
-
             submitButton.setOnClickListener( this);
-
-            String[] langArray = getResources().getStringArray(R.array.lang_list);
-            List<String> lang = new ArrayList<String>(Arrays.asList(langArray));
-            ArrayAdapter<String> adapter = new ArrayAdapter<String>
-                    (this, android.R.layout.simple_spinner_item, lang);
-            adapter.setDropDownViewResource
-                    (android.R.layout.simple_spinner_dropdown_item);
-            spinner2.setAdapter(adapter);
-
-            spinner2.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-                    if (pos == 0) {
-                        setLocale("en");
-                        PrefUtils.saveToPrefs(getApplicationContext(),Lang,"en");
-                    } else if (pos == 1) {
-                        setLocale("bn");
-                        PrefUtils.saveToPrefs(getApplicationContext(),Lang,"bn");
-                    } else if (pos == 2) {
-                        setLocale("hi");
-                        PrefUtils.saveToPrefs(getApplicationContext(),Lang,"hi");
-                    }
-                }
-                @Override
-                public void onNothingSelected(AdapterView<?> parent) {
-
-                }
-            });
         }
-
-        
     }
 
     private void creatingFolders(){
@@ -138,15 +99,7 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
         }if (!mapFolder.exists()){
             mapFolder.mkdir();
         }
-        run1stTimeOnly();
-    }
-
-    private boolean checkPhoneNo() {
-        boolean isSourceExit = false;
-        if (!PrefUtils.getFromPrefs(this, this.PHONE_NO, "NA").equals("NA")) {
-            isSourceExit = true;
-        }
-        return isSourceExit;
+        copyAssets();
     }
 
     private void callWriteSettingActivity(){
@@ -161,8 +114,12 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
             final String phoneTextVal = phoneText1.getText().toString();
 
             if(phoneTextVal.length() == 10 && phoneTextVal.matches("^[789]\\d{9}$")) {
-                PrefUtils.saveToPrefs(this, this.PHONE_NO, phoneTextVal);
-                callWriteSettingActivity();
+                editor.putString("phone_no",phoneTextVal);
+                editor.apply();
+                //callWriteSettingActivity();
+                Intent i = new Intent(this,RegisterActivity.class);
+                startActivity(i);
+                finish();
             }
             else
             {
@@ -202,52 +159,51 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
         }
     }
 
-    private void run1stTimeOnly(){
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        if (!prefs.getBoolean("firstTime", false)) {
-            // <---- run your one time code here
-            // Copy files from assets folder
-
-            CopyAssets copy = new CopyAssets(this);
-            copy.copyFileOrDir("");
-            //extractZip();
-            //move zip
-            moveZip();
-            // mark first time has runned.
-            SharedPreferences.Editor editor = prefs.edit();
-            editor.putBoolean("firstTime", true);
-            editor.commit();
+    private void copyAssets() {
+        AssetManager assetManager = getAssets();
+        String[] files = null;
+        try {
+            files = assetManager.list("");
+        } catch (IOException e) {
+            Log.e("tag", "Failed to get asset file list.", e);
+        }
+        if (files != null) for (String filename : files) {
+            InputStream in = null;
+            OutputStream out = null;
+            try {
+                in = assetManager.open(filename);
+                File outDir = Environment.getExternalStoragePublicDirectory("DMS/Working/pgpKey");
+                outDir.mkdirs();
+                File outFile = Environment.getExternalStoragePublicDirectory("DMS/Working/pgpKey/"+filename);
+                //File outFile = new File(getExternalFilesDir(null), filename);
+                out = new FileOutputStream(outFile);
+                copyFile(in, out);
+            } catch(IOException e) {
+                Log.e("tag", "Failed to copy asset file: " + filename, e);
+            }
+            finally {
+                if (in != null) {
+                    try {
+                        in.close();
+                    } catch (IOException e) {
+                        // NOOP
+                    }
+                }
+                if (out != null) {
+                    try {
+                        out.close();
+                    } catch (IOException e) {
+                        // NOOP
+                    }
+                }
+            }
         }
     }
-
-    public void extractZip(){
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                String root = Environment.getExternalStorageDirectory().toString();
-                String path = root+"/DMS/Map/tiles/";
-                UnZip unzip = new UnZip(path,path+"/tiles.zip");
-            }
-        });
-        t.start();
-    }
-
-    public void moveZip(){
-        String root = Environment.getExternalStoragePublicDirectory("DMS/Map/tiles/tiles.zip").getPath();
-        Storage storage = new Storage(getApplicationContext());
-        File osm = Environment.getExternalStoragePublicDirectory("osmdroid");
-        if(!osm.exists())
-            osm.mkdir();
-
-        storage.move(root,osm.getPath()+"/tiles.zip");
-    }
-
-    public void setLocale(String lang) {
-        myLocale = new Locale(lang);
-        Resources res = getResources();
-        DisplayMetrics dm = res.getDisplayMetrics();
-        Configuration conf = res.getConfiguration();
-        conf.locale = myLocale;
-        res.updateConfiguration(conf, dm);
+    private void copyFile(InputStream in, OutputStream out) throws IOException {
+        byte[] buffer = new byte[1024];
+        int read;
+        while((read = in.read(buffer)) != -1){
+            out.write(buffer, 0, read);
+        }
     }
 }

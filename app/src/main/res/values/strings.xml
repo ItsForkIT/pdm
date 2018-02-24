@@ -17,7 +17,6 @@
     <string name="press_back_to_exit">Please click BACK again to exit</string>
     <string name="gps_msg">GPS is disabled in your device. Otherwise you will not be able to collect data !!</string>
     <string name="enable_gps">Turn on Location</string>
-    <string name="cancel">Cancel</string>
     <string name="enabled_gps">GPS is now enabled..</string>
     <string name="files_discard_msg">All files taken in this session will be deleted !</string>
     <string name="discard_files">Discard Files</string>
@@ -35,7 +34,6 @@
     <string name="writesetting_head">One More Thing</string>
     <string name="allow_setting">allow changing settings</string>
     <string name="discard">DISCARD</string>
-    <string name="submit">SUBMIT</string>
     <string name="add_text">Add Text</string>
     <string name="back">BACK</string>
     <string name="save">save</string>
@@ -55,7 +53,17 @@
     </string-array>
 
     <string name="title_activity_ui__map">UI_Map</string>
-
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+
+
+
+    <string name="volunteer">Volunteer</string>
+    <string name="manager">Manager</string>
+    <string name="normal_user">Normal User</string>
+    <string name="password">Password</string>
+    <string name="register_line">Register Yourself as\nVolunteer\nManager\nNormal User</string>
+    <string name="input_password">Input password</string>
+    <string name="submit">SUBMIT</string>
+    <string name="cancel">Cancel</string>
 </resources>

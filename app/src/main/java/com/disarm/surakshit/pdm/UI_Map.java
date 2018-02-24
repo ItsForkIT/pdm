@@ -45,10 +45,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.disarm.surakshit.pdm.BackgroundProcess.FileTask;
-import com.disarm.surakshit.pdm.Capture.AudioCapture;
-import com.disarm.surakshit.pdm.Capture.Photo;
-import com.disarm.surakshit.pdm.Capture.Video;
 import com.disarm.surakshit.pdm.DisarmConnect.DCService;
 import com.disarm.surakshit.pdm.Service.SyncService;
 import com.disarm.surakshit.pdm.Util.KmzCreator;
@@ -172,8 +168,8 @@ public class UI_Map extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        SelectCategoryActivity.SOURCE_PHONE_NO = PrefUtils.getFromPrefs(this, SplashActivity.PHONE_NO, "NA");
-        Log.d("Phone No",SelectCategoryActivity.SOURCE_PHONE_NO);
+        //SelectCategoryActivity.SOURCE_PHONE_NO = PrefUtils.getFromPrefs(this, SplashActivity.PHONE_NO, "NA");
+        //Log.d("Phone No",SelectCategoryActivity.SOURCE_PHONE_NO);
         drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
         crashLog();
         startService();
@@ -431,15 +427,15 @@ public class UI_Map extends AppCompatActivity
         Runnable run = new Runnable() {
             @Override
             public void run() {
-                if(SelectCategoryActivity.SOURCE_PHONE_NO!=null) {
-                    final Intent syncServiceIntent = new Intent(getBaseContext(), SyncService.class);
-                    bindService(syncServiceIntent, syncServiceConnection, Context.BIND_AUTO_CREATE);
-                    startService(syncServiceIntent);
-                }
-                else{
-                    SelectCategoryActivity.SOURCE_PHONE_NO = PrefUtils.getFromPrefs(UI_Map.this, SplashActivity.PHONE_NO, "NA");
-                    syncServiceHandle.postDelayed(this,1000);
-                }
+//                if(SelectCategoryActivity.SOURCE_PHONE_NO!=null) {
+//                    final Intent syncServiceIntent = new Intent(getBaseContext(), SyncService.class);
+//                    bindService(syncServiceIntent, syncServiceConnection, Context.BIND_AUTO_CREATE);
+//                    startService(syncServiceIntent);
+//                }
+//                else{
+//                    SelectCategoryActivity.SOURCE_PHONE_NO = PrefUtils.getFromPrefs(UI_Map.this, SplashActivity.PHONE_NO, "NA");
+//                    syncServiceHandle.postDelayed(this,1000);
+//                }
             }
         };
         syncServiceHandle.postDelayed(run,1000);
@@ -869,21 +865,21 @@ public class UI_Map extends AppCompatActivity
                                 marker.setPosition(polygon_points.get(0));
                                 marker.setSnippet(textmsg.getText().toString());
                                 KmlPlacemark placemark = new KmlPlacemark(marker);
-                                String latlng = FileTask.getloc(getContextOfApplication());
+                                //String latlng = FileTask.getloc(getContextOfApplication());
                                 String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
-                                String file_name = "TXT_50_data_"+
-                                        SelectCategoryActivity.SOURCE_PHONE_NO+
-                                        "_defaultMcs_"
-                                        +latlng
-                                        +"_"+timeStamp+
-                                        "_1.kmz";
+                                //String file_name = "TXT_50_data_"+
+//                                        SelectCategoryActivity.SOURCE_PHONE_NO+
+//                                        "_defaultMcs_"
+//                                        +latlng
+//                                        +"_"+timeStamp+
+//                                        "_1.kmz";
                                 kml.mKmlRoot.add(placemark);
                                 kml.mKmlRoot.setExtendedData("Media Type","TXT");
                                 kml.mKmlRoot.setExtendedData("Group Type","data");
                                 kml.mKmlRoot.setExtendedData("Time Stamp",timeStamp);
-                                kml.mKmlRoot.setExtendedData("Source",SelectCategoryActivity.SOURCE_PHONE_NO);
+                                //kml.mKmlRoot.setExtendedData("Source",SelectCategoryActivity.SOURCE_PHONE_NO);
                                 kml.mKmlRoot.setExtendedData("Destination","defaultMcs");
-                                kml.mKmlRoot.setExtendedData("Lat Long",latlng);
+                                //kml.mKmlRoot.setExtendedData("Lat Long",latlng);
                                 kml.mKmlRoot.setExtendedData("Group ID","1");
                                 kml.mKmlRoot.setExtendedData("Priority","50");
                                 kml.mKmlRoot.setExtendedData("KML Type","Point");
@@ -894,7 +890,7 @@ public class UI_Map extends AppCompatActivity
                                 File file = Environment.getExternalStoragePublicDirectory("DMS/tmpKMZ/index.kml");
                                 kml.saveAsKML(file);
                                 KmzCreator kmz = new KmzCreator();
-                                kmz.zipIt(Environment.getExternalStoragePublicDirectory("DMS/Working/"+file_name).toString());
+                                //kmz.zipIt(Environment.getExternalStoragePublicDirectory("DMS/Working/"+file_name).toString());
                                 Storage storage = new Storage(getContextOfApplication());
                                 storage.deleteDirectory(tempKmzFolder.toString());
                             }
@@ -902,20 +898,20 @@ public class UI_Map extends AppCompatActivity
                                 polygon_points.add(polygon_points.get(0));
                                 polygon.setPoints(polygon_points);
                                 polygon.setSnippet(textmsg.getText().toString());
-                                String latlng = FileTask.getloc(getContextOfApplication());
+                                //String latlng = FileTask.getloc(getContextOfApplication());
                                 String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
-                                String file_name = "TXT_50_data_"+
-                                        SelectCategoryActivity.SOURCE_PHONE_NO+
-                                        "_defaultMcs_"
-                                        +latlng
-                                        +"_"+timeStamp+
-                                        "_1.kmz";
+//                                String file_name = "TXT_50_data_"+
+//                                        SelectCategoryActivity.SOURCE_PHONE_NO+
+//                                        "_defaultMcs_"
+//                                        +latlng
+//                                        +"_"+timeStamp+
+//                                        "_1.kmz";
                                 kml.mKmlRoot.setExtendedData("Media Type","TXT");
                                 kml.mKmlRoot.setExtendedData("Group Type","data");
                                 kml.mKmlRoot.setExtendedData("Time Stamp",timeStamp);
-                                kml.mKmlRoot.setExtendedData("Source",SelectCategoryActivity.SOURCE_PHONE_NO);
+                                //kml.mKmlRoot.setExtendedData("Source",SelectCategoryActivity.SOURCE_PHONE_NO);
                                 kml.mKmlRoot.setExtendedData("Destination","defaultMcs");
-                                kml.mKmlRoot.setExtendedData("Lat Long",latlng);
+                                //kml.mKmlRoot.setExtendedData("Lat Long",latlng);
                                 kml.mKmlRoot.setExtendedData("Group ID","1");
                                 kml.mKmlRoot.setExtendedData("Priority","50");
                                 kml.mKmlRoot.setExtendedData("KML Type","Polygon");
@@ -928,7 +924,7 @@ public class UI_Map extends AppCompatActivity
                                 File file = Environment.getExternalStoragePublicDirectory("DMS/tmpKMZ/index.kml");
                                 kml.saveAsKML(file);
                                 KmzCreator kmz = new KmzCreator();
-                                kmz.zipIt(Environment.getExternalStoragePublicDirectory("DMS/Working/"+file_name).toString());
+                                //kmz.zipIt(Environment.getExternalStoragePublicDirectory("DMS/Working/"+file_name).toString());
                                 Storage storage = new Storage(getContextOfApplication());
 
                                 storage.deleteDirectory(tempKmzFolder.toString());
@@ -995,9 +991,9 @@ public class UI_Map extends AppCompatActivity
             public void onClick(View v) {
                 if(total_file==0) {
                     total_file++;
-                    Intent intent = new Intent(UI_Map.this, Photo.class);
-                    intent.putExtra("Intent type", "Data");
-                    startActivity(intent);
+                    //Intent intent = new Intent(UI_Map.this, Photo.class);
+                    //intent.putExtra("Intent type", "Data");
+                    //startActivity(intent);
                 }
                 else{
                     Toast.makeText(getBaseContext(),"Only one media is allowed",Toast.LENGTH_SHORT).show();
@@ -1010,9 +1006,9 @@ public class UI_Map extends AppCompatActivity
             public void onClick(View v) {
                 if(total_file==0){
                     total_file++;
-                    Intent intent = new Intent(UI_Map.this, Video.class);
-                    intent.putExtra("Intent type","Data");
-                    startActivity(intent);
+//                    Intent intent = new Intent(UI_Map.this, Video.class);
+//                    intent.putExtra("Intent type","Data");
+//                    startActivity(intent);
                 }
                 else{
                     Toast.makeText(getBaseContext(),"Only one media is allowed",Toast.LENGTH_SHORT).show();
@@ -1025,9 +1021,9 @@ public class UI_Map extends AppCompatActivity
             public void onClick(View v) {
                 if(total_file==0){
                     total_file++;
-                    Intent intent = new Intent(UI_Map.this, AudioCapture.class);
-                    intent.putExtra("Intent type","Data");
-                    startActivity(intent);
+//                    Intent intent = new Intent(UI_Map.this, AudioCapture.class);
+//                    intent.putExtra("Intent type","Data");
+//                    startActivity(intent);
                 }
                 else{
                     Toast.makeText(getBaseContext(),"Only one media is allowed",Toast.LENGTH_SHORT).show();
@@ -1054,7 +1050,7 @@ public class UI_Map extends AppCompatActivity
                     imp = "50";
                 }
                 total_file=0;
-                new FileTask().execute(imp,dest,polygon_points,map,text_description);
+                //new FileTask().execute(imp,dest,polygon_points,map,text_description);
                 dialog.dismiss();
             }
         });

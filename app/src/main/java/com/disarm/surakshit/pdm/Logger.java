@@ -11,7 +11,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-import static com.disarm.surakshit.pdm.SelectCategoryActivity.SOURCE_PHONE_NO;
+import static com.disarm.surakshit.pdm.Util.Params.SOURCE_PHONE_NO;
 
 public class Logger {
 
@@ -20,7 +20,6 @@ public class Logger {
     static boolean isExternalStorageAvailable = false;
     static boolean isExternalStorageWriteable = false;
     static String state = Environment.getExternalStorageState();
-
 
     public static void addRecordToLog(String message) {
 

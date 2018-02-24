@@ -22,7 +22,8 @@ public class WriteSettingActivity extends AppCompatActivity {
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
             hasSelfPermission = Settings.System.canWrite(this);
-        }else{
+        }
+        else{
             callMainActivity();
         }
         if (hasSelfPermission) {
@@ -41,8 +42,6 @@ public class WriteSettingActivity extends AppCompatActivity {
     }
 
     private void callMainActivity(){
-        //Intent iinent = new Intent(this, SurakshitActivity.class);
-        //Intent intent = new Intent(this, SelectCategoryActivity.class);
         Intent intent = new Intent(this, UI_Map.class);
         startActivity(intent);
         finish();
@@ -59,10 +58,6 @@ public class WriteSettingActivity extends AppCompatActivity {
         if (requestCode == Allow_REQUEST) {
             // Make sure the request was successful
             if (resultCode == RESULT_CANCELED) {
-                // The user picked a contact.
-                // The Intent's data Uri identifies which contact was selected.
-
-                // Do something with the contact here (bigger example below)
                 callMainActivity();
             }
         }

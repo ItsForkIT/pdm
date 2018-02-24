@@ -7,7 +7,8 @@ import android.os.Environment;
 import android.os.IBinder;
 import android.util.Log;
 
-import com.disarm.surakshit.pdm.SelectCategoryActivity;
+
+import com.disarm.surakshit.pdm.Util.Params;
 
 import java.io.IOException;
 
@@ -41,7 +42,7 @@ public class SyncService extends Service {
     private final IBinder syncServiceBinder = new SyncServiceBinder();
 
     public SyncService() {
-        source = SelectCategoryActivity.SOURCE_PHONE_NO;
+        source = Params.SOURCE_PHONE_NO;
         logger =new Logger(databaseDirectory,source);
         discoverer = new Discoverer(BROADCAST_IP,source, PORT,logger);
         fileManager = new FileManager(source, databaseName, databaseDirectory,syncDirectory,mapDirectory,logger);
