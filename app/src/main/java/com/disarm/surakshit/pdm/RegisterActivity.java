@@ -2,8 +2,10 @@ package com.disarm.surakshit.pdm;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -11,13 +13,16 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.disarm.surakshit.pdm.Encryption.RSAKeyPairGenerator;
 import com.disarm.surakshit.pdm.Util.Params;
 import com.github.florent37.materialtextfield.MaterialTextField;
 import com.github.javiersantos.materialstyleddialogs.MaterialStyledDialog;
 import com.github.javiersantos.materialstyleddialogs.enums.Style;
 
+import java.io.File;
+
 public class RegisterActivity extends AppCompatActivity {
-    Button btn_volunteer,btn_manager;
+    Button btn_volunteer,btn_manager,btn_user;
     SharedPreferences sp;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,7 +37,7 @@ public class RegisterActivity extends AppCompatActivity {
         setContentView(R.layout.activity_register);
         btn_volunteer = (Button) findViewById(R.id.btn_register_volunteer);
         btn_manager = (Button) findViewById(R.id.btn_register_manager);
-
+        btn_user = (Button) findViewById(R.id.btn_register_normal);
         btn_volunteer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -44,6 +49,19 @@ public class RegisterActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 createDialog("manager");
+            }
+        });
+
+        btn_user.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                generateKey();
+                SharedPreferences.Editor edit = sp.edit();
+                edit.putString("user","normal");
+                edit.apply();
+                Intent i = new Intent(RegisterActivity.this,WriteSettingActivity.class);
+                startActivity(i);
+                finish();
             }
         });
 
@@ -80,6 +98,7 @@ public class RegisterActivity extends AppCompatActivity {
                     edit.apply();
                     dialog.dismiss();
                     Params.WHO = who;
+                    generateKey();
                     Intent i = new Intent(RegisterActivity.this,WriteSettingActivity.class);
                     startActivity(i);
                     finish();
@@ -97,5 +116,19 @@ public class RegisterActivity extends AppCompatActivity {
                 dialog.dismiss();
             }
         });
+    }
+
+    private void generateKey(){
+        RSAKeyPairGenerator rsaKeyPairGenerator = new RSAKeyPairGenerator();
+        File dir = Environment.getExternalStoragePublicDirectory("DMS/pgpPrivate/");
+        if(!dir.exists()) {
+            dir.mkdir();
+        }
+        try {
+                rsaKeyPairGenerator.generate(Params.SOURCE_PHONE_NO, Params.PASS_PHRASE, Environment.getExternalStorageDirectory().getPath()+"/DMS/pgpPrivate/pri_"+Params.SOURCE_PHONE_NO+".bgp",Environment.getExternalStorageDirectory().getPath()+"/DMS/Working/pgpKey/pub_"+Params.SOURCE_PHONE_NO+".bgp");
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.d("Error",e.toString());
+            }
     }
 }
