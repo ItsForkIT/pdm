@@ -2,9 +2,11 @@ package com.disarm.surakshit.pdm;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
@@ -32,6 +34,7 @@ public class WriteSettingActivity extends AppCompatActivity {
             setContentView(R.layout.activity_writesetting);
             Button allow = (Button) findViewById(R.id.allowWriteSetting);
             allow.setOnClickListener(new View.OnClickListener() {
+                @RequiresApi(api = Build.VERSION_CODES.M)
                 @Override
                 public void onClick(View view) {
                     callWriteSettingIntent();
@@ -46,6 +49,7 @@ public class WriteSettingActivity extends AppCompatActivity {
         startActivity(intent);
         finish();
     }
+    @RequiresApi(api = Build.VERSION_CODES.M)
     private void callWriteSettingIntent(){
         Intent intent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS,
                 Uri.parse("package:" + getPackageName()));

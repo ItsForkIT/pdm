@@ -9,6 +9,7 @@ import android.content.res.AssetManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -17,27 +18,19 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
-
 import com.disarm.surakshit.pdm.Util.Params;
-import com.disarm.surakshit.pdm.Util.PrefUtils;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import flipagram.assetcopylib.AssetCopier;
-
-/**
- * Created by sanna on 11/7/16.
- */
+//First Activity
 public class SplashActivity extends AppCompatActivity implements View.OnClickListener {
     private static final int PERMISSION_ALL = 1;
 
     public File dmsFolder = Environment.getExternalStoragePublicDirectory("DMS/");
     public File workingFolder = Environment.getExternalStoragePublicDirectory("DMS/Working");
-    public File tmpFolder = Environment.getExternalStoragePublicDirectory("DMS/tmp");
     public File mapFolder = Environment.getExternalStoragePublicDirectory("DMS/Map");
     private EditText phoneText1;
     private Button submitButton;
@@ -60,7 +53,6 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         sp = getSharedPreferences("Surakshit",MODE_PRIVATE);
-        editor = sp.edit();
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (!checkPermissions(this, PERMISSIONS)) {
@@ -92,20 +84,14 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
     private void creatingFolders(){
         if (!dmsFolder.exists()){
             dmsFolder.mkdir();
-        }if (!workingFolder.exists()){
+        }
+        if (!workingFolder.exists()){
             workingFolder.mkdir();
-        }if (!tmpFolder.exists()){
-            tmpFolder.mkdir();
-        }if (!mapFolder.exists()){
+        }
+        if (!mapFolder.exists()){
             mapFolder.mkdir();
         }
         copyAssets();
-    }
-
-    private void callWriteSettingActivity(){
-        Intent intent = new Intent(this,WriteSettingActivity.class);
-        startActivity(intent);
-        finish();
     }
 
     @Override
@@ -114,9 +100,9 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
             final String phoneTextVal = phoneText1.getText().toString();
 
             if(phoneTextVal.length() == 10 && phoneTextVal.matches("^[789]\\d{9}$")) {
+                editor = sp.edit();
                 editor.putString("phone_no",phoneTextVal);
                 editor.apply();
-                //callWriteSettingActivity();
                 Intent i = new Intent(this,RegisterActivity.class);
                 startActivity(i);
                 finish();
@@ -127,6 +113,7 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
             }
         }
     }
+
     private boolean checkPermissions(Context context, String[] permissions) {
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && context != null && permissions != null) {
             for (String permission : permissions) {
@@ -138,7 +125,7 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
         return true;
     }
 
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
         switch (requestCode) {
             case PERMISSION_ALL: {
                 // If request is cancelled, the result arrays are empty.
@@ -146,7 +133,8 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     creatingFolders();
 
-                } else {
+                }
+                else {
 
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
