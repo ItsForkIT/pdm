@@ -35,4 +35,4 @@ deploy:
   file: "./app/build/outputs/apk/debug/Surakshit*.apk"
   on:
     repo: ItsForkIT/pdm
-    branch: PlayStore
+    branch: Chat_UI

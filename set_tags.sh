@@ -1,4 +1,4 @@
-BRANCH="PlayStore"
+BRANCH="Chat_UI"
 
 # Are we on the right branch?
 if [ "$TRAVIS_BRANCH" = "$BRANCH" ]; then
