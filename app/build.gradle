@@ -65,8 +65,11 @@ dependencies {
     //EditText
     compile 'com.github.florent37:materialtextfield:1.0.7'
 
-    //Materila Dialog
+    //Material Dialog
     compile 'com.github.javiersantos:MaterialStyledDialogs:2.1'
+
+    //Image initial library
+    compile 'com.amulyakhare:com.amulyakhare.textdrawable:1.0.1'
 
     testCompile 'junit:junit:4.12'
 }

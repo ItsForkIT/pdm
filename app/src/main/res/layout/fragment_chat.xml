@@ -1,11 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
+<RelativeLayout
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <com.stfalcon.chatkit.dialogs.DialogsList
+        android:layout_margin="5dp"
+        android:id="@+id/dialoglist"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-
     </com.stfalcon.chatkit.dialogs.DialogsList>
-</android.support.constraint.ConstraintLayout>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/btn_new_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="10dp"
+        android:backgroundTint="@color/fbutton_color_turquoise"
+        app:srcCompat="@drawable/new_message"
+        />
+</RelativeLayout>
