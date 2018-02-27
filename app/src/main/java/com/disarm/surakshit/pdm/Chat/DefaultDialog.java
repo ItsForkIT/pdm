@@ -7,6 +7,8 @@ import java.util.List;
 
 /**
  * Created by naman on 25/2/18.
+ *
+ * It defines a single chat dialog
  */
 
 public class DefaultDialog implements IDialog<Message> {

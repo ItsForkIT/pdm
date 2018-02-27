@@ -71,5 +71,8 @@ dependencies {
     //Image initial library
     compile 'com.amulyakhare:com.amulyakhare.textdrawable:1.0.1'
 
+    //Video Player
+    compile 'com.afollestad:easyvideoplayer:0.3.0'
+
     testCompile 'junit:junit:4.12'
 }

@@ -5,7 +5,8 @@ buildscript {
     repositories {
         jcenter()
         google()
-        maven { url "http://objectbox.net/beta-repo/" }
+        maven { url "http://objectbox.net/beta-repo/" } //For DB
+        maven { url 'https://dl.bintray.com/drummer-aidan/maven' } //For Video Player
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.0.1'
@@ -21,6 +22,7 @@ allprojects {
         }
         maven { url "https://jitpack.io" }
         maven { url "http://objectbox.net/beta-repo/" }
+        maven { url 'https://dl.bintray.com/drummer-aidan/maven' }
         google()
     }
 }

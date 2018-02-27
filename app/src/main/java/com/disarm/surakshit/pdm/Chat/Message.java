@@ -7,22 +7,54 @@ import java.util.Date;
 
 /**
  * Created by naman on 10/2/18.
+ *
+ * It defines the structure of a message
  */
 
 public class Message implements IMessage,MessageContentType.Image, MessageContentType {
     Author author;
     String id,text;
     Date createdAt;
-    boolean map,audio;
+    String url;
+    boolean map=false,audio=false,video=false,image=false;
 
-    public Message(String id,String text,Author author,boolean map,boolean audio){
+    public Message(String id,Author author,String type){
         this.id = id;
-        this.text = text;
         this.author = author;
         this.createdAt = new Date();
-        this.map = map;
-        this.audio = audio;
+        if(type.equals("map")){
+            map=true;
+        }
+        if(type.equals("audio")){
+            audio=true;
+        }
+        if(type.equals("video")){
+            video=true;
+        }
+        if(type.equals("image")){
+            image=true;
+        }
     }
+
+    public Message(String id,Author author,String type,Date createdAt){
+        this.id = id;
+        this.author = author;
+        this.createdAt = createdAt;
+        if(type.equals("map")){
+            map=true;
+        }
+        if(type.equals("audio")){
+            audio=true;
+        }
+        if(type.equals("video")){
+            video=true;
+        }
+        if(type.equals("image")){
+            image=true;
+        }
+    }
+
+
     @Override
     public String getId() {
         return id;
@@ -45,11 +77,22 @@ public class Message implements IMessage,MessageContentType.Image, MessageConten
 
     @Override
     public String getImageUrl() {
-        return null;
+        return url;
     }
 
-    public boolean getMap() { return map;}
+    public String getUrl() { return url; }
 
-    public boolean getAudio() { return audio;}
+    public boolean isMap() { return map;}
 
+    public boolean isAudio() { return audio;}
+
+    public boolean isVideo() { return video; }
+
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
 }

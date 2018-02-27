@@ -85,11 +85,17 @@
                 <category android:name="android.intent.category.BROWSABLE" />
             </intent-filter>
         </activity>
-        <activity android:name=".RegisterActivity"></activity>
+        <activity android:name=".RegisterActivity" />
         <activity
             android:name=".MainActivity"
             android:label="@string/title_activity_main"
             android:theme="@style/AppTheme.NoActionBar">
+
+        </activity>
+        <activity android:name=".Chat.VideoPlayer"
+            android:label="@string/video"
+            android:configChanges="orientation|keyboardHidden|screenLayout|screenSize"
+            android:theme="@style/AppTheme">
 
         </activity>
     </application>

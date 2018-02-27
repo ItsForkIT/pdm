@@ -30,13 +30,4 @@ public class ContactUtil {
         return con.get(0).getDisplayName();
     }
 
-    public static void startContactActivity(Activity activity){
-                Intent intent = new Intent(activity, ContactPickerActivity.class)
-                .putExtra(ContactPickerActivity.EXTRA_CONTACT_BADGE_TYPE, ContactPictureType.ROUND.name())
-                .putExtra(ContactPickerActivity.EXTRA_SHOW_CHECK_ALL, true)
-                .putExtra(ContactPickerActivity.EXTRA_CONTACT_DESCRIPTION, ContactDescription.ADDRESS.name())
-                .putExtra(ContactPickerActivity.EXTRA_CONTACT_SORT_ORDER, ContactSortOrder.AUTOMATIC.name())
-                .putExtra(ContactPickerActivity.EXTRA_SELECT_CONTACTS_LIMIT,1);
-         activity.startActivityForResult(intent, 100);
-    }
 }

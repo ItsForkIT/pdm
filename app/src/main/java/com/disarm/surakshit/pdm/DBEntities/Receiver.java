@@ -11,14 +11,25 @@ public class Receiver {
     long id;
     String number;
     String kml;
+    int unread;
+
+    public int getUnread() {
+        return unread;
+    }
+
+    public void setUnread(int unread) {
+        this.unread = unread;
+    }
 
     public Receiver(){
 
     }
-    public Receiver(String number,String kml){
+    public Receiver(String number,String kml, int unread){
         this.number = number;
         this.kml = kml;
+        this.unread = unread;
     }
+
     public String getNumber() {
         return number;
     }
