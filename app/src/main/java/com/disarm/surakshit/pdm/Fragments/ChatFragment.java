@@ -19,6 +19,7 @@ import com.disarm.surakshit.pdm.Chat.DefaultDialog;
 
 import com.disarm.surakshit.pdm.Chat.Message;
 import com.disarm.surakshit.pdm.R;
+import com.disarm.surakshit.pdm.Util.Params;
 import com.onegravity.contactpicker.contact.Contact;
 import com.onegravity.contactpicker.contact.ContactDescription;
 import com.onegravity.contactpicker.contact.ContactSortOrder;
@@ -38,12 +39,14 @@ import java.util.List;
 
 public class ChatFragment extends Fragment {
     private final int CONTACT_REQUEST = 100;
+    DialogsList dialogsList;
+    DialogsListAdapter<DefaultDialog> dialogsListAdapter;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_chat,container,false);
-        DialogsList dl = (DialogsList) view.findViewById(R.id.dialoglist);
-        DialogsListAdapter<DefaultDialog> adap = new DialogsListAdapter<DefaultDialog>(new ImageLoader() {
+        dialogsList = (DialogsList) view.findViewById(R.id.dialoglist);
+        dialogsListAdapter = new DialogsListAdapter<DefaultDialog>(new ImageLoader() {
             @Override
             public void loadImage(ImageView imageView, String url) {
                 imageView.setImageDrawable(generateTextDrawable(url));
@@ -57,12 +60,14 @@ public class ChatFragment extends Fragment {
                         startContactActivity();
             }
         });
-//        Author author = new Author("9475610485","Anuj");
-//        Message m = new Message("1","Hi there",author,false,false);
-//        DefaultDialog d1 = new DefaultDialog("1","Naman",m,author,1);
-//        d1.setLastMessage(m);
-//        dl.setAdapter(adap);
-//        adap.addItem(d1);
+        dialogsList.setAdapter(dialogsListAdapter);
+
+        dialogsListAdapter.setOnDialogClickListener(new DialogsListAdapter.OnDialogClickListener<DefaultDialog>() {
+            @Override
+            public void onDialogClick(DefaultDialog dialog) {
+
+            }
+        });
         return view;
     }
 
@@ -102,5 +107,11 @@ public class ChatFragment extends Fragment {
                 .putExtra(ContactPickerActivity.EXTRA_CONTACT_SORT_ORDER, ContactSortOrder.AUTOMATIC.name())
                 .putExtra(ContactPickerActivity.EXTRA_SELECT_CONTACTS_LIMIT,1);
         startActivityForResult(intent, CONTACT_REQUEST);
+    }
+
+    private void addDialog(Message msg , Author author , int unread){
+        DefaultDialog dialog = new DefaultDialog(Params.dialog_id+"",msg.getUser().getName(),msg,author,unread);
+        dialog.setLastMessage(msg);
+        dialogsListAdapter.addItem(dialog);
     }
 }

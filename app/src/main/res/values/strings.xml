@@ -70,5 +70,6 @@
     <string name="tab_text_2">Map</string>
     <string name="progress_wait">Preparing</string>
     <string name="please_wait">Please wait... We are preparing the video</string>
+    <string name="hint_enter_a_message">Type a message…</string>
 
 </resources>
