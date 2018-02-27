@@ -20,6 +20,7 @@ import java.io.File;
 public class ChatActivity extends AppCompatActivity implements MessageHolders.ContentChecker<Message> {
     MessagesList messagesList;
     ImageLoader load;
+    String number;
     private final byte CONTENT_AUDIO=1,CONTENT_VIDEO=2;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +45,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                 IncomingVideoHolders.class,R.layout.chat_incoming_video,
                 OutgoingVideoHolders.class,R.layout.chat_outgoing_video,
                 this);
-
+        number = getIntent().getStringExtra("number");
     }
 
     @Override

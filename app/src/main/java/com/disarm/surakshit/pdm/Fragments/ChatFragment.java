@@ -15,6 +15,7 @@ import android.widget.Toast;
 import com.amulyakhare.textdrawable.TextDrawable;
 import com.amulyakhare.textdrawable.util.ColorGenerator;
 import com.disarm.surakshit.pdm.Chat.Author;
+import com.disarm.surakshit.pdm.Chat.ChatActivity;
 import com.disarm.surakshit.pdm.Chat.DefaultDialog;
 
 import com.disarm.surakshit.pdm.Chat.Message;
@@ -65,7 +66,9 @@ public class ChatFragment extends Fragment {
         dialogsListAdapter.setOnDialogClickListener(new DialogsListAdapter.OnDialogClickListener<DefaultDialog>() {
             @Override
             public void onDialogClick(DefaultDialog dialog) {
-
+                Intent i = new Intent(getActivity(), ChatActivity.class);
+                i.putExtra("number",dialog.getUsers().get(0).getId());
+                startActivity(i);
             }
         });
         return view;
