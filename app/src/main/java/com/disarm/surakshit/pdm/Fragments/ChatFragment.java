@@ -28,8 +28,6 @@ import com.onegravity.contactpicker.picture.ContactPictureType;
 import com.stfalcon.chatkit.commons.ImageLoader;
 import com.stfalcon.chatkit.dialogs.DialogsList;
 import com.stfalcon.chatkit.dialogs.DialogsListAdapter;
-
-import java.util.ArrayList;
 import java.util.List;
 
 /**
