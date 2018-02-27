@@ -49,6 +49,7 @@ public class ChatFragment extends Fragment {
                 imageView.setImageDrawable(generateTextDrawable(url));
             }
         });
+
         FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.btn_new_message);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
