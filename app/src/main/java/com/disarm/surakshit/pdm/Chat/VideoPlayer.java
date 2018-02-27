@@ -27,7 +27,6 @@ public class VideoPlayer extends AppCompatActivity implements EasyVideoCallback 
 
     @Override
     public void onStarted(EasyVideoPlayer player) {
-
     }
 
     @Override
@@ -57,7 +56,7 @@ public class VideoPlayer extends AppCompatActivity implements EasyVideoCallback 
 
     @Override
     public void onError(EasyVideoPlayer player, Exception e) {
-        
+
     }
 
     @Override
@@ -75,5 +74,9 @@ public class VideoPlayer extends AppCompatActivity implements EasyVideoCallback 
 
     }
 
-
+    @Override
+    protected void onPause() {
+        super.onPause();
+        player.pause();
+    }
 }
