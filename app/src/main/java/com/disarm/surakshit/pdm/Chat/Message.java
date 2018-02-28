@@ -88,6 +88,8 @@ public class Message implements IMessage,MessageContentType.Image, MessageConten
 
     public boolean isVideo() { return video; }
 
+    public boolean isImage() { return image; }
+
     public void setText(String text) {
         this.text = text;
     }

@@ -89,13 +89,14 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/title_activity_main"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".Chat.VideoPlayer"
             android:configChanges="orientation|keyboardHidden|screenLayout|screenSize"
             android:label="@string/video"
-            android:theme="@style/AppTheme"></activity>
-        <activity android:name=".Chat.ChatActivity"></activity>
+            android:theme="@style/AppTheme" />
+        <activity android:name=".Chat.ChatActivity" />
+        <activity android:name=".Chat.ImageViewActivity"></activity>
     </application>
 
 </manifest>

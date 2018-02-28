@@ -74,5 +74,8 @@ dependencies {
     //Video Player
     compile 'com.afollestad:easyvideoplayer:0.3.0'
 
+    //Image View
+    implementation 'com.alexvasilkov:gesture-views:2.4.1'
+
     testCompile 'junit:junit:4.12'
 }
