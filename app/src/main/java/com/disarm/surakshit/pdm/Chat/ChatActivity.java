@@ -1,7 +1,9 @@
 package com.disarm.surakshit.pdm.Chat;
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Environment;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -42,6 +44,9 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
         messagesList = (MessagesList) findViewById(R.id.messagesList);
+        ActionBar ab = getSupportActionBar();
+        Drawable d = getResources().getDrawable(R.color.fbutton_color_turquoise);
+        ab.setBackgroundDrawable(d);
         messageInput = (MessageInput) findViewById(R.id.input);
 
         load = new ImageLoader() {
@@ -63,6 +68,8 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                 OutgoingVideoHolders.class,R.layout.chat_outgoing_video,
                 this);
         number = getIntent().getStringExtra("number");
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setTitle("Anuj");
         messagesListAdapter = new MessagesListAdapter<Message>(Params.SOURCE_PHONE_NO,holders,load);
         messagesListAdapter.setOnMessageClickListener(new MessagesListAdapter.OnMessageClickListener<Message>() {
             @Override
@@ -105,11 +112,11 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
         Author other = new Author(number,"Anuj");
         Message msg = new Message("1",other,"text");
         msg.setText("Hi there!!!");
-        Message msg2 = new Message("2",other,"image");
+        Message msg2 = new Message("2",me,"image");
         msg2.setImageurl("test.jpg");
         Message msg3 = new Message("3",other,"text");
         msg3.setText("This looks yum ");
-        Message msg4 = new Message("4",other,"text");
+        Message msg4 = new Message("4",me,"text");
         msg4.setText("Yeah!!! Come over my place to have it");
         Message msg5 = new Message("5",me,"video");
         msg5.setUrl("test.mp4");
@@ -117,10 +124,10 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
         msg6.setText("come fast...");
         Message msg7 = new Message("7",me,"audio");
         msg7.setUrl("test.mp3");
-        Message msg8 = new Message("8",me,"map");
+        Message msg8 = new Message("8",other,"map");
         msg8.setImageurl("map.png");
-
-
+        Message msg9 = new Message("9",me,"text");
+        msg9.setText("Okay... I am here");
         addMessage(msg);
         addMessage(msg2);
         addMessage(msg3);
@@ -129,6 +136,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
         addMessage(msg6);
         addMessage(msg7);
         addMessage(msg8);
+        addMessage(msg9);
 
 
     }
