@@ -71,7 +71,17 @@ public class ChatFragment extends Fragment {
                 startActivity(i);
             }
         });
+
+
+        //Dummy chat
+        Author author = new Author("9000000001","Anuj");
+        Message msg = new Message("1",author,"text");
+        msg.setText("Hi there!!!");
+        addDialog(msg,author,1);
         return view;
+
+
+        //Message msg = new Message("1",)
     }
 
     @Override

@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.disarm.surakshit.pdm.Chat.Holders.IncomingAudioHolders;
@@ -72,7 +73,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
 
                 if(message.isImage()){
                     Intent i = new Intent(ChatActivity.this, ImageViewActivity.class);
-                    i.putExtra("url",message.getUrl());
+                    i.putExtra("url",message.getImageUrl());
                     startActivity(i);
                 }
             }
@@ -92,15 +93,44 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
 
                 Window window = materialDialog.getWindow();
                 WindowManager.LayoutParams wlp = window.getAttributes();
-
                 wlp.gravity = Gravity.BOTTOM;
                 wlp.flags &= ~WindowManager.LayoutParams.FLAG_DIM_BEHIND;
                 window.setAttributes(wlp);
                 materialDialog.show();
-
-
             }
         });
+
+        messagesList.setAdapter(messagesListAdapter);
+        Author me = new Author(Params.SOURCE_PHONE_NO,"Naman");
+        Author other = new Author(number,"Anuj");
+        Message msg = new Message("1",me,"text");
+        msg.setText("Hi there!!!");
+        Message msg2 = new Message("2",me,"image");
+        msg2.setImageurl("test.jpg");
+        Message msg3 = new Message("3",other,"text");
+        msg3.setText("This looks yum ");
+        Message msg4 = new Message("4",me,"text");
+        msg4.setText("Yeah!!! Come over my place to have it");
+        Message msg5 = new Message("5",other,"video");
+        msg5.setUrl("test.mp4");
+        Message msg6 = new Message("6",me,"text");
+        msg6.setText("come fast...");
+        Message msg7 = new Message("7",other,"audio");
+        msg7.setUrl("test.mp3");
+        Message msg8 = new Message("8",other,"map");
+        msg8.setImageurl("map.png");
+
+
+        addMessage(msg);
+        addMessage(msg2);
+        addMessage(msg3);
+        addMessage(msg4);
+        addMessage(msg5);
+        addMessage(msg6);
+        addMessage(msg7);
+        addMessage(msg8);
+
+
     }
 
     @Override
@@ -112,5 +142,9 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
             return message.isVideo();
         }
         return false;
+    }
+
+    private void addMessage(Message msg){
+        messagesListAdapter.addToStart(msg,true);
     }
 }

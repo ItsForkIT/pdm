@@ -1,15 +1,20 @@
 package com.disarm.surakshit.pdm.Chat.Holders;
 
+import android.content.Context;
 import android.media.MediaPlayer;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
+import android.widget.Toast;
 
 import com.disarm.surakshit.pdm.Chat.Message;
 import com.disarm.surakshit.pdm.R;
 import com.stfalcon.chatkit.messages.MessagesListAdapter;
+
+import java.io.File;
 
 /**
  * Created by naman on 27/2/18.
@@ -20,8 +25,10 @@ public class IncomingAudioHolders extends MessagesListAdapter.BaseMessageViewHol
     MediaPlayer mediaPlayer;
     SeekBar seekBar;
     ImageButton imageButton;
+    Context context;
     public IncomingAudioHolders(View itemView) {
         super(itemView);
+        context = itemView.getContext();
         mediaPlayer = new MediaPlayer();
         mediaPlayer.setLooping(false);
         seekBar = (SeekBar) itemView.findViewById(R.id.incoming_seekBar);
@@ -52,7 +59,8 @@ public class IncomingAudioHolders extends MessagesListAdapter.BaseMessageViewHol
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                mediaPlayer.seekTo(progress);
+                if(fromUser)
+                    mediaPlayer.seekTo(progress);
             }
 
             @Override
@@ -70,7 +78,8 @@ public class IncomingAudioHolders extends MessagesListAdapter.BaseMessageViewHol
     @Override
     public void onBind(Message message) {
         try {
-            mediaPlayer.setDataSource(message.getUrl());
+            File f = Environment.getExternalStoragePublicDirectory(message.getUrl());
+            mediaPlayer.setDataSource(f.getAbsolutePath());
             mediaPlayer.prepareAsync();
             mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                 @Override
@@ -84,14 +93,16 @@ public class IncomingAudioHolders extends MessagesListAdapter.BaseMessageViewHol
         }
         HandlerThread ht = new HandlerThread("Audio Thread");
         ht.start();
-        Handler h = new Handler(ht.getLooper());
+        final Handler h = new Handler(ht.getLooper());
         Runnable run = new Runnable() {
             @Override
             public void run() {
                 if(mediaPlayer.isPlaying()){
                     seekBar.setProgress(mediaPlayer.getCurrentPosition());
                 }
+                h.postDelayed(this,1000);
             }
         };
+        h.postDelayed(run,1000);
     }
 }

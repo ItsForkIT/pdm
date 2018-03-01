@@ -17,6 +17,7 @@ public class Message implements IMessage,MessageContentType.Image, MessageConten
     Date createdAt;
     String url;
     boolean map=false,audio=false,video=false,image=false;
+    String imageurl;
 
     public Message(String id,Author author,String type){
         this.id = id;
@@ -77,7 +78,7 @@ public class Message implements IMessage,MessageContentType.Image, MessageConten
 
     @Override
     public String getImageUrl() {
-        return url;
+        return imageurl;
     }
 
     public String getUrl() { return url; }
@@ -97,4 +98,8 @@ public class Message implements IMessage,MessageContentType.Image, MessageConten
     public void setUrl(String url) {
         this.url = url;
     }
+
+    public void setImageurl(String url) { this.imageurl = url;}
+
+
 }

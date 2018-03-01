@@ -26,6 +26,7 @@ public class ImageViewActivity extends AppCompatActivity {
         GestureImageView image  = (GestureImageView) findViewById(R.id.imageview);
         String path = getIntent().getStringExtra("url");
         File f = Environment.getExternalStoragePublicDirectory(path);
+
         Bitmap bitmap = BitmapFactory.decodeFile(f.getAbsolutePath());
         int height = bitmap.getHeight();
         int width = bitmap.getWidth();
