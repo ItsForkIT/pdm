@@ -74,10 +74,10 @@ public class ChatFragment extends Fragment {
 
 
         //Dummy chat
-        Author author = new Author("9000000001","Anuj");
-        Message msg = new Message("1",author,"text");
-        msg.setText("Hi there!!!");
-        addDialog(msg,author,1);
+        Author me = new Author("9000000001","Anuj");
+        Message msg8 = new Message("8",me,"map");
+        msg8.setImageurl("map.png");
+        addDialog(msg8,me,2);
         return view;
 
 

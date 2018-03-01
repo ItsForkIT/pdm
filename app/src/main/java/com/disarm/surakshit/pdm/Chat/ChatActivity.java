@@ -103,21 +103,21 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
         messagesList.setAdapter(messagesListAdapter);
         Author me = new Author(Params.SOURCE_PHONE_NO,"Naman");
         Author other = new Author(number,"Anuj");
-        Message msg = new Message("1",me,"text");
+        Message msg = new Message("1",other,"text");
         msg.setText("Hi there!!!");
-        Message msg2 = new Message("2",me,"image");
+        Message msg2 = new Message("2",other,"image");
         msg2.setImageurl("test.jpg");
         Message msg3 = new Message("3",other,"text");
         msg3.setText("This looks yum ");
-        Message msg4 = new Message("4",me,"text");
+        Message msg4 = new Message("4",other,"text");
         msg4.setText("Yeah!!! Come over my place to have it");
-        Message msg5 = new Message("5",other,"video");
+        Message msg5 = new Message("5",me,"video");
         msg5.setUrl("test.mp4");
-        Message msg6 = new Message("6",me,"text");
+        Message msg6 = new Message("6",other,"text");
         msg6.setText("come fast...");
-        Message msg7 = new Message("7",other,"audio");
+        Message msg7 = new Message("7",me,"audio");
         msg7.setUrl("test.mp3");
-        Message msg8 = new Message("8",other,"map");
+        Message msg8 = new Message("8",me,"map");
         msg8.setImageurl("map.png");
 
 

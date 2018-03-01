@@ -35,6 +35,7 @@ public class Message implements IMessage,MessageContentType.Image, MessageConten
         if(type.equals("image")){
             image=true;
         }
+        this.setText(type);
     }
 
     public Message(String id,Author author,String type,Date createdAt){
@@ -53,6 +54,7 @@ public class Message implements IMessage,MessageContentType.Image, MessageConten
         if(type.equals("image")){
             image=true;
         }
+        this.setText(type);
     }
 
 

@@ -79,5 +79,9 @@ dependencies {
 
     //Layout for attachments
     compile 'com.google.android:flexbox:0.3.2'
+
+    //SeekBar
+    compile 'com.annimon:paperstyle:1.1.0'
+
     testCompile 'junit:junit:4.12'
 }

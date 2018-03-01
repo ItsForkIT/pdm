@@ -3,7 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:custom="http://schemas.android.com/tools"
     android:id="@+id/group"
+    android:background="@drawable/round_background_outgoing"
     android:layout_marginEnd="5dp"
     android:layout_marginStart="100dp">
 
@@ -12,17 +14,16 @@
         android:id="@+id/outgoing_imageButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         app:srcCompat="@android:drawable/ic_media_play" />
 
-    <SeekBar
+    <com.annimon.paperstyle.PaperSeekBar
         android:id="@+id/outgoing_seekbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_toEndOf="@+id/outgoing_imageButton"
-        android:layout_toRightOf="@+id/outgoing_imageButton" />
+        custom:pw_color="@color/red"
+        android:layout_toEndOf="@+id/outgoing_imageButton" />
 
 </RelativeLayout>

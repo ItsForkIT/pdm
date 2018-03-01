@@ -5,6 +5,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:id="@+id/group"
+    android:background="@drawable/round_background_incoming"
     android:layout_marginStart="5dp"
     android:layout_marginEnd="100dp">
 
