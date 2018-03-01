@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.flexbox.FlexboxLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:flexWrap="wrap"
+    app:alignItems="stretch"
+    app:alignContent="stretch"
+    android:background="@color/white"
+    app:justifyContent="space_around"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    >
+
+    <LinearLayout
+        android:id="@+id/gallery"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:orientation="vertical">
+
+        <ImageButton
+            android:id="@+id/attach_gallery"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/gallery"
+            android:layout_gravity="center"
+            android:background="@drawable/bg_form_rounded"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/gallery" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/camera"
+        android:layout_toEndOf="@+id/gallery"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:orientation="vertical">
+
+        <ImageButton
+            android:id="@+id/attach_camera"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/image"
+            android:layout_gravity="center"
+            android:background="@drawable/bg_form_rounded"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/camera" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/video"
+        android:layout_toEndOf="@+id/camera"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:orientation="vertical">
+
+        <ImageButton
+            android:id="@+id/attach_video"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/video"
+            android:layout_gravity="center"
+            android:background="@drawable/bg_form_rounded"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/video" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/audio"
+        android:layout_toEndOf="@+id/video"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:orientation="vertical">
+
+        <ImageButton
+            android:id="@+id/attach_audio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/audio"
+            android:layout_gravity="center"
+            android:background="@drawable/bg_form_rounded"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/audio" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/map"
+        android:layout_toEndOf="@+id/audio"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:orientation="vertical">
+
+        <ImageButton
+            android:id="@+id/attach_map"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/map"
+            android:layout_gravity="center"
+            android:background="@drawable/bg_form_rounded"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/map" />
+
+    </LinearLayout>
+
+
+
+
+</com.google.android.flexbox.FlexboxLayout>

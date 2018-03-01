@@ -4,17 +4,26 @@ import android.content.Intent;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.Gravity;
+import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.disarm.surakshit.pdm.Chat.Holders.IncomingAudioHolders;
 import com.disarm.surakshit.pdm.Chat.Holders.IncomingVideoHolders;
 import com.disarm.surakshit.pdm.Chat.Holders.OutgoingAudioHolders;
 import com.disarm.surakshit.pdm.Chat.Holders.OutgoingVideoHolders;
 import com.disarm.surakshit.pdm.R;
 import com.disarm.surakshit.pdm.Util.Params;
+import com.github.javiersantos.materialstyleddialogs.MaterialStyledDialog;
+import com.github.javiersantos.materialstyleddialogs.enums.Duration;
+import com.github.javiersantos.materialstyleddialogs.enums.Style;
 import com.squareup.picasso.Picasso;
 import com.stfalcon.chatkit.commons.ImageLoader;
 import com.stfalcon.chatkit.messages.MessageHolders;
+import com.stfalcon.chatkit.messages.MessageInput;
 import com.stfalcon.chatkit.messages.MessagesList;
 import com.stfalcon.chatkit.messages.MessagesListAdapter;
 
@@ -22,6 +31,7 @@ import java.io.File;
 
 public class ChatActivity extends AppCompatActivity implements MessageHolders.ContentChecker<Message> {
     MessagesList messagesList;
+    MessageInput messageInput;
     ImageLoader load;
     String number;
     MessagesListAdapter<Message> messagesListAdapter;
@@ -31,6 +41,8 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
         messagesList = (MessagesList) findViewById(R.id.messagesList);
+        messageInput = (MessageInput) findViewById(R.id.input);
+
         load = new ImageLoader() {
             @Override
             public void loadImage(ImageView imageView, String url) {
@@ -56,13 +68,37 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
             public void onMessageClick(Message message) {
 
                 //Define what to do with msg touch events
-                //Add only for map type and Image type
+                //Video touch and Audio touch are already defined in the holders
+
                 if(message.isImage()){
                     Intent i = new Intent(ChatActivity.this, ImageViewActivity.class);
                     i.putExtra("url",message.getUrl());
                     startActivity(i);
                 }
-                
+            }
+        });
+        messageInput.setAttachmentsListener(new MessageInput.AttachmentsListener() {
+            @Override
+            public void onAddAttachments() {
+                View view = getLayoutInflater().inflate(R.layout.dialog_attachment,null);
+                MaterialStyledDialog materialDialog = new MaterialStyledDialog.Builder(ChatActivity.this)
+                        .setTitle(R.string.attachment)
+                        .setCustomView(view,10,20,10,20)
+                        .withDialogAnimation(true, Duration.FAST)
+                        .setCancelable(true)
+                        .setStyle(Style.HEADER_WITH_TITLE)
+                        .withDarkerOverlay(true)
+                        .build();
+
+                Window window = materialDialog.getWindow();
+                WindowManager.LayoutParams wlp = window.getAttributes();
+
+                wlp.gravity = Gravity.BOTTOM;
+                wlp.flags &= ~WindowManager.LayoutParams.FLAG_DIM_BEHIND;
+                window.setAttributes(wlp);
+                materialDialog.show();
+
+
             }
         });
     }
