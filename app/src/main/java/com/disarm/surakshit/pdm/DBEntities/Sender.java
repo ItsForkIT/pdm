@@ -35,4 +35,5 @@ public class Sender {
     public void setKml(String kml) {
         this.kml = kml;
     }
+
 }

@@ -11,23 +11,22 @@ public class Receiver {
     long id;
     String number;
     String kml;
-    int unread;
+    int totalMsg;
 
-    public int getUnread() {
-        return unread;
+    public int getTotalMsg() {
+        return totalMsg;
     }
 
-    public void setUnread(int unread) {
-        this.unread = unread;
+    public void setTotalMsg(int totalMsg) {
+        this.totalMsg = totalMsg;
     }
 
     public Receiver(){
 
     }
-    public Receiver(String number,String kml, int unread){
+    public Receiver(String number,String kml){
         this.number = number;
         this.kml = kml;
-        this.unread = unread;
     }
 
     public String getNumber() {

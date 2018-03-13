@@ -103,6 +103,7 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
                 editor = sp.edit();
                 editor.putString("phone_no",phoneTextVal);
                 editor.apply();
+                Params.SOURCE_PHONE_NO = phoneTextVal;
                 Intent i = new Intent(this,RegisterActivity.class);
                 startActivity(i);
                 finish();
