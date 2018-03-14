@@ -18,7 +18,14 @@ import com.disarm.surakshit.pdm.Chat.Holders.IncomingAudioHolders;
 import com.disarm.surakshit.pdm.Chat.Holders.IncomingVideoHolders;
 import com.disarm.surakshit.pdm.Chat.Holders.OutgoingAudioHolders;
 import com.disarm.surakshit.pdm.Chat.Holders.OutgoingVideoHolders;
+import com.disarm.surakshit.pdm.Chat.Utils.ChatUtils;
+import com.disarm.surakshit.pdm.DB.DBEntities.App;
+import com.disarm.surakshit.pdm.DB.DBEntities.Receiver;
+import com.disarm.surakshit.pdm.DB.DBEntities.Receiver_;
+import com.disarm.surakshit.pdm.DB.DBEntities.Sender;
+import com.disarm.surakshit.pdm.DB.DBEntities.Sender_;
 import com.disarm.surakshit.pdm.R;
+import com.disarm.surakshit.pdm.Util.ContactUtil;
 import com.disarm.surakshit.pdm.Util.Params;
 import com.github.javiersantos.materialstyleddialogs.MaterialStyledDialog;
 import com.github.javiersantos.materialstyleddialogs.enums.Duration;
@@ -30,14 +37,28 @@ import com.stfalcon.chatkit.messages.MessageInput;
 import com.stfalcon.chatkit.messages.MessagesList;
 import com.stfalcon.chatkit.messages.MessagesListAdapter;
 
+import org.osmdroid.bonuspack.kml.KmlDocument;
+
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.regex.Pattern;
+
+import io.objectbox.Box;
 
 public class ChatActivity extends AppCompatActivity implements MessageHolders.ContentChecker<Message> {
     MessagesList messagesList;
     MessageInput messageInput;
     ImageLoader load;
     String number;
+    Author me,other;
     MessagesListAdapter<Message> messagesListAdapter;
+    ArrayList<Message> allMessages;
     private final byte CONTENT_AUDIO=1,CONTENT_VIDEO=2;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,9 +67,12 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
         messagesList = (MessagesList) findViewById(R.id.messagesList);
         ActionBar ab = getSupportActionBar();
         Drawable d = getResources().getDrawable(R.color.fbutton_color_turquoise);
-        ab.setBackgroundDrawable(d);
-        messageInput = (MessageInput) findViewById(R.id.input);
 
+        if (ab != null) {
+            ab.setBackgroundDrawable(d);
+        }
+
+        messageInput = (MessageInput) findViewById(R.id.input);
         load = new ImageLoader() {
             @Override
             public void loadImage(ImageView imageView, String url) {
@@ -68,8 +92,13 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                 OutgoingVideoHolders.class,R.layout.chat_outgoing_video,
                 this);
         number = getIntent().getStringExtra("number");
+        String receiversName = ContactUtil.getContactName(getApplicationContext(),number);
+        me = new Author(Params.SOURCE_PHONE_NO,"Me");
+        other = new Author(number,receiversName);
         ActionBar actionBar = getSupportActionBar();
-        actionBar.setTitle("Anuj");
+        if (actionBar != null) {
+            actionBar.setTitle(receiversName);
+        }
         messagesListAdapter = new MessagesListAdapter<Message>(Params.SOURCE_PHONE_NO,holders,load);
         messagesListAdapter.setOnMessageClickListener(new MessagesListAdapter.OnMessageClickListener<Message>() {
             @Override
@@ -85,6 +114,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                 }
             }
         });
+
         messageInput.setAttachmentsListener(new MessageInput.AttachmentsListener() {
             @Override
             public void onAddAttachments() {
@@ -99,7 +129,11 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                         .build();
 
                 Window window = materialDialog.getWindow();
-                WindowManager.LayoutParams wlp = window.getAttributes();
+                WindowManager.LayoutParams wlp = null;
+                if (window != null) {
+                    wlp = window.getAttributes();
+                }
+                assert wlp != null;
                 wlp.gravity = Gravity.BOTTOM;
                 wlp.flags &= ~WindowManager.LayoutParams.FLAG_DIM_BEHIND;
                 window.setAttributes(wlp);
@@ -108,8 +142,36 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
         });
 
         messagesList.setAdapter(messagesListAdapter);
-        Author me = new Author(Params.SOURCE_PHONE_NO,"Naman");
-        Author other = new Author(number,"Anuj");
+
+        dummyChat();
+
+        populateChat();
+
+        messageInput.setInputListener(new MessageInput.InputListener() {
+            @Override
+            public boolean onSubmit(CharSequence input) {
+                return false;
+            }
+        });
+
+    }
+
+    @Override
+    public boolean hasContentFor(Message message, byte type) {
+        if(type == CONTENT_AUDIO){
+            return message.isAudio();
+        }
+        if(type == CONTENT_VIDEO){
+            return message.isVideo();
+        }
+        return false;
+    }
+
+    private void addMessage(Message msg){
+        messagesListAdapter.addToStart(msg,true);
+    }
+
+    private void dummyChat(){
         Message msg = new Message("1",other,"text");
         msg.setText("Hi there!!!");
         Message msg2 = new Message("2",me,"image");
@@ -137,22 +199,74 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
         addMessage(msg7);
         addMessage(msg8);
         addMessage(msg9);
+    }
 
+    private void populateChat(){
+        final Box<Sender> senderBox = ((App)getApplication()).getBoxStore().boxFor(Sender.class);
+        final Box<Receiver> receiverBox = ((App)getApplication()).getBoxStore().boxFor(Receiver.class);
+
+        List<Sender> senders = senderBox.query().equal(Sender_.number,number).build().find();
+        List<Receiver> receivers = receiverBox.query().equal(Receiver_.number,number).build().find();
+
+        String sendersKml = senders.get(0).getKml();
+        String receiverKml = receivers.get(0).getKml();
+        InputStream sendersStream = new ByteArrayInputStream(sendersKml.getBytes(StandardCharsets.UTF_8));
+        InputStream receiversStream = new ByteArrayInputStream(receiverKml.getBytes(StandardCharsets.UTF_8));
+
+        KmlDocument senderKml = new KmlDocument();
+        senderKml.parseKMLStream(sendersStream,null);
+
+        KmlDocument receiversKml = new KmlDocument();
+        receiversKml.parseKMLStream(receiversStream,null);
+
+        extractMessageFromKML(senderKml,receiversKml);
 
     }
 
-    @Override
-    public boolean hasContentFor(Message message, byte type) {
-        if(type == CONTENT_AUDIO){
-            return message.isAudio();
-        }
-        if(type == CONTENT_VIDEO){
-            return message.isVideo();
-        }
-        return false;
+    private void extractMessageFromKML(final KmlDocument sender,final KmlDocument receiver){
+
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                allMessages = new ArrayList<>();
+                String nextKey = "source";
+                String msg;
+                while (sender.mKmlRoot.mExtendedData.containsKey(nextKey)){
+                    msg = sender.mKmlRoot.getExtendedData(nextKey);
+                    nextKey = getTimeStampFromMsg(msg);
+                    allMessages.add(ChatUtils.getMessageObject(msg, me));
+                }
+                nextKey = "source";
+
+                while ((receiver.mKmlRoot.mExtendedData.containsKey(nextKey))){
+                    msg = receiver.mKmlRoot.getExtendedData(nextKey);
+                    nextKey = getTimeStampFromMsg(msg);
+                    allMessages.add(ChatUtils.getMessageObject(msg, other));
+                }
+                sortAllMessage();
+                messagesListAdapter.addToEnd(allMessages,false);
+            }
+        });
+        t.start();
+
     }
 
-    private void addMessage(Message msg){
-        messagesListAdapter.addToStart(msg,true);
+    private void sortAllMessage(){
+        Collections.sort(allMessages, new Comparator<Message>() {
+            @Override
+            public int compare(Message o1, Message o2) {
+                if (o1.getCreatedAt().after(o2.getCreatedAt())) {
+                    return -1;
+                } else if (o1.getCreatedAt().before(o2.getCreatedAt())) {
+                    return 1;
+                } else return 0;
+            }
+        });
+    }
+
+    private String getTimeStampFromMsg(String msg){
+        Pattern p = Pattern.compile("-");
+        String[] s = p.split(msg,4);
+        return s[0];
     }
 }

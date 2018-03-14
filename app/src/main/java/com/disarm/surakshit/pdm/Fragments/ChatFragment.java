@@ -103,10 +103,10 @@ public class ChatFragment extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == CONTACT_REQUEST && resultCode == Activity.RESULT_OK &&
                 data != null && data.hasExtra(ContactPickerActivity.RESULT_CONTACT_DATA)) {
-            // process contacts
             List<Contact> contacts = (List<Contact>) data.getSerializableExtra(ContactPickerActivity.RESULT_CONTACT_DATA);
             for (Contact contact : contacts) {
                 // process the contacts...
+
                 Toast.makeText(getContext(),contact.getFirstName(),Toast.LENGTH_SHORT).show();
             }
         }
