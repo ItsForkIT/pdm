@@ -18,6 +18,7 @@ public class Message implements IMessage,MessageContentType.Image, MessageConten
     String url;
     boolean map=false,audio=false,video=false,image=false;
     String imageurl;
+    String mapObjectID;
 
     public Message(String id,Author author,String type){
         this.id = id;
@@ -103,5 +104,11 @@ public class Message implements IMessage,MessageContentType.Image, MessageConten
 
     public void setImageurl(String url) { this.imageurl = url;}
 
+    public String getMapObjectID() {
+        return mapObjectID;
+    }
 
+    public void setMapObjectID(String mapObjectID) {
+        this.mapObjectID = mapObjectID;
+    }
 }

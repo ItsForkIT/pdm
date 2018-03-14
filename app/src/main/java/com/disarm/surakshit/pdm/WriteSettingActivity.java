@@ -12,7 +12,7 @@ import android.view.View;
 import android.widget.Button;
 
 /**
- * Created by disarm on 13/7/16.
+ * Created by naman on 13/7/16.
  */
 public class WriteSettingActivity extends AppCompatActivity {
     private int Allow_REQUEST = 1;

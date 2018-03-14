@@ -1,10 +1,11 @@
-package com.disarm.surakshit.pdm.DBEntities;
+package com.disarm.surakshit.pdm.DB.DBEntities;
 
 import io.objectbox.annotation.Entity;
 import io.objectbox.annotation.Id;
 
 /**
  * Created by naman on 27/2/18.
+ * Sender is yourself
  */
 @Entity
 public class Sender {
@@ -12,7 +13,8 @@ public class Sender {
     long id;
     String number;
     String kml;
-
+    String lastMessage;
+    Boolean lastUpdated;
     public Sender(){
 
     }
@@ -36,4 +38,19 @@ public class Sender {
         this.kml = kml;
     }
 
+    public String getLastMessage() {
+        return lastMessage;
+    }
+
+    public void setLastMessage(String lastMessage) {
+        this.lastMessage = lastMessage;
+    }
+
+    public Boolean getLastUpdated() {
+        return lastUpdated;
+    }
+
+    public void setLastUpdated(Boolean lastUpdated) {
+        this.lastUpdated = lastUpdated;
+    }
 }

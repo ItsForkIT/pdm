@@ -19,7 +19,13 @@ import com.disarm.surakshit.pdm.Chat.ChatActivity;
 import com.disarm.surakshit.pdm.Chat.DefaultDialog;
 
 import com.disarm.surakshit.pdm.Chat.Message;
+import com.disarm.surakshit.pdm.Chat.Utils.ChatUtils;
+import com.disarm.surakshit.pdm.DB.DBEntities.App;
+import com.disarm.surakshit.pdm.DB.DBEntities.Receiver;
+import com.disarm.surakshit.pdm.DB.DBEntities.Receiver_;
+import com.disarm.surakshit.pdm.DB.DBEntities.Sender;
 import com.disarm.surakshit.pdm.R;
+import com.disarm.surakshit.pdm.Util.ContactUtil;
 import com.disarm.surakshit.pdm.Util.Params;
 import com.onegravity.contactpicker.contact.Contact;
 import com.onegravity.contactpicker.contact.ContactDescription;
@@ -30,7 +36,11 @@ import com.stfalcon.chatkit.commons.ImageLoader;
 import com.stfalcon.chatkit.dialogs.DialogsList;
 import com.stfalcon.chatkit.dialogs.DialogsListAdapter;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+
+import io.objectbox.Box;
 
 /**
  * Created by naman on 25/2/18.
@@ -42,6 +52,7 @@ public class ChatFragment extends Fragment {
     private final int CONTACT_REQUEST = 100;
     DialogsList dialogsList;
     DialogsListAdapter<DefaultDialog> dialogsListAdapter;
+    ArrayList<DefaultDialog> dialogArrayList;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -78,10 +89,13 @@ public class ChatFragment extends Fragment {
         Message msg9 = new Message("9",me,"text");
         msg9.setText("Okay... I am here");
         addDialog(msg9,me,2);
+
+        addDialogList();
+
+
         return view;
 
 
-        //Message msg = new Message("1",)
     }
 
     @Override
@@ -123,8 +137,43 @@ public class ChatFragment extends Fragment {
     }
 
     private void addDialog(Message msg , Author author , int unread){
-        DefaultDialog dialog = new DefaultDialog(Params.dialog_id+"",msg.getUser().getName(),msg,author,unread);
+        DefaultDialog dialog = new DefaultDialog(Params.dialog_id++ +"",msg.getUser().getName(),msg,author,unread);
         dialog.setLastMessage(msg);
         dialogsListAdapter.addItem(dialog);
+    }
+
+
+    //Add dialogs available in the db
+    private void addDialogList(){
+        final Box<Sender> senderBox = ((App)getActivity().getApplication()).getBoxStore().boxFor(Sender.class);
+        final Box<Receiver> receiverBox = ((App)getActivity().getApplication()).getBoxStore().boxFor(Receiver.class);
+        final List<Sender> senders = senderBox.getAll();
+        dialogArrayList = new ArrayList<>();
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for(int i=0;i<senders.size();i++){
+                    Sender s = senders.get(i);
+                    if((s.getLastUpdated())){
+                        String msg = s.getLastMessage();
+                        String number = s.getNumber();
+                        Author author = new Author(number, ContactUtil.getContactName(getActivity().getApplicationContext(),number));
+                        Message lastMessage = ChatUtils.getMessageObject(msg,author);
+                        addDialog(lastMessage,author,0);
+                    }
+                    else{
+                        String number = s.getNumber();
+                        List<Receiver> re = receiverBox.query().equal(Receiver_.number,number).build().find();
+                        Receiver r = re.get(0);
+                        Author author = new Author(number, ContactUtil.getContactName(getActivity().getApplicationContext(),number));
+                        String msg = r.getLastMessage();
+                        Message lastMessage = ChatUtils.getMessageObject(msg,author);
+                        addDialog(lastMessage,author,r.getUnread());
+                    }
+                }
+                dialogsListAdapter.sortByLastMessageDate();
+            }
+        });
+        t.start();
     }
 }
