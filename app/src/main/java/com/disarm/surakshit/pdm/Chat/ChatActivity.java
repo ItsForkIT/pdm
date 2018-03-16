@@ -11,9 +11,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
-import android.widget.Toast;
 
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.disarm.surakshit.pdm.Chat.Holders.IncomingAudioHolders;
 import com.disarm.surakshit.pdm.Chat.Holders.IncomingVideoHolders;
 import com.disarm.surakshit.pdm.Chat.Holders.OutgoingAudioHolders;
@@ -99,6 +97,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
         if (actionBar != null) {
             actionBar.setTitle(receiversName);
         }
+
         messagesListAdapter = new MessagesListAdapter<Message>(Params.SOURCE_PHONE_NO,holders,load);
         messagesListAdapter.setOnMessageClickListener(new MessagesListAdapter.OnMessageClickListener<Message>() {
             @Override
@@ -208,19 +207,20 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
         List<Sender> senders = senderBox.query().equal(Sender_.number,number).build().find();
         List<Receiver> receivers = receiverBox.query().equal(Receiver_.number,number).build().find();
 
-        String sendersKml = senders.get(0).getKml();
-        String receiverKml = receivers.get(0).getKml();
-        InputStream sendersStream = new ByteArrayInputStream(sendersKml.getBytes(StandardCharsets.UTF_8));
-        InputStream receiversStream = new ByteArrayInputStream(receiverKml.getBytes(StandardCharsets.UTF_8));
+        if(senders.get(0) != null || receivers.get(0) !=null ) {
+            String sendersKml = senders.get(0).getKml();
+            String receiverKml = receivers.get(0).getKml();
+            InputStream sendersStream = new ByteArrayInputStream(sendersKml.getBytes(StandardCharsets.UTF_8));
+            InputStream receiversStream = new ByteArrayInputStream(receiverKml.getBytes(StandardCharsets.UTF_8));
 
-        KmlDocument senderKml = new KmlDocument();
-        senderKml.parseKMLStream(sendersStream,null);
+            KmlDocument senderKml = new KmlDocument();
+            senderKml.parseKMLStream(sendersStream, null);
 
-        KmlDocument receiversKml = new KmlDocument();
-        receiversKml.parseKMLStream(receiversStream,null);
+            KmlDocument receiversKml = new KmlDocument();
+            receiversKml.parseKMLStream(receiversStream, null);
 
-        extractMessageFromKML(senderKml,receiversKml);
-
+            extractMessageFromKML(senderKml, receiversKml);
+        }
     }
 
     private void extractMessageFromKML(final KmlDocument sender,final KmlDocument receiver){

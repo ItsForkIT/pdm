@@ -32,6 +32,22 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
     public File dmsFolder = Environment.getExternalStoragePublicDirectory("DMS/");
     public File workingFolder = Environment.getExternalStoragePublicDirectory("DMS/Working");
     public File mapFolder = Environment.getExternalStoragePublicDirectory("DMS/Map");
+
+    public File PubKey = Environment.getExternalStoragePublicDirectory("DMS/Working/PubKey");
+    public File SurakshitImages = Environment.getExternalStoragePublicDirectory("DMS/Working/SurakshitImages");
+    public File SurakshitVideos = Environment.getExternalStoragePublicDirectory("DMS/Working/SurakshitVideos");
+    public File SurakshitAudio = Environment.getExternalStoragePublicDirectory("DMS/Working/SurakshitAudio");
+    public File SurakshitMap = Environment.getExternalStoragePublicDirectory("DMS/Working/SurakshitMap");
+    public File SurakshitKml = Environment.getExternalStoragePublicDirectory("DMS/Working/SurakshitKml");
+    public File SurakshitDiff = Environment.getExternalStoragePublicDirectory("DMS/Working/SurakshitDiff");
+    public File Kml = Environment.getExternalStoragePublicDirectory("DMS/KML");
+    public File Source = Environment.getExternalStoragePublicDirectory("DMS/KML/Source");
+    public File Dest = Environment.getExternalStoragePublicDirectory("DMS/KML/Dest");
+    public File LatestSource = Environment.getExternalStoragePublicDirectory("DMS/KML/Source/LatestKml");
+    public File SourceSourceKml = Environment.getExternalStoragePublicDirectory("DMS/KML/Source/SourceKml");
+    public File LatestDest = Environment.getExternalStoragePublicDirectory("DMS/KML/Dest/LatestKml");
+    public File DestSourceKml = Environment.getExternalStoragePublicDirectory("DMS/KML/Dest/SourceKml");
+
     private EditText phoneText1;
     private Button submitButton;
     private SharedPreferences sp;
@@ -39,7 +55,6 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
     //Adding new param
     public static String ROOT                             = Environment.getExternalStorageDirectory().getAbsolutePath();
     public static String DMS_PATH                         = ROOT + "/DMS/";
-    public static String WORKING_DIR                      = DMS_PATH + "Working/";
 
 
     String[] PERMISSIONS = {Manifest.permission.ACCESS_FINE_LOCATION,
@@ -90,6 +105,45 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
         }
         if (!mapFolder.exists()){
             mapFolder.mkdir();
+        }
+        if(!SurakshitAudio.exists()){
+            SurakshitAudio.mkdir();
+        }
+        if(!SurakshitDiff.exists()){
+            SurakshitDiff.mkdir();
+        }
+        if(!SurakshitImages.exists()){
+            SurakshitImages.mkdir();
+        }
+        if(!SurakshitMap.exists()){
+            SurakshitMap.mkdir();
+        }
+        if(!SurakshitVideos.exists()){
+            SurakshitVideos.mkdir();
+        }
+        if(!SurakshitKml.exists()){
+            SurakshitKml.mkdir();
+        }
+        if(!Kml.exists()){
+            Kml.mkdir();
+        }
+        if(!Source.exists()){
+            Source.mkdir();
+        }
+        if(!Dest.exists()){
+            Dest.mkdir();
+        }
+        if(!LatestSource.exists()){
+            LatestSource.mkdir();
+        }
+        if(!SourceSourceKml.exists()){
+            SourceSourceKml.mkdir();
+        }
+        if(!DestSourceKml.exists()){
+            DestSourceKml.mkdir();
+        }
+        if(!LatestDest.exists()){
+            LatestDest.mkdir();
         }
         copyAssets();
     }
