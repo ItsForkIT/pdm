@@ -41,6 +41,8 @@ import java.util.Collections;
 import java.util.List;
 
 import io.objectbox.Box;
+import io.objectbox.BoxStore;
+import io.objectbox.BoxStoreBuilder;
 
 /**
  * Created by naman on 25/2/18.

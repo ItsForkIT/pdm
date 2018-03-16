@@ -35,12 +35,16 @@ import com.stfalcon.chatkit.messages.MessageInput;
 import com.stfalcon.chatkit.messages.MessagesList;
 import com.stfalcon.chatkit.messages.MessagesListAdapter;
 
+import org.apache.commons.io.FileUtils;
 import org.osmdroid.bonuspack.kml.KmlDocument;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -63,32 +67,15 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
         messagesList = (MessagesList) findViewById(R.id.messagesList);
+        messageInput = (MessageInput) findViewById(R.id.input);
         ActionBar ab = getSupportActionBar();
         Drawable d = getResources().getDrawable(R.color.fbutton_color_turquoise);
-
         if (ab != null) {
             ab.setBackgroundDrawable(d);
         }
 
-        messageInput = (MessageInput) findViewById(R.id.input);
-        load = new ImageLoader() {
-            @Override
-            public void loadImage(ImageView imageView, String url) {
-                File im = Environment.getExternalStoragePublicDirectory(url);
-                if(im.exists()) {
-                    Picasso.with(ChatActivity.this).load(im).resize(800,1000).centerCrop().into(imageView);
-                }
-            }
-        };
-        MessageHolders holders = new MessageHolders();
-        holders.registerContentType(CONTENT_AUDIO,
-                IncomingAudioHolders.class,R.layout.chat_incoming_audio,
-                OutgoingAudioHolders.class,R.layout.chat_outgoing_audio,
-                this);
-        holders.registerContentType(CONTENT_VIDEO,
-                IncomingVideoHolders.class,R.layout.chat_incoming_video,
-                OutgoingVideoHolders.class,R.layout.chat_outgoing_video,
-                this);
+
+
         number = getIntent().getStringExtra("number");
         String receiversName = ContactUtil.getContactName(getApplicationContext(),number);
         me = new Author(Params.SOURCE_PHONE_NO,"Me");
@@ -98,60 +85,17 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
             actionBar.setTitle(receiversName);
         }
 
-        messagesListAdapter = new MessagesListAdapter<Message>(Params.SOURCE_PHONE_NO,holders,load);
-        messagesListAdapter.setOnMessageClickListener(new MessagesListAdapter.OnMessageClickListener<Message>() {
-            @Override
-            public void onMessageClick(Message message) {
+        setChatConfig();
 
-                //Define what to do with msg touch events
-                //Video touch and Audio touch are already defined in the holders
+        setMessagesListAdapterListener();
 
-                if(message.isImage()){
-                    Intent i = new Intent(ChatActivity.this, ImageViewActivity.class);
-                    i.putExtra("url",message.getImageUrl());
-                    startActivity(i);
-                }
-            }
-        });
+        setMessageInputAttachmentListener();
 
-        messageInput.setAttachmentsListener(new MessageInput.AttachmentsListener() {
-            @Override
-            public void onAddAttachments() {
-                View view = getLayoutInflater().inflate(R.layout.dialog_attachment,null);
-                MaterialStyledDialog materialDialog = new MaterialStyledDialog.Builder(ChatActivity.this)
-                        .setTitle(R.string.attachment)
-                        .setCustomView(view,10,20,10,20)
-                        .withDialogAnimation(true, Duration.FAST)
-                        .setCancelable(true)
-                        .setStyle(Style.HEADER_WITH_TITLE)
-                        .withDarkerOverlay(true)
-                        .build();
-
-                Window window = materialDialog.getWindow();
-                WindowManager.LayoutParams wlp = null;
-                if (window != null) {
-                    wlp = window.getAttributes();
-                }
-                assert wlp != null;
-                wlp.gravity = Gravity.BOTTOM;
-                wlp.flags &= ~WindowManager.LayoutParams.FLAG_DIM_BEHIND;
-                window.setAttributes(wlp);
-                materialDialog.show();
-            }
-        });
-
-        messagesList.setAdapter(messagesListAdapter);
-
-        dummyChat();
+        //dummyChat();
 
         populateChat();
 
-        messageInput.setInputListener(new MessageInput.InputListener() {
-            @Override
-            public boolean onSubmit(CharSequence input) {
-                return false;
-            }
-        });
+        setMessageInputSendListener();
 
     }
 
@@ -203,24 +147,23 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
     private void populateChat(){
         final Box<Sender> senderBox = ((App)getApplication()).getBoxStore().boxFor(Sender.class);
         final Box<Receiver> receiverBox = ((App)getApplication()).getBoxStore().boxFor(Receiver.class);
-
         List<Sender> senders = senderBox.query().equal(Sender_.number,number).build().find();
         List<Receiver> receivers = receiverBox.query().equal(Receiver_.number,number).build().find();
-
-        if(senders.get(0) != null || receivers.get(0) !=null ) {
+        KmlDocument senderKml = new KmlDocument();
+        KmlDocument receiversKml = new KmlDocument();
+        if(senders.size() != 0 ) {
             String sendersKml = senders.get(0).getKml();
-            String receiverKml = receivers.get(0).getKml();
             InputStream sendersStream = new ByteArrayInputStream(sendersKml.getBytes(StandardCharsets.UTF_8));
-            InputStream receiversStream = new ByteArrayInputStream(receiverKml.getBytes(StandardCharsets.UTF_8));
-
-            KmlDocument senderKml = new KmlDocument();
             senderKml.parseKMLStream(sendersStream, null);
-
-            KmlDocument receiversKml = new KmlDocument();
-            receiversKml.parseKMLStream(receiversStream, null);
-
-            extractMessageFromKML(senderKml, receiversKml);
         }
+        if(receivers.size() != 0){
+            String receiverKml = receivers.get(0).getKml();
+            InputStream receiversStream = new ByteArrayInputStream(receiverKml.getBytes(StandardCharsets.UTF_8));
+            receiversKml.parseKMLStream(receiversStream, null);
+        }
+        extractMessageFromKML(senderKml,receiversKml);
+        senderBox.closeThreadResources();
+        receiverBox.closeThreadResources();
     }
 
     private void extractMessageFromKML(final KmlDocument sender,final KmlDocument receiver){
@@ -231,20 +174,26 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                 allMessages = new ArrayList<>();
                 String nextKey = "source";
                 String msg;
-                while (sender.mKmlRoot.mExtendedData.containsKey(nextKey)){
+                while (sender.mKmlRoot.mExtendedData!=null && sender.mKmlRoot.mExtendedData.containsKey(nextKey)){
                     msg = sender.mKmlRoot.getExtendedData(nextKey);
                     nextKey = getTimeStampFromMsg(msg);
                     allMessages.add(ChatUtils.getMessageObject(msg, me));
                 }
                 nextKey = "source";
 
-                while ((receiver.mKmlRoot.mExtendedData.containsKey(nextKey))){
+                while (receiver.mKmlRoot.mExtendedData!=null && receiver.mKmlRoot.mExtendedData.containsKey(nextKey)){
                     msg = receiver.mKmlRoot.getExtendedData(nextKey);
                     nextKey = getTimeStampFromMsg(msg);
                     allMessages.add(ChatUtils.getMessageObject(msg, other));
                 }
                 sortAllMessage();
-                messagesListAdapter.addToEnd(allMessages,false);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        messagesListAdapter.addToEnd(allMessages,false);
+                    }
+                });
+
             }
         });
         t.start();
@@ -268,5 +217,123 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
         Pattern p = Pattern.compile("-");
         String[] s = p.split(msg,4);
         return s[0];
+    }
+
+    private void setChatConfig(){
+        load = new ImageLoader() {
+            @Override
+            public void loadImage(ImageView imageView, String url) {
+                File im = Environment.getExternalStoragePublicDirectory(url);
+                if(im.exists()) {
+                    Picasso.with(ChatActivity.this).load(im).resize(800,1000).centerCrop().into(imageView);
+                }
+            }
+        };
+        MessageHolders holders = new MessageHolders();
+        holders.registerContentType(CONTENT_AUDIO,
+                IncomingAudioHolders.class,R.layout.chat_incoming_audio,
+                OutgoingAudioHolders.class,R.layout.chat_outgoing_audio,
+                this);
+        holders.registerContentType(CONTENT_VIDEO,
+                IncomingVideoHolders.class,R.layout.chat_incoming_video,
+                OutgoingVideoHolders.class,R.layout.chat_outgoing_video,
+                this);
+
+        messagesListAdapter = new MessagesListAdapter<Message>(Params.SOURCE_PHONE_NO,holders,load);
+    }
+
+    private void setMessagesListAdapterListener(){
+        messagesListAdapter.setOnMessageClickListener(new MessagesListAdapter.OnMessageClickListener<Message>() {
+            @Override
+            public void onMessageClick(Message message) {
+
+                //Define what to do with msg touch events
+                //Video touch and Audio touch are already defined in the holders
+
+                if(message.isImage()){
+                    Intent i = new Intent(ChatActivity.this, ImageViewActivity.class);
+                    i.putExtra("url",message.getImageUrl());
+                    startActivity(i);
+                }
+            }
+        });
+        messagesList.setAdapter(messagesListAdapter);
+    }
+
+    private void setMessageInputAttachmentListener(){
+        messageInput.setAttachmentsListener(new MessageInput.AttachmentsListener() {
+            @Override
+            public void onAddAttachments() {
+                View view = getLayoutInflater().inflate(R.layout.dialog_attachment,null);
+                MaterialStyledDialog materialDialog = new MaterialStyledDialog.Builder(ChatActivity.this)
+                        .setTitle(R.string.attachment)
+                        .setCustomView(view,10,20,10,20)
+                        .withDialogAnimation(true, Duration.FAST)
+                        .setCancelable(true)
+                        .setStyle(Style.HEADER_WITH_TITLE)
+                        .withDarkerOverlay(true)
+                        .build();
+
+                Window window = materialDialog.getWindow();
+                WindowManager.LayoutParams wlp = null;
+                if (window != null) {
+                    wlp = window.getAttributes();
+                }
+                assert wlp != null;
+                wlp.gravity = Gravity.BOTTOM;
+                wlp.flags &= ~WindowManager.LayoutParams.FLAG_DIM_BEHIND;
+                window.setAttributes(wlp);
+                materialDialog.show();
+            }
+        });
+    }
+
+    private void setMessageInputSendListener(){
+        messageInput.setInputListener(new MessageInput.InputListener() {
+            @Override
+            public boolean onSubmit(CharSequence input) {
+                if(messagesListAdapter.getItemCount() == 0){
+                    KmlDocument kml = new KmlDocument();
+                    String extendedDataFormat = ChatUtils.getExtendedDataFormatName(input.toString(),"text","none");
+                    kml.mKmlRoot.setExtendedData("source",extendedDataFormat);
+                    kml.mKmlRoot.setExtendedData("total","1");
+                    File file = getNewFileObject();
+                    kml.saveAsKML(file);
+                    final Box<Sender> senderBox = ((App)getApplication()).getBoxStore().boxFor(Sender.class);
+                    Sender sender = new Sender();
+                    sender.setNumber(number);
+                    sender.setLastMessage(extendedDataFormat);
+                    sender.setLastUpdated(true);
+                    String kmlString="";
+                    try {
+                        kmlString = FileUtils.readFileToString(file);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    sender.setKml(kmlString);
+                    senderBox.put(sender);
+                    populateChat();
+                    encryptIt();
+                }
+                return true;
+            }
+        });
+    }
+
+    //Generates a 16-bit unique random string
+    private String generateRandomString(){
+        SecureRandom secureRandom = new SecureRandom();
+        byte[] token = new byte[16];
+        secureRandom.nextBytes(token);
+        return new BigInteger(1, token).toString(16);
+    }
+
+    private File getNewFileObject(){
+        String fileName = generateRandomString() + "_" + Params.SOURCE_PHONE_NO + "_" + number + "_" + "50";
+        return Environment.getExternalStoragePublicDirectory("DMS/KML/Source/SourceKml/"+fileName);
+    }
+
+    private void encryptIt(){
+
     }
 }

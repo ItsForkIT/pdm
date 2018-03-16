@@ -27,7 +27,7 @@ public class ContactUtil {
         Query q = Contacts.getQuery();
         q.whereContains(com.github.tamir7.contacts.Contact.Field.PhoneNumber,phoneNo);
         List<Contact> con = q.find();
-        if(con.get(0) == null){
+        if(con.size() == 0){
             return phoneNo;
         }
         return con.get(0).getDisplayName();
