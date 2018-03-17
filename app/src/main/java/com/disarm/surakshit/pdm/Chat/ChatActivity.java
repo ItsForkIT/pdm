@@ -22,12 +22,14 @@ import com.disarm.surakshit.pdm.DB.DBEntities.Receiver;
 import com.disarm.surakshit.pdm.DB.DBEntities.Receiver_;
 import com.disarm.surakshit.pdm.DB.DBEntities.Sender;
 import com.disarm.surakshit.pdm.DB.DBEntities.Sender_;
+import com.disarm.surakshit.pdm.Encryption.KeyBasedFileProcessor;
 import com.disarm.surakshit.pdm.R;
 import com.disarm.surakshit.pdm.Util.ContactUtil;
 import com.disarm.surakshit.pdm.Util.Params;
 import com.github.javiersantos.materialstyleddialogs.MaterialStyledDialog;
 import com.github.javiersantos.materialstyleddialogs.enums.Duration;
 import com.github.javiersantos.materialstyleddialogs.enums.Style;
+import com.snatik.storage.Storage;
 import com.squareup.picasso.Picasso;
 import com.stfalcon.chatkit.commons.ImageLoader;
 import com.stfalcon.chatkit.messages.MessageHolders;
@@ -90,8 +92,6 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
         setMessagesListAdapterListener();
 
         setMessageInputAttachmentListener();
-
-        //dummyChat();
 
         populateChat();
 
@@ -299,6 +299,9 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                     kml.mKmlRoot.setExtendedData("total","1");
                     File file = getNewFileObject();
                     kml.saveAsKML(file);
+                    Storage storage = new Storage(getApplicationContext());
+                    File dest = Environment.getExternalStoragePublicDirectory("DMS/KML/Source/Latest/"+file.getName());
+                    storage.copy(file.getAbsolutePath(),dest.getAbsolutePath());
                     final Box<Sender> senderBox = ((App)getApplication()).getBoxStore().boxFor(Sender.class);
                     Sender sender = new Sender();
                     sender.setNumber(number);
@@ -312,8 +315,50 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                     }
                     sender.setKml(kmlString);
                     senderBox.put(sender);
+                    senderBox.closeThreadResources();
                     populateChat();
-                    encryptIt();
+                    encryptIt(file);
+                }
+                else{
+                    KmlDocument kml = new KmlDocument();
+                    File latestSourceDir = Environment.getExternalStoragePublicDirectory("DMS/KML/Source/Latest");
+                    File kmlFile = null;
+                    for(File file : latestSourceDir.listFiles()){
+                        if(file.getName().contains(number)){
+                            kml.parseKMLFile(file);
+                            kmlFile =file;
+                            break;
+                        }
+                    }
+                    String nextKey = "source";
+                    String msg = "";
+                    while(kml.mKmlRoot.mExtendedData.containsKey(nextKey)){
+                        msg = kml.mKmlRoot.getExtendedData(nextKey);
+                        nextKey = getTimeStampFromMsg(msg);
+                    }
+                    String extendedDataFormat = ChatUtils.getExtendedDataFormatName(input.toString(),"text","none");
+                    kml.mKmlRoot.setExtendedData(nextKey,extendedDataFormat);
+                    int total = Integer.parseInt(kml.mKmlRoot.getExtendedData("total"));
+                    total++;
+                    kml.mKmlRoot.setExtendedData("total",total+"");
+                    kml.saveAsKML(kmlFile);
+                    final Box<Sender> senderBox = ((App)getApplication()).getBoxStore().boxFor(Sender.class);
+                    List<Sender> senderList = senderBox.query().contains(Sender_.number,number).build().find();
+                    Sender s = senderList.get(0);
+                    s.setLastUpdated(true);
+                    s.setLastMessage(extendedDataFormat);
+                    String kmlString="";
+                    try {
+                        assert kmlFile != null;
+                        kmlString = FileUtils.readFileToString(kmlFile);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    s.setKml(kmlString);
+                    senderBox.put(s);
+                    senderBox.closeThreadResources();
+                    populateChat();
+                    //Generate Diff
                 }
                 return true;
             }
@@ -333,7 +378,21 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
         return Environment.getExternalStoragePublicDirectory("DMS/KML/Source/SourceKml/"+fileName);
     }
 
-    private void encryptIt(){
+    private void encryptIt(File file){
+        String inputPath = file.getAbsolutePath();
+        String publicKeyPath = Environment.getExternalStoragePublicDirectory("DMS/Working/pgpKey/pub_"+number+".bgp").getAbsolutePath();
+        String outputFilePath = Environment.getExternalStoragePublicDirectory("DMS/Working/SurakshitKml/"
+                +absoluteName(file.getName())+".bgp")
+                .getAbsolutePath();
+        try {
+            KeyBasedFileProcessor.encrypt(inputPath,publicKeyPath,outputFilePath);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
+    private String absoluteName(String s){
+        int x = s.lastIndexOf(".");
+        return s.substring(0,x);
     }
 }

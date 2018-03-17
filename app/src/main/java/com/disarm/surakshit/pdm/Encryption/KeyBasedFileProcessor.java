@@ -284,12 +284,13 @@ public class KeyBasedFileProcessor
 
     public static void encrypt(
             String inputFilePath,
-            String publicKeyPath
+            String publicKeyPath,
+            String outputFilePath
             )
             throws Exception
     {
         Security.addProvider(new BouncyCastleProvider());
-        encryptFile(inputFilePath + ".bpg", inputFilePath, publicKeyPath, false, false);
+        encryptFile(outputFilePath, inputFilePath, publicKeyPath, false, false);
     }
 
     public static void decrypt(

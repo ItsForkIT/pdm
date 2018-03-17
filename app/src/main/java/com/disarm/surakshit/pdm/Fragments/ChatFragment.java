@@ -108,8 +108,10 @@ public class ChatFragment extends Fragment {
             List<Contact> contacts = (List<Contact>) data.getSerializableExtra(ContactPickerActivity.RESULT_CONTACT_DATA);
             for (Contact contact : contacts) {
                 // process the contacts...
-
-                Toast.makeText(getContext(),contact.getFirstName(),Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(getActivity(),ChatActivity.class);
+                //intent.putExtra("number",contact.getPhone(0));
+                //startActivity(intent);
+                Toast.makeText(getContext(),contact.getPhone(0),Toast.LENGTH_SHORT).show();
             }
         }
     }

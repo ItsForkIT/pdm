@@ -119,13 +119,12 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void generateKey(){
-        RSAKeyPairGenerator rsaKeyPairGenerator = new RSAKeyPairGenerator();
         File dir = Environment.getExternalStoragePublicDirectory("DMS/pgpPrivate/");
         if(!dir.exists()) {
             dir.mkdir();
         }
         try {
-                rsaKeyPairGenerator.generate(Params.SOURCE_PHONE_NO, Params.PASS_PHRASE, Environment.getExternalStorageDirectory().getPath()+"/DMS/pgpPrivate/pri_"+Params.SOURCE_PHONE_NO+".bgp",Environment.getExternalStorageDirectory().getPath()+"/DMS/Working/pgpKey/pub_"+Params.SOURCE_PHONE_NO+".bgp");
+                RSAKeyPairGenerator.generate(Params.SOURCE_PHONE_NO, Params.PASS_PHRASE, Environment.getExternalStorageDirectory().getPath()+"/DMS/pgpPrivate/pri_"+Params.SOURCE_PHONE_NO+".bgp",Environment.getExternalStorageDirectory().getPath()+"/DMS/Working/pgpKey/pub_"+Params.SOURCE_PHONE_NO+".bgp");
             } catch (Exception e) {
                 e.printStackTrace();
                 Log.d("Error",e.toString());
