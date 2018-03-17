@@ -90,7 +90,7 @@ public class ChatFragment extends Fragment {
         Author me = new Author("9000000001","Anuj");
         Message msg9 = new Message("9",me,"text");
         msg9.setText("Okay... I am here");
-        addDialog(msg9,me,2);
+        //addDialog(msg9,me,2);
 
         addDialogList();
 
@@ -109,9 +109,12 @@ public class ChatFragment extends Fragment {
             for (Contact contact : contacts) {
                 // process the contacts...
                 Intent intent = new Intent(getActivity(),ChatActivity.class);
-                //intent.putExtra("number",contact.getPhone(0));
-                //startActivity(intent);
-                Toast.makeText(getContext(),contact.getPhone(0),Toast.LENGTH_SHORT).show();
+                String s = contact.getPhone(0);
+                if(s.contains("+")){
+                    s = s.substring(3,s.length());
+                }
+                intent.putExtra("number",s);
+                startActivity(intent);
             }
         }
     }
@@ -125,18 +128,18 @@ public class ChatFragment extends Fragment {
                 .withBorder(4)
                 .endConfig()
                 .round();
-        TextDrawable ic1 = builder.build(url, color1);
-        return ic1;
+        return builder.build(url, color1);
     }
 
     //Intent to start choose a contact from Contacts for new chat
     private void startContactActivity(){
         Intent intent = new Intent(getActivity(), ContactPickerActivity.class)
                 .putExtra(ContactPickerActivity.EXTRA_CONTACT_BADGE_TYPE, ContactPictureType.ROUND.name())
-                .putExtra(ContactPickerActivity.EXTRA_SHOW_CHECK_ALL, true)
+                .putExtra(ContactPickerActivity.EXTRA_SHOW_CHECK_ALL, false)
                 .putExtra(ContactPickerActivity.EXTRA_CONTACT_DESCRIPTION, ContactDescription.ADDRESS.name())
                 .putExtra(ContactPickerActivity.EXTRA_CONTACT_SORT_ORDER, ContactSortOrder.AUTOMATIC.name())
-                .putExtra(ContactPickerActivity.EXTRA_SELECT_CONTACTS_LIMIT,1);
+                .putExtra(ContactPickerActivity.EXTRA_SELECT_CONTACTS_LIMIT,1)
+                .putExtra(ContactPickerActivity.EXTRA_ONLY_CONTACTS_WITH_PHONE,true);
         startActivityForResult(intent, CONTACT_REQUEST);
     }
 

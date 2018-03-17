@@ -6,6 +6,7 @@ import android.os.Environment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.Window;
@@ -145,6 +146,8 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
     }
 
     private void populateChat(){
+        messagesListAdapter.clear();
+        messagesListAdapter.notifyDataSetChanged();
         final Box<Sender> senderBox = ((App)getApplication()).getBoxStore().boxFor(Sender.class);
         final Box<Receiver> receiverBox = ((App)getApplication()).getBoxStore().boxFor(Receiver.class);
         List<Sender> senders = senderBox.query().equal(Sender_.number,number).build().find();
@@ -300,8 +303,13 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                     File file = getNewFileObject();
                     kml.saveAsKML(file);
                     Storage storage = new Storage(getApplicationContext());
-                    File dest = Environment.getExternalStoragePublicDirectory("DMS/KML/Source/Latest/"+file.getName());
-                    storage.copy(file.getAbsolutePath(),dest.getAbsolutePath());
+                    File dest = Environment.getExternalStoragePublicDirectory("DMS/KML/Source/Latest/"+file.getName()+".kml");
+                    //storage.copy(file.getAbsolutePath(),dest.getAbsolutePath());
+                    try {
+                        FileUtils.copyFile(file,dest);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                     final Box<Sender> senderBox = ((App)getApplication()).getBoxStore().boxFor(Sender.class);
                     Sender sender = new Sender();
                     sender.setNumber(number);
@@ -359,6 +367,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                     senderBox.closeThreadResources();
                     populateChat();
                     //Generate Diff
+
                 }
                 return true;
             }
@@ -382,7 +391,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
         String inputPath = file.getAbsolutePath();
         String publicKeyPath = Environment.getExternalStoragePublicDirectory("DMS/Working/pgpKey/pub_"+number+".bgp").getAbsolutePath();
         String outputFilePath = Environment.getExternalStoragePublicDirectory("DMS/Working/SurakshitKml/"
-                +absoluteName(file.getName())+".bgp")
+                +file.getName()+".bgp")
                 .getAbsolutePath();
         try {
             KeyBasedFileProcessor.encrypt(inputPath,publicKeyPath,outputFilePath);
@@ -391,8 +400,4 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
         }
     }
 
-    private String absoluteName(String s){
-        int x = s.lastIndexOf(".");
-        return s.substring(0,x);
-    }
 }
