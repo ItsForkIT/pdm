@@ -303,7 +303,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                     File file = getNewFileObject();
                     kml.saveAsKML(file);
                     Storage storage = new Storage(getApplicationContext());
-                    File dest = Environment.getExternalStoragePublicDirectory("DMS/KML/Source/Latest/"+file.getName()+".kml");
+                    File dest = Environment.getExternalStoragePublicDirectory("DMS/KML/Source/LatestKml/"+file.getName()+".kml");
                     //storage.copy(file.getAbsolutePath(),dest.getAbsolutePath());
                     try {
                         FileUtils.copyFile(file,dest);
@@ -329,7 +329,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                 }
                 else{
                     KmlDocument kml = new KmlDocument();
-                    File latestSourceDir = Environment.getExternalStoragePublicDirectory("DMS/KML/Source/Latest");
+                    File latestSourceDir = Environment.getExternalStoragePublicDirectory("DMS/KML/Source/LatestKml");
                     File kmlFile = null;
                     for(File file : latestSourceDir.listFiles()){
                         if(file.getName().contains(number)){
