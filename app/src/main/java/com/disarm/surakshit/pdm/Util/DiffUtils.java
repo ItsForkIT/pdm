@@ -5,6 +5,7 @@ import android.os.Environment;
 
 import com.snatik.storage.Storage;
 
+import org.apache.commons.io.FilenameUtils;
 import org.osmdroid.views.overlay.infowindow.InfoWindow;
 
 import java.io.File;
@@ -50,11 +51,11 @@ public class DiffUtils {
 
     private static String getDeltaName(File source){
         File diffDir = Environment.getExternalStoragePublicDirectory("DMS/Working/SurakshitDiff");
-        String name = source.getName();
+        String name = FilenameUtils.getBaseName(source.getName());
         int version=0;
         for(File file : diffDir.listFiles()){
             if(file.getName().contains(name)){
-                String s = file.getName();
+                String s = FilenameUtils.getBaseName(file.getName());
                 version = Integer.parseInt(s.substring(s.lastIndexOf("_")+1, s.length()));
                 break;
             }
@@ -64,7 +65,7 @@ public class DiffUtils {
     }
 
     private static File getDestinationFile(File delta){
-        String deltaName = delta.getName();
+        String deltaName = FilenameUtils.getBaseName(delta.getName());
         return Environment.getExternalStoragePublicDirectory("DMS/KML/Dest/LatestKml/"+deltaName+".kml");
     }
 }

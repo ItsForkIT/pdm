@@ -39,6 +39,7 @@ import com.stfalcon.chatkit.messages.MessagesList;
 import com.stfalcon.chatkit.messages.MessagesListAdapter;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.osmdroid.bonuspack.kml.KmlDocument;
 
 import java.io.ByteArrayInputStream;
@@ -302,9 +303,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                     kml.mKmlRoot.setExtendedData("total","1");
                     File file = getNewFileObject();
                     kml.saveAsKML(file);
-                    Storage storage = new Storage(getApplicationContext());
-                    File dest = Environment.getExternalStoragePublicDirectory("DMS/KML/Source/LatestKml/"+file.getName()+".kml");
-                    //storage.copy(file.getAbsolutePath(),dest.getAbsolutePath());
+                    File dest = Environment.getExternalStoragePublicDirectory("DMS/KML/Source/LatestKml/"+FilenameUtils.getBaseName(file.getName())+".kml");
                     try {
                         FileUtils.copyFile(file,dest);
                     } catch (IOException e) {
@@ -391,7 +390,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
         String inputPath = file.getAbsolutePath();
         String publicKeyPath = Environment.getExternalStoragePublicDirectory("DMS/Working/pgpKey/pub_"+number+".bgp").getAbsolutePath();
         String outputFilePath = Environment.getExternalStoragePublicDirectory("DMS/Working/SurakshitKml/"
-                +file.getName()+".bgp")
+                +FilenameUtils.getBaseName(file.getName())+".bgp")
                 .getAbsolutePath();
         try {
             KeyBasedFileProcessor.encrypt(inputPath,publicKeyPath,outputFilePath);
