@@ -4,6 +4,9 @@ package com.disarm.surakshit.pdm.Encryption;
  * Created by bishakh on 2/9/18.
  */
 
+import android.os.Environment;
+
+import org.apache.commons.io.FilenameUtils;
 import org.bouncycastle.bcpg.ArmoredOutputStream;
 import org.bouncycastle.bcpg.CompressionAlgorithmTags;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -148,7 +151,10 @@ public class KeyBasedFileProcessor
                 }
 
                 InputStream unc = ld.getInputStream();
-                OutputStream fOut = new BufferedOutputStream(new FileOutputStream("/sdcard/dec-"+outFileName));
+
+                //Output path
+                File file = Environment.getExternalStoragePublicDirectory("DMS/KML/Dest/SourceKml/"+outFileName);
+                OutputStream fOut = new BufferedOutputStream(new FileOutputStream(file.getAbsolutePath()));
 
                 Streams.pipeAll(unc, fOut);
 
@@ -300,6 +306,7 @@ public class KeyBasedFileProcessor
             throws Exception
     {
         Security.addProvider(new BouncyCastleProvider());
-        decryptFile(inputFilePath, keyFilePath, passphrase.toCharArray(), new File(inputFilePath) + "out");
+        File f = Environment.getExternalStoragePublicDirectory(inputFilePath);
+        decryptFile(inputFilePath, keyFilePath, passphrase.toCharArray(), FilenameUtils.getBaseName(f.getName()));
     }
 }

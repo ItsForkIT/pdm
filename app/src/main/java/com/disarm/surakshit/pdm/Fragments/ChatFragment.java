@@ -85,19 +85,9 @@ public class ChatFragment extends Fragment {
             }
         });
 
-
-        //Dummy chat
-        Author me = new Author("9000000001","Anuj");
-        Message msg9 = new Message("9",me,"text");
-        msg9.setText("Okay... I am here");
-        //addDialog(msg9,me,2);
-
         addDialogList();
 
-
         return view;
-
-
     }
 
     @Override
@@ -149,7 +139,6 @@ public class ChatFragment extends Fragment {
         dialogsListAdapter.addItem(dialog);
     }
 
-
     //Add dialogs available in the db
     private void addDialogList(){
         final Box<Sender> senderBox = ((App)getActivity().getApplication()).getBoxStore().boxFor(Sender.class);
@@ -182,5 +171,21 @@ public class ChatFragment extends Fragment {
             }
         });
         t.start();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        dialogsListAdapter.clear();
+        dialogsListAdapter.notifyDataSetChanged();
+        addDialogList();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        dialogsListAdapter.clear();
+        dialogsListAdapter.notifyDataSetChanged();
+        addDialogList();
     }
 }

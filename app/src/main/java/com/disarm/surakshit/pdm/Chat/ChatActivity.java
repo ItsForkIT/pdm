@@ -70,7 +70,10 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
     Author me,other;
     MessagesListAdapter<Message> messagesListAdapter;
     ArrayList<Message> allMessages;
+    int total_msg_receiver=0;
     private final byte CONTENT_AUDIO=1,CONTENT_VIDEO=2;
+    HandlerThread ht;
+    Handler h;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,7 +86,9 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
             ab.setBackgroundDrawable(d);
         }
 
-
+        ht = new HandlerThread("newMsg");
+        ht.start();
+        h = new Handler(ht.getLooper());
 
         number = getIntent().getStringExtra("number");
         String receiversName = ContactUtil.getContactName(getApplicationContext(),number);
@@ -104,6 +109,21 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
 
         setMessageInputSendListener();
 
+        h.post(new Runnable() {
+            @Override
+            public void run() {
+                final Box<Receiver> receiverBox = ((App)getApplication()).getBoxStore().boxFor(Receiver.class);
+                List<Receiver> receivers = receiverBox.query().equal(Receiver_.number,number).build().find();
+                if(receivers.size()!=0){
+                    Receiver receiver = receivers.get(0);
+                    if(total_msg_receiver < receiver.getTotalMsg()){
+                        populateChat();
+                    }
+                }
+                h.postDelayed(this,1000);
+            }
+        });
+
     }
 
     @Override
@@ -115,40 +135,6 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
             return message.isVideo();
         }
         return false;
-    }
-
-    private void addMessage(Message msg){
-        messagesListAdapter.addToStart(msg,true);
-    }
-
-    private void dummyChat(){
-        Message msg = new Message("1",other,"text");
-        msg.setText("Hi there!!!");
-        Message msg2 = new Message("2",me,"image");
-        msg2.setImageurl("test.jpg");
-        Message msg3 = new Message("3",other,"text");
-        msg3.setText("This looks yum ");
-        Message msg4 = new Message("4",me,"text");
-        msg4.setText("Yeah!!! Come over my place to have it");
-        Message msg5 = new Message("5",me,"video");
-        msg5.setUrl("test.mp4");
-        Message msg6 = new Message("6",other,"text");
-        msg6.setText("come fast...");
-        Message msg7 = new Message("7",me,"audio");
-        msg7.setUrl("test.mp3");
-        Message msg8 = new Message("8",other,"map");
-        msg8.setImageurl("map.png");
-        Message msg9 = new Message("9",me,"text");
-        msg9.setText("Okay... I am here");
-        addMessage(msg);
-        addMessage(msg2);
-        addMessage(msg3);
-        addMessage(msg4);
-        addMessage(msg5);
-        addMessage(msg6);
-        addMessage(msg7);
-        addMessage(msg8);
-        addMessage(msg9);
     }
 
     private void populateChat(){
@@ -194,6 +180,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                     msg = receiver.mKmlRoot.getExtendedData(nextKey);
                     nextKey = getTimeStampFromMsg(msg);
                     allMessages.add(ChatUtils.getMessageObject(msg, other));
+                    total_msg_receiver++;
                 }
                 sortAllMessage();
                 runOnUiThread(new Runnable() {
@@ -370,8 +357,6 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                     senderBox.put(s);
                     senderBox.closeThreadResources();
                     populateChat();
-
-                    //Generate Diff
                     generateDiff(kmlFile);
                 }
                 return true;
@@ -406,7 +391,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
     }
 
     private void generateDiff(final File dest){
-        HandlerThread ht = new HandlerThread("Diff");
+        final HandlerThread ht = new HandlerThread("Diff");
         ht.start();
         Handler diffHandler = new Handler(ht.getLooper());
         diffHandler.post(new Runnable() {
@@ -425,7 +410,14 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                ht.quit();
             }
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        ht.quit();
     }
 }
