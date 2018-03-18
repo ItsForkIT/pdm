@@ -2,10 +2,14 @@ package com.disarm.surakshit.pdm.Chat;
 
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.util.DiffUtil;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -26,6 +30,7 @@ import com.disarm.surakshit.pdm.DB.DBEntities.Sender_;
 import com.disarm.surakshit.pdm.Encryption.KeyBasedFileProcessor;
 import com.disarm.surakshit.pdm.R;
 import com.disarm.surakshit.pdm.Util.ContactUtil;
+import com.disarm.surakshit.pdm.Util.DiffUtils;
 import com.disarm.surakshit.pdm.Util.Params;
 import com.github.javiersantos.materialstyleddialogs.MaterialStyledDialog;
 import com.github.javiersantos.materialstyleddialogs.enums.Duration;
@@ -365,8 +370,9 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                     senderBox.put(s);
                     senderBox.closeThreadResources();
                     populateChat();
-                    //Generate Diff
 
+                    //Generate Diff
+                    generateDiff(kmlFile);
                 }
                 return true;
             }
@@ -399,4 +405,27 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
         }
     }
 
+    private void generateDiff(final File dest){
+        HandlerThread ht = new HandlerThread("Diff");
+        ht.start();
+        Handler diffHandler = new Handler(ht.getLooper());
+        diffHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                File source =null;
+                File sourceDir = Environment.getExternalStoragePublicDirectory("DMS/KML/Source/SourceKml");
+                for(File file : sourceDir.listFiles()){
+                    if(file.getName().contains(number)){
+                        source =file;
+                        break;
+                    }
+                }
+                try {
+                    DiffUtils.createDiff(source,dest);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
 }

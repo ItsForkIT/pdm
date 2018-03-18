@@ -5,10 +5,12 @@ import android.os.Environment;
 
 import com.snatik.storage.Storage;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.osmdroid.views.overlay.infowindow.InfoWindow;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.regex.Pattern;
 
 import ie.wombat.jbdiff.JBDiff;
@@ -21,7 +23,7 @@ import ie.wombat.jbdiff.JBPatch;
 public class DiffUtils {
 
 
-    public static boolean createDiff(File source,File destination){
+    public static boolean createDiff(File source,File destination) throws IOException {
         File delta = Environment.getExternalStoragePublicDirectory("/DMS/Working/SurakshitDiff/"+getDeltaName(source));
         try {
             JBDiff.bsdiff(source, destination, delta);
@@ -49,7 +51,7 @@ public class DiffUtils {
         return false;
     }
 
-    private static String getDeltaName(File source){
+    private static String getDeltaName(File source) throws IOException {
         File diffDir = Environment.getExternalStoragePublicDirectory("DMS/Working/SurakshitDiff");
         String name = FilenameUtils.getBaseName(source.getName());
         int version=0;
@@ -57,6 +59,7 @@ public class DiffUtils {
             if(file.getName().contains(name)){
                 String s = FilenameUtils.getBaseName(file.getName());
                 version = Integer.parseInt(s.substring(s.lastIndexOf("_")+1, s.length()));
+                FileUtils.forceDelete(file);
                 break;
             }
         }
