@@ -38,6 +38,9 @@ dependencies {
     //PSync
     compile files('libs/psync-pc-jar-with-dependencies.jar')
 
+    //Diff
+    compile files('libs/jbdiff.jar')
+
     //OSMDroid
     compile 'org.osmdroid:osmdroid-android:5.6.5'
     //OSMBonusPack
