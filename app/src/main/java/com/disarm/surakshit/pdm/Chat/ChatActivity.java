@@ -288,25 +288,26 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
         messageInput.setInputListener(new MessageInput.InputListener() {
             @Override
             public boolean onSubmit(CharSequence input) {
-                if(messagesListAdapter.getItemCount() == 0){
+                final Box<Sender> senderBox = ((App) getApplication()).getBoxStore().boxFor(Sender.class);
+                List<Sender> senders = senderBox.query().contains(Sender_.number, number).build().find();
+                if(messagesListAdapter.getItemCount() == 0 || senders.size() == 0) {
                     KmlDocument kml = new KmlDocument();
-                    String extendedDataFormat = ChatUtils.getExtendedDataFormatName(input.toString(),"text","none");
-                    kml.mKmlRoot.setExtendedData("source",extendedDataFormat);
-                    kml.mKmlRoot.setExtendedData("total","1");
+                    String extendedDataFormat = ChatUtils.getExtendedDataFormatName(input.toString(), "text", "none");
+                    kml.mKmlRoot.setExtendedData("source", extendedDataFormat);
+                    kml.mKmlRoot.setExtendedData("total", "1");
                     File file = getNewFileObject();
                     kml.saveAsKML(file);
-                    File dest = Environment.getExternalStoragePublicDirectory("DMS/KML/Source/LatestKml/"+FilenameUtils.getBaseName(file.getName())+".kml");
+                    File dest = Environment.getExternalStoragePublicDirectory("DMS/KML/Source/LatestKml/" + FilenameUtils.getBaseName(file.getName()) + ".kml");
                     try {
-                        FileUtils.copyFile(file,dest);
+                        FileUtils.copyFile(file, dest);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    final Box<Sender> senderBox = ((App)getApplication()).getBoxStore().boxFor(Sender.class);
                     Sender sender = new Sender();
                     sender.setNumber(number);
                     sender.setLastMessage(extendedDataFormat);
                     sender.setLastUpdated(true);
-                    String kmlString="";
+                    String kmlString = "";
                     try {
                         kmlString = FileUtils.readFileToString(file);
                     } catch (IOException e) {
@@ -314,39 +315,37 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                     }
                     sender.setKml(kmlString);
                     senderBox.put(sender);
-                    senderBox.closeThreadResources();
                     populateChat();
                     encryptIt(file);
                 }
-                else{
+                else {
                     KmlDocument kml = new KmlDocument();
                     File latestSourceDir = Environment.getExternalStoragePublicDirectory("DMS/KML/Source/LatestKml");
                     File kmlFile = null;
-                    for(File file : latestSourceDir.listFiles()){
-                        if(file.getName().contains(number)){
+                    for (File file : latestSourceDir.listFiles()) {
+                        if (file.getName().contains(number)) {
                             kml.parseKMLFile(file);
-                            kmlFile =file;
+                            kmlFile = file;
                             break;
                         }
                     }
                     String nextKey = "source";
                     String msg = "";
-                    while(kml.mKmlRoot.mExtendedData.containsKey(nextKey)){
+                    while (kml.mKmlRoot.mExtendedData.containsKey(nextKey)) {
                         msg = kml.mKmlRoot.getExtendedData(nextKey);
                         nextKey = getTimeStampFromMsg(msg);
                     }
-                    String extendedDataFormat = ChatUtils.getExtendedDataFormatName(input.toString(),"text","none");
-                    kml.mKmlRoot.setExtendedData(nextKey,extendedDataFormat);
+                    String extendedDataFormat = ChatUtils.getExtendedDataFormatName(input.toString(), "text", "none");
+                    kml.mKmlRoot.setExtendedData(nextKey, extendedDataFormat);
                     int total = Integer.parseInt(kml.mKmlRoot.getExtendedData("total"));
                     total++;
-                    kml.mKmlRoot.setExtendedData("total",total+"");
+                    kml.mKmlRoot.setExtendedData("total", total + "");
                     kml.saveAsKML(kmlFile);
-                    final Box<Sender> senderBox = ((App)getApplication()).getBoxStore().boxFor(Sender.class);
-                    List<Sender> senderList = senderBox.query().contains(Sender_.number,number).build().find();
+                    List<Sender> senderList = senderBox.query().contains(Sender_.number, number).build().find();
                     Sender s = senderList.get(0);
                     s.setLastUpdated(true);
                     s.setLastMessage(extendedDataFormat);
-                    String kmlString="";
+                    String kmlString = "";
                     try {
                         assert kmlFile != null;
                         kmlString = FileUtils.readFileToString(kmlFile);
@@ -355,10 +354,10 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                     }
                     s.setKml(kmlString);
                     senderBox.put(s);
-                    senderBox.closeThreadResources();
                     populateChat();
                     generateDiff(kmlFile);
                 }
+                senderBox.closeThreadResources();
                 return true;
             }
         });

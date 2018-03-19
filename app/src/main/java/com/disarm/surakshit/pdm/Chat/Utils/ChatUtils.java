@@ -39,7 +39,7 @@ public class ChatUtils {
         DateFormat df = new SimpleDateFormat("yyyyMMddHHmmss", Locale.ENGLISH);
         try {
             Date d = df.parse(date);
-            message = new Message(Params.msg_id++ + "", author, type, d);
+            message = new Message(date, author, type, d);
             if(type.equals("text")){
                 message.setText(text);
             }

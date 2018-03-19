@@ -3,6 +3,8 @@ package com.disarm.surakshit.pdm.Fragments;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -54,7 +56,9 @@ public class ChatFragment extends Fragment {
     private final int CONTACT_REQUEST = 100;
     DialogsList dialogsList;
     DialogsListAdapter<DefaultDialog> dialogsListAdapter;
-    ArrayList<DefaultDialog> dialogArrayList;
+    ArrayList<String> dialogID;
+    HandlerThread ht;
+    Handler h;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -84,8 +88,17 @@ public class ChatFragment extends Fragment {
                 startActivity(i);
             }
         });
-
-        addDialogList();
+        dialogID = new ArrayList<>();
+        ht = new HandlerThread("Dialog");
+        ht.start();
+        h = new Handler(ht.getLooper());
+        h.post(new Runnable() {
+            @Override
+            public void run() {
+                addDialogList();
+                h.postDelayed(this,1000);
+            }
+        });
 
         return view;
     }
@@ -134,9 +147,11 @@ public class ChatFragment extends Fragment {
     }
 
     private void addDialog(Message msg , Author author , int unread){
-        DefaultDialog dialog = new DefaultDialog(Params.dialog_id++ +"",msg.getUser().getName(),msg,author,unread);
+        DefaultDialog dialog = new DefaultDialog(author.getId(),msg.getUser().getName(),msg,author,unread);
         dialog.setLastMessage(msg);
         dialogsListAdapter.addItem(dialog);
+        dialogID.add(author.getId());
+        dialogsListAdapter.notifyDataSetChanged();
     }
 
     //Add dialogs available in the db
@@ -144,12 +159,14 @@ public class ChatFragment extends Fragment {
         final Box<Sender> senderBox = ((App)getActivity().getApplication()).getBoxStore().boxFor(Sender.class);
         final Box<Receiver> receiverBox = ((App)getActivity().getApplication()).getBoxStore().boxFor(Receiver.class);
         final List<Sender> senders = senderBox.getAll();
-        dialogArrayList = new ArrayList<>();
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
                 for(int i=0;i<senders.size();i++){
                     Sender s = senders.get(i);
+                    if(dialogID.contains(s.getNumber())){
+                        continue;
+                    }
                     if((s.getLastUpdated())){
                         String msg = s.getLastMessage();
                         String number = s.getNumber();
@@ -168,6 +185,8 @@ public class ChatFragment extends Fragment {
                     }
                 }
                 dialogsListAdapter.sortByLastMessageDate();
+                senderBox.closeThreadResources();
+                receiverBox.closeThreadResources();
             }
         });
         t.start();
