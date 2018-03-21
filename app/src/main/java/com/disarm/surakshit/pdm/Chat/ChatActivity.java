@@ -74,6 +74,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
     private final byte CONTENT_AUDIO=1,CONTENT_VIDEO=2;
     HandlerThread ht;
     Handler h;
+    int previous_total =0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -105,7 +106,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
 
         setMessageInputAttachmentListener();
 
-        populateChat();
+        //populateChat();
 
         setMessageInputSendListener();
 
@@ -116,11 +117,9 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                 List<Receiver> receivers = receiverBox.query().equal(Receiver_.number,number).build().find();
                 if(receivers.size()!=0){
                     Receiver receiver = receivers.get(0);
-                    if(total_msg_receiver < receiver.getTotalMsg()){
-                        populateChat();
-                    }
+                    populateChat();
                 }
-                h.postDelayed(this,1000);
+                h.postDelayed(this,3000);
             }
         });
 
@@ -138,20 +137,25 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
     }
 
     private void populateChat(){
-        messagesListAdapter.clear();
-        messagesListAdapter.notifyDataSetChanged();
+
         final Box<Sender> senderBox = ((App)getApplication()).getBoxStore().boxFor(Sender.class);
         final Box<Receiver> receiverBox = ((App)getApplication()).getBoxStore().boxFor(Receiver.class);
+
         List<Sender> senders = senderBox.query().equal(Sender_.number,number).build().find();
         List<Receiver> receivers = receiverBox.query().equal(Receiver_.number,number).build().find();
+
         KmlDocument senderKml = new KmlDocument();
         KmlDocument receiversKml = new KmlDocument();
+
         if(senders.size() != 0 ) {
             String sendersKml = senders.get(0).getKml();
             InputStream sendersStream = new ByteArrayInputStream(sendersKml.getBytes(StandardCharsets.UTF_8));
             senderKml.parseKMLStream(sendersStream, null);
         }
         if(receivers.size() != 0){
+            Receiver receiver = receivers.get(0);
+            receiver.setUnread(0);
+            receiverBox.put(receiver);
             String receiverKml = receivers.get(0).getKml();
             InputStream receiversStream = new ByteArrayInputStream(receiverKml.getBytes(StandardCharsets.UTF_8));
             receiversKml.parseKMLStream(receiversStream, null);
@@ -163,36 +167,40 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
 
     private void extractMessageFromKML(final KmlDocument sender,final KmlDocument receiver){
 
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                allMessages = new ArrayList<>();
-                String nextKey = "source";
-                String msg;
-                while (sender.mKmlRoot.mExtendedData!=null && sender.mKmlRoot.mExtendedData.containsKey(nextKey)){
-                    msg = sender.mKmlRoot.getExtendedData(nextKey);
-                    nextKey = getTimeStampFromMsg(msg);
-                    allMessages.add(ChatUtils.getMessageObject(msg, me));
-                }
-                nextKey = "source";
+            allMessages = new ArrayList<>();
+            String nextKey = "source";
+            String msg;
+            while (sender.mKmlRoot.mExtendedData!=null && sender.mKmlRoot.mExtendedData.containsKey(nextKey)){
+                msg = sender.mKmlRoot.getExtendedData(nextKey);
+                nextKey = getTimeStampFromMsg(msg);
+                allMessages.add(ChatUtils.getMessageObject(msg, me));
+            }
+            nextKey = "source";
 
-                while (receiver.mKmlRoot.mExtendedData!=null && receiver.mKmlRoot.mExtendedData.containsKey(nextKey)){
-                    msg = receiver.mKmlRoot.getExtendedData(nextKey);
-                    nextKey = getTimeStampFromMsg(msg);
-                    allMessages.add(ChatUtils.getMessageObject(msg, other));
-                    total_msg_receiver++;
-                }
+            while (receiver.mKmlRoot.mExtendedData!=null && receiver.mKmlRoot.mExtendedData.containsKey(nextKey)){
+                msg = receiver.mKmlRoot.getExtendedData(nextKey);
+                nextKey = getTimeStampFromMsg(msg);
+                allMessages.add(ChatUtils.getMessageObject(msg, other));
+                total_msg_receiver++;
+            }
+            if(previous_total < allMessages.size()) {
                 sortAllMessage();
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        messagesListAdapter.addToEnd(allMessages,false);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                messagesListAdapter.clear();
+                                messagesListAdapter.notifyDataSetChanged();
+                            }
+                        });
+
+                        messagesListAdapter.addToEnd(allMessages, false);
                     }
                 });
-
+                previous_total = allMessages.size();
             }
-        });
-        t.start();
 
     }
 
@@ -373,7 +381,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
 
     private File getNewFileObject(){
         String fileName = generateRandomString() + "_" + Params.SOURCE_PHONE_NO + "_" + number + "_" + "50";
-        return Environment.getExternalStoragePublicDirectory("DMS/KML/Source/SourceKml/"+fileName);
+        return Environment.getExternalStoragePublicDirectory("DMS/KML/Source/SourceKml/"+fileName+".kml");
     }
 
     private void encryptIt(File file){

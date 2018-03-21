@@ -39,9 +39,16 @@ import com.stfalcon.chatkit.commons.ImageLoader;
 import com.stfalcon.chatkit.dialogs.DialogsList;
 import com.stfalcon.chatkit.dialogs.DialogsListAdapter;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 
 import io.objectbox.Box;
 import io.objectbox.BoxStore;
@@ -58,16 +65,11 @@ public class ChatFragment extends Fragment {
     DialogsList dialogsList;
     DialogsListAdapter<DefaultDialog> dialogsListAdapter;
     ArrayList<String> dialogID;
+    HashMap<String,String> lastMsg;
+    HashMap<String,Integer> unreadMap;
     HandlerThread ht;
     Handler h;
     FloatingActionButton fab;
-    Context context;
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        this.context = context;
-    }
 
     @Nullable
     @Override
@@ -98,13 +100,19 @@ public class ChatFragment extends Fragment {
             }
         });
         dialogID = new ArrayList<>();
+        lastMsg = new HashMap<>();
+        unreadMap = new HashMap<>();
         ht = new HandlerThread("Dialog");
         ht.start();
         h = new Handler(ht.getLooper());
         h.post(new Runnable() {
             @Override
             public void run() {
-                addDialogList();
+                try {
+                    addDialogList();
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
                 h.postDelayed(this,5000);
             }
         });
@@ -157,10 +165,7 @@ public class ChatFragment extends Fragment {
     }
 
     private void addDialog(final Message msg ,final Author author ,final int unread){
-        if(dialogID.contains(author.getId())){
-            return;
-        }
-        else {
+        if(!dialogID.contains(author.getId())){
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -169,55 +174,108 @@ public class ChatFragment extends Fragment {
                     dialogsListAdapter.addItem(dialog);
                     dialogsListAdapter.notifyDataSetChanged();
                     dialogID.add(author.getId());
+                    lastMsg.put(author.getId(),msg.getText());
+                    unreadMap.put(author.getId(),unread);
                 }
             });
         }
-    }
-
-    //Add dialogs available in the db
-    private void addDialogList(){
-        if(getActivity()==null)
-            return;
-        final Box<Sender> senderBox = ((App)getActivity().getApplication()).getBoxStore().boxFor(Sender.class);
-        final Box<Receiver> receiverBox = ((App)getActivity().getApplication()).getBoxStore().boxFor(Receiver.class);
-        final List<Sender> senders = senderBox.getAll();
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                for(int i=0;i<senders.size();i++){
-                    Sender s = senders.get(i);
-                    if(dialogID.contains(s.getNumber())){
-                        continue;
-                    }
-                    if((s.getLastUpdated())){
-                        String msg = s.getLastMessage();
-                        String number = s.getNumber();
-                        Author author = new Author(number, ContactUtil.getContactName(getActivity().getApplicationContext(),number));
-                        Message lastMessage = ChatUtils.getMessageObject(msg,author);
-                        addDialog(lastMessage,author,0);
-                    }
-                    else{
-                        String number = s.getNumber();
-                        List<Receiver> re = receiverBox.query().equal(Receiver_.number,number).build().find();
-                        Receiver r = re.get(0);
-                        Author author = new Author(number, ContactUtil.getContactName(getActivity().getApplicationContext(),number));
-                        String msg = r.getLastMessage();
-                        Message lastMessage = ChatUtils.getMessageObject(msg,author);
-                        addDialog(lastMessage,author,r.getUnread());
-                    }
+        else if(dialogID.contains(author.getId()) && unread != unreadMap.get(author.getId())){
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    dialogsListAdapter.deleteById(author.getId());
+                    dialogsListAdapter.notifyDataSetChanged();
+                    DefaultDialog dialog = new DefaultDialog(author.getId(), msg.getUser().getName(), msg, author, unread);
+                    dialog.setLastMessage(msg);
+                    dialogsListAdapter.addItem(dialog);
+                    dialogsListAdapter.notifyDataSetChanged();
+                    dialogsListAdapter.sortByLastMessageDate();
+                    unreadMap.put(author.getId(),unread);
                 }
+            });
+        }
+        else if(dialogID.contains(author.getId())){
+            String oldMsg = lastMsg.get(author.getId());
+            if(!oldMsg.equals(msg.getText())){
+                lastMsg.put(author.getId(),msg.getText());
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        dialogsListAdapter.deleteById(author.getId());
+                        dialogsListAdapter.notifyDataSetChanged();
+                        DefaultDialog dialog = new DefaultDialog(author.getId(), msg.getUser().getName(), msg, author, unread);
+                        dialog.setLastMessage(msg);
+                        dialogsListAdapter.addItem(dialog);
+                        dialogsListAdapter.notifyDataSetChanged();
                         dialogsListAdapter.sortByLastMessageDate();
                     }
                 });
-
-                senderBox.closeThreadResources();
-                receiverBox.closeThreadResources();
             }
-        });
-        t.start();
+        }
+
+
+
+    }
+
+    //Add dialogs available in the db
+    private void addDialogList() throws ParseException {
+        if(getActivity()==null)
+            return;
+
+
+        final Box<Sender> senderBox = ((App)getActivity().getApplication()).getBoxStore().boxFor(Sender.class);
+        final Box<Receiver> receiverBox = ((App)getActivity().getApplication()).getBoxStore().boxFor(Receiver.class);
+
+        final List<Sender> senders = senderBox.getAll();
+        final List<Receiver> receivers = receiverBox.getAll();
+
+        HashMap<String,Receiver> receiverHashMap = new HashMap<>();
+
+        for(int i=0;i<receivers.size();i++){
+            receiverHashMap.put(receivers.get(i).getNumber(),receivers.get(i));
+        }
+        HashSet<String> receiverDone = new HashSet<>();
+        for(int i=0;i<senders.size();i++){
+            Sender s = senders.get(i);
+            if(receiverHashMap.containsKey(s.getNumber())){
+                Receiver r = receiverHashMap.get(s.getNumber());
+                Author other = new Author(s.getNumber(),ContactUtil.getContactName(getActivity().getApplicationContext(),s.getNumber()));
+                DateFormat df = new SimpleDateFormat("yyyyMMddHHmmss", Locale.ENGLISH);
+                String senderDate = s.getLastMessage().split("-")[0];
+                String receiverDate = r.getLastMessage().split("-")[0];
+                Date sDate = df.parse(senderDate);
+                Date rDate = df.parse(receiverDate);
+                Message msg =  null;
+                if(sDate.before(rDate)){
+                    msg = ChatUtils.getMessageObject(r.getLastMessage(),other);
+                }
+                else{
+                    Author me = new Author(Params.SOURCE_PHONE_NO,ContactUtil.getContactName(getActivity().getApplicationContext(),r.getNumber()));
+                    msg = ChatUtils.getMessageObject(s.getLastMessage(),me);
+                }
+                int unread = r.getUnread();
+                addDialog(msg,other,unread);
+                receiverDone.add(r.getNumber());
+            }
+            else{
+                Author author = new Author(s.getNumber(),ContactUtil.getContactName(getActivity().getApplicationContext(),s.getNumber()));
+                Author me =  new Author(Params.SOURCE_PHONE_NO,ContactUtil.getContactName(getActivity().getApplicationContext(),s.getNumber()));
+                Message msg = ChatUtils.getMessageObject(s.getLastMessage(),me);
+                addDialog(msg,author,0);
+            }
+        }
+
+        for(int i=0;i<receivers.size();i++){
+            Receiver r = receivers.get(i);
+            if(receiverDone.contains(r.getNumber())) {
+
+            }
+            else{
+                Author author = new Author(r.getNumber(),ContactUtil.getContactName(getActivity().getApplicationContext(),r.getNumber()));
+                Message msg = ChatUtils.getMessageObject(r.getLastMessage(),author);
+                addDialog(msg,author,r.getUnread());
+            }
+        }
     }
 
     @Override
