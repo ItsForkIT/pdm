@@ -1,6 +1,7 @@
 package com.disarm.surakshit.pdm.Fragments;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -59,6 +60,15 @@ public class ChatFragment extends Fragment {
     ArrayList<String> dialogID;
     HandlerThread ht;
     Handler h;
+    FloatingActionButton fab;
+    Context context;
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        this.context = context;
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -71,15 +81,14 @@ public class ChatFragment extends Fragment {
             }
         });
 
-        FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.btn_new_message);
+        fab = (FloatingActionButton) view.findViewById(R.id.btn_new_message);
+        dialogsList.setAdapter(dialogsListAdapter);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                        startContactActivity();
+                startContactActivity();
             }
         });
-        dialogsList.setAdapter(dialogsListAdapter);
-
         dialogsListAdapter.setOnDialogClickListener(new DialogsListAdapter.OnDialogClickListener<DefaultDialog>() {
             @Override
             public void onDialogClick(DefaultDialog dialog) {
@@ -96,12 +105,13 @@ public class ChatFragment extends Fragment {
             @Override
             public void run() {
                 addDialogList();
-                h.postDelayed(this,1000);
+                h.postDelayed(this,5000);
             }
         });
-
         return view;
     }
+
+
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -143,19 +153,31 @@ public class ChatFragment extends Fragment {
                 .putExtra(ContactPickerActivity.EXTRA_CONTACT_SORT_ORDER, ContactSortOrder.AUTOMATIC.name())
                 .putExtra(ContactPickerActivity.EXTRA_SELECT_CONTACTS_LIMIT,1)
                 .putExtra(ContactPickerActivity.EXTRA_ONLY_CONTACTS_WITH_PHONE,true);
-        startActivityForResult(intent, CONTACT_REQUEST);
+        getActivity().startActivityForResult(intent, CONTACT_REQUEST);
     }
 
-    private void addDialog(Message msg , Author author , int unread){
-        DefaultDialog dialog = new DefaultDialog(author.getId(),msg.getUser().getName(),msg,author,unread);
-        dialog.setLastMessage(msg);
-        dialogsListAdapter.addItem(dialog);
-        dialogID.add(author.getId());
-        dialogsListAdapter.notifyDataSetChanged();
+    private void addDialog(final Message msg ,final Author author ,final int unread){
+        if(dialogID.contains(author.getId())){
+            return;
+        }
+        else {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    DefaultDialog dialog = new DefaultDialog(author.getId(), msg.getUser().getName(), msg, author, unread);
+                    dialog.setLastMessage(msg);
+                    dialogsListAdapter.addItem(dialog);
+                    dialogsListAdapter.notifyDataSetChanged();
+                    dialogID.add(author.getId());
+                }
+            });
+        }
     }
 
     //Add dialogs available in the db
     private void addDialogList(){
+        if(getActivity()==null)
+            return;
         final Box<Sender> senderBox = ((App)getActivity().getApplication()).getBoxStore().boxFor(Sender.class);
         final Box<Receiver> receiverBox = ((App)getActivity().getApplication()).getBoxStore().boxFor(Receiver.class);
         final List<Sender> senders = senderBox.getAll();
@@ -184,7 +206,13 @@ public class ChatFragment extends Fragment {
                         addDialog(lastMessage,author,r.getUnread());
                     }
                 }
-                dialogsListAdapter.sortByLastMessageDate();
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        dialogsListAdapter.sortByLastMessageDate();
+                    }
+                });
+
                 senderBox.closeThreadResources();
                 receiverBox.closeThreadResources();
             }
@@ -195,16 +223,10 @@ public class ChatFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        dialogsListAdapter.clear();
-        dialogsListAdapter.notifyDataSetChanged();
-        addDialogList();
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        dialogsListAdapter.clear();
-        dialogsListAdapter.notifyDataSetChanged();
-        addDialogList();
     }
 }

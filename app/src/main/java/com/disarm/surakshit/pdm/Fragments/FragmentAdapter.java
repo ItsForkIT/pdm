@@ -1,5 +1,6 @@
 package com.disarm.surakshit.pdm.Fragments;
 
+import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -17,6 +18,7 @@ public class FragmentAdapter extends FragmentStatePagerAdapter {
     @Override
     public Fragment getItem(int position) {
         if(position == 0){
+
             ChatFragment chat = new ChatFragment();
             return chat;
         }
@@ -30,5 +32,8 @@ public class FragmentAdapter extends FragmentStatePagerAdapter {
         return 2;
     }
 
-
+    @Override
+    public Parcelable saveState() {
+        return null;
+    }
 }

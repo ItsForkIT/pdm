@@ -98,11 +98,11 @@ public class UI_Map extends AppCompatActivity
     ScaleBarOverlay mScaleBarOverlay;
     IMapController mapController;
     final int MIN_ZOOM=14,MAX_ZOOM=19,PIXEL=256;
+    private boolean gpsService = false;
     SyncService syncService;
     public DCService myService;
     private boolean syncServiceBound = false;
     private boolean myServiceBound = false;
-    private boolean gpsService = false;
     public static int total_file=0;
     LocationManager lm;
     Handler currentMarkerLocation;

@@ -153,7 +153,7 @@ public class KeyBasedFileProcessor
                 InputStream unc = ld.getInputStream();
 
                 //Output path
-                File file = Environment.getExternalStoragePublicDirectory("DMS/KML/Dest/SourceKml/"+outFileName);
+                File file = Environment.getExternalStoragePublicDirectory("DMS/KML/Dest/SourceKml/"+outFileName+".kml");
                 OutputStream fOut = new BufferedOutputStream(new FileOutputStream(file.getAbsolutePath()));
 
                 Streams.pipeAll(unc, fOut);
