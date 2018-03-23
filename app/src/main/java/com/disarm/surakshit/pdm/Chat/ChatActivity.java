@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.provider.MediaStore;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -15,6 +16,8 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 
 import com.disarm.surakshit.pdm.Chat.Holders.IncomingAudioHolders;
@@ -105,8 +108,6 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
         setMessagesListAdapterListener();
 
         setMessageInputAttachmentListener();
-
-        //populateChat();
 
         setMessageInputSendListener();
 
@@ -287,6 +288,13 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                 wlp.gravity = Gravity.BOTTOM;
                 wlp.flags &= ~WindowManager.LayoutParams.FLAG_DIM_BEHIND;
                 window.setAttributes(wlp);
+                ImageButton camera = (ImageButton) view.findViewById(R.id.attach_camera);
+                camera.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        startCamera();
+                    }
+                });
                 materialDialog.show();
             }
         });
@@ -426,5 +434,11 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
     protected void onDestroy() {
         super.onDestroy();
         ht.quit();
+    }
+
+    private void startCamera(){
+        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+        File image = Environment.getExternalStoragePublicDirectory("DMS/Working/SurakshitImages/");
     }
 }
