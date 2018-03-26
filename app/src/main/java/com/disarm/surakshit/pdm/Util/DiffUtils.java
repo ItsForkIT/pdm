@@ -41,6 +41,7 @@ public class DiffUtils {
             File destination = getDestinationFile(delta);
             try {
                 JBPatch.bspatch(source, destination, delta);
+                FileUtils.forceDelete(delta);
                 return true;
             }
             catch (Exception  e){
@@ -58,9 +59,10 @@ public class DiffUtils {
         for(File file : diffDir.listFiles()){
             if(file.getName().contains(name)){
                 String s = FilenameUtils.getBaseName(file.getName());
-                version = Integer.parseInt(s.substring(s.lastIndexOf("_")+1, s.length()));
+                int temp = Integer.parseInt(s.substring(s.lastIndexOf("_")+1, s.length()));
+                if(temp>version)
+                    version = temp;
                 FileUtils.forceDelete(file);
-                break;
             }
         }
         version++;

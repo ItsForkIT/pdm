@@ -85,7 +85,7 @@
     public class MainActivity extends AppCompatActivity {
 
         private final int CONTACT_REQUEST = 100;
-        HandlerThread ht,ht_diff;
+        HandlerThread ht;
         Handler h,h_diff;
         static int total_kml=0;
         static HashSet<String> kmlFilesList;
@@ -160,12 +160,10 @@
                             }
                         }
                     }
-                    h.postDelayed(this,1000);
+                    h.postDelayed(this,1500);
                 }
             });
-            ht_diff = new HandlerThread("diff");
-            ht_diff.start();
-            h_diff = new Handler(ht_diff.getLooper());
+            h_diff = new Handler(ht.getLooper());
             h_diff.post(new Runnable() {
                 @Override
                 public void run() {
@@ -317,7 +315,7 @@
                             }
                         }
                     }
-                    h_diff.postDelayed(this,2000);
+                    h_diff.postDelayed(this,1500);
                 }
             });
 
@@ -349,7 +347,6 @@
         protected void onDestroy() {
             super.onDestroy();
             ht.quit();
-            ht_diff.quit();
             unbindAllService();
         }
 

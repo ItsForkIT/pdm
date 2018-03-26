@@ -113,7 +113,7 @@ public class ChatFragment extends Fragment {
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
-                h.postDelayed(this,5000);
+                h.postDelayed(this,1500);
             }
         });
         return view;

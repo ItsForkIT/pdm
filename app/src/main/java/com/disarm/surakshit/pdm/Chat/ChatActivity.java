@@ -117,10 +117,9 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                 final Box<Receiver> receiverBox = ((App)getApplication()).getBoxStore().boxFor(Receiver.class);
                 List<Receiver> receivers = receiverBox.query().equal(Receiver_.number,number).build().find();
                 if(receivers.size()!=0){
-                    Receiver receiver = receivers.get(0);
                     populateChat();
                 }
-                h.postDelayed(this,3000);
+                h.postDelayed(this,1500);
             }
         });
 
@@ -189,15 +188,10 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                messagesListAdapter.clear();
-                                messagesListAdapter.notifyDataSetChanged();
-                            }
-                        });
-
-                        messagesListAdapter.addToEnd(allMessages, false);
+                        if(! (messagesListAdapter.getItemCount()==0))
+                            messagesListAdapter.addToStart(allMessages.get(allMessages.size()-1),false);
+                        else
+                            messagesListAdapter.addToEnd(allMessages,false);
                     }
                 });
                 previous_total = allMessages.size();
