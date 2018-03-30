@@ -1,12 +1,17 @@
 package com.disarm.surakshit.pdm.Chat;
 
+import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.provider.MediaStore;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -19,7 +24,9 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.Toast;
 
+import com.disarm.surakshit.pdm.BuildConfig;
 import com.disarm.surakshit.pdm.Chat.Holders.IncomingAudioHolders;
 import com.disarm.surakshit.pdm.Chat.Holders.IncomingVideoHolders;
 import com.disarm.surakshit.pdm.Chat.Holders.OutgoingAudioHolders;
@@ -51,6 +58,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.osmdroid.bonuspack.kml.KmlDocument;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -70,6 +78,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
     MessageInput messageInput;
     ImageLoader load;
     String number;
+    String unique="";
     Author me,other;
     MessagesListAdapter<Message> messagesListAdapter;
     ArrayList<Message> allMessages;
@@ -78,6 +87,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
     HandlerThread ht;
     Handler h;
     int previous_total =0;
+    String last_file_name="";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -381,6 +391,14 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
         return new BigInteger(1, token).toString(16);
     }
 
+    private String generateRandomString(int size){
+        SecureRandom secureRandom = new SecureRandom();
+        byte[] token = new byte[size];
+        secureRandom.nextBytes(token);
+        return new BigInteger(1, token).toString(16);
+    }
+
+
     private File getNewFileObject(){
         String fileName = generateRandomString() + "_" + Params.SOURCE_PHONE_NO + "_" + number + "_" + "50";
         return Environment.getExternalStoragePublicDirectory("DMS/KML/Source/SourceKml/"+fileName+".kml");
@@ -432,7 +450,121 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
 
     private void startCamera(){
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-
-        File image = Environment.getExternalStoragePublicDirectory("DMS/Working/SurakshitImages/");
+        if(unique.equals("")){
+            File sourceDir = Environment.getExternalStoragePublicDirectory("DMS/KML/Source/SourceKml");
+            for(File file : sourceDir.listFiles()){
+                if(file.getName().contains(number)){
+                    String name = file.getName();
+                    unique = name.split("_")[0];
+                    break;
+                }
+            }
+            if(unique.equals("")){
+                File destDir = Environment.getExternalStoragePublicDirectory("DMS/KML/Dest/SourceKml");
+                for(File file : destDir.listFiles()){
+                    if(file.getName().contains(number)){
+                        String name = file.getName();
+                        unique = name.split("_")[0];
+                        break;
+                    }
+                }
+            }
+        }
+        if(unique.equals("")){
+            unique = generateRandomString();
+        }
+        String fileName = unique + "_" + Params.SOURCE_PHONE_NO + "_" + number + "_50_" + generateRandomString(8)+".jpeg";
+        File image = Environment.getExternalStoragePublicDirectory("DMS/Working/SurakshitImages/"+fileName);
+        Uri uri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID+".provider",image);
+        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT,uri);
+        cameraIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        last_file_name = image.getName();
+        startActivityForResult(cameraIntent,1000);
     }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == 1000 && resultCode == RESULT_OK) {
+            if(messagesListAdapter.getItemCount()==0){
+
+                final Box<Sender> senderBox = ((App) getApplication()).getBoxStore().boxFor(Sender.class);
+                List<Sender> senders = senderBox.query().contains(Sender_.number, number).build().find();
+
+                if(messagesListAdapter.getItemCount() == 0 || senders.size() == 0) {
+                    KmlDocument kml = new KmlDocument();
+                    String extendedDataFormat = ChatUtils.getExtendedDataFormatName(last_file_name, "image", "none");
+                    kml.mKmlRoot.setExtendedData("source", extendedDataFormat);
+                    kml.mKmlRoot.setExtendedData("total", "1");
+                    String fileName = last_file_name.split("_")[0] + "_" + Params.SOURCE_PHONE_NO + "_" + number +"_50.kml";
+                    File file =Environment.getExternalStoragePublicDirectory("DMS/KML/Source/SourceKml/"+fileName);
+                    kml.saveAsKML(file);
+                    File dest = Environment.getExternalStoragePublicDirectory("DMS/KML/Source/LatestKml/" + FilenameUtils.getBaseName(file.getName()) + ".kml");
+                    try {
+                        FileUtils.copyFile(file, dest);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    Sender sender = new Sender();
+                    sender.setNumber(number);
+                    sender.setLastMessage(extendedDataFormat);
+                    sender.setLastUpdated(true);
+                    String kmlString = "";
+                    try {
+                        kmlString = FileUtils.readFileToString(file);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    sender.setKml(kmlString);
+                    senderBox.put(sender);
+                    populateChat();
+                    encryptIt(file);
+                }
+                else {
+                    KmlDocument kml = new KmlDocument();
+                    File latestSourceDir = Environment.getExternalStoragePublicDirectory("DMS/KML/Source/LatestKml");
+                    File kmlFile = null;
+                    for (File file : latestSourceDir.listFiles()) {
+                        if (file.getName().contains(number)) {
+                            kml.parseKMLFile(file);
+                            kmlFile = file;
+                            break;
+                        }
+                    }
+                    String nextKey = "source";
+                    String msg = "";
+                    while (kml.mKmlRoot.mExtendedData.containsKey(nextKey)) {
+                        msg = kml.mKmlRoot.getExtendedData(nextKey);
+                        nextKey = getTimeStampFromMsg(msg);
+                    }
+                    String extendedDataFormat = ChatUtils.getExtendedDataFormatName(last_file_name, "image", "none");
+                    kml.mKmlRoot.setExtendedData(nextKey, extendedDataFormat);
+                    int total = Integer.parseInt(kml.mKmlRoot.getExtendedData("total"));
+                    total++;
+                    kml.mKmlRoot.setExtendedData("total", total + "");
+                    kml.saveAsKML(kmlFile);
+                    List<Sender> senderList = senderBox.query().contains(Sender_.number, number).build().find();
+                    Sender s = senderList.get(0);
+                    s.setLastUpdated(true);
+                    s.setLastMessage(extendedDataFormat);
+                    String kmlString = "";
+                    try {
+                        assert kmlFile != null;
+                        kmlString = FileUtils.readFileToString(kmlFile);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    s.setKml(kmlString);
+                    senderBox.put(s);
+                    populateChat();
+                    generateDiff(kmlFile);
+                }
+                senderBox.closeThreadResources();
+
+
+            }
+
+
+        }
+    }
+
+
 }
