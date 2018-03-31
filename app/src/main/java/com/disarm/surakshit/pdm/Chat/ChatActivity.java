@@ -83,11 +83,13 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
     MessagesListAdapter<Message> messagesListAdapter;
     ArrayList<Message> allMessages;
     int total_msg_receiver=0;
+    MaterialStyledDialog materialDialog;
     private final byte CONTENT_AUDIO=1,CONTENT_VIDEO=2;
     HandlerThread ht;
     Handler h;
     int previous_total =0;
     String last_file_name="";
+    public static Context appContext;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -103,7 +105,8 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
         ht = new HandlerThread("newMsg");
         ht.start();
         h = new Handler(ht.getLooper());
-
+        appContext = getApplicationContext();
+        allMessages = new ArrayList<>();
         number = getIntent().getStringExtra("number");
         String receiversName = ContactUtil.getContactName(getApplicationContext(),number);
         me = new Author(Params.SOURCE_PHONE_NO,"Me");
@@ -126,7 +129,9 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
             public void run() {
                 final Box<Receiver> receiverBox = ((App)getApplication()).getBoxStore().boxFor(Receiver.class);
                 List<Receiver> receivers = receiverBox.query().equal(Receiver_.number,number).build().find();
-                if(receivers.size()!=0){
+                final Box<Sender> senderBox = ((App)getApplication()).getBoxStore().boxFor(Sender.class);
+                List<Sender> senders = senderBox.query().equal(Sender_.number,number).build().find();
+                if(receivers.size()!=0 || senders.size()!=0){
                     populateChat();
                 }
                 h.postDelayed(this,1500);
@@ -176,8 +181,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
     }
 
     private void extractMessageFromKML(final KmlDocument sender,final KmlDocument receiver){
-
-            allMessages = new ArrayList<>();
+            allMessages.clear();
             String nextKey = "source";
             String msg;
             while (sender.mKmlRoot.mExtendedData!=null && sender.mKmlRoot.mExtendedData.containsKey(nextKey)){
@@ -186,7 +190,6 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                 allMessages.add(ChatUtils.getMessageObject(msg, me));
             }
             nextKey = "source";
-
             while (receiver.mKmlRoot.mExtendedData!=null && receiver.mKmlRoot.mExtendedData.containsKey(nextKey)){
                 msg = receiver.mKmlRoot.getExtendedData(nextKey);
                 nextKey = getTimeStampFromMsg(msg);
@@ -195,15 +198,9 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
             }
             if(previous_total < allMessages.size()) {
                 sortAllMessage();
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if(! (messagesListAdapter.getItemCount()==0))
-                            messagesListAdapter.addToStart(allMessages.get(allMessages.size()-1),false);
-                        else
-                            messagesListAdapter.addToEnd(allMessages,false);
-                    }
-                });
+                messagesListAdapter.clear();
+                messagesListAdapter.notifyDataSetChanged();
+                messagesListAdapter.addToEnd(allMessages,false);
                 previous_total = allMessages.size();
             }
 
@@ -274,7 +271,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
             @Override
             public void onAddAttachments() {
                 View view = getLayoutInflater().inflate(R.layout.dialog_attachment,null);
-                MaterialStyledDialog materialDialog = new MaterialStyledDialog.Builder(ChatActivity.this)
+                materialDialog = new MaterialStyledDialog.Builder(ChatActivity.this)
                         .setTitle(R.string.attachment)
                         .setCustomView(view,10,20,10,20)
                         .withDialogAnimation(true, Duration.FAST)
@@ -484,8 +481,6 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 1000 && resultCode == RESULT_OK) {
-            if(messagesListAdapter.getItemCount()==0){
-
                 final Box<Sender> senderBox = ((App) getApplication()).getBoxStore().boxFor(Sender.class);
                 List<Sender> senders = senderBox.query().contains(Sender_.number, number).build().find();
 
@@ -558,13 +553,13 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                     generateDiff(kmlFile);
                 }
                 senderBox.closeThreadResources();
-
-
+                materialDialog.dismiss();
             }
-
-
-        }
     }
 
-
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
+    }
 }

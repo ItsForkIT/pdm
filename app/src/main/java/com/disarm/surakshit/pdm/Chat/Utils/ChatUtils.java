@@ -1,8 +1,10 @@
 package com.disarm.surakshit.pdm.Chat.Utils;
 
 import android.os.Environment;
+import android.widget.Toast;
 
 import com.disarm.surakshit.pdm.Chat.Author;
+import com.disarm.surakshit.pdm.Chat.ChatActivity;
 import com.disarm.surakshit.pdm.Chat.Message;
 import com.disarm.surakshit.pdm.Util.Params;
 
@@ -44,7 +46,7 @@ public class ChatUtils {
                 message.setText(text);
             }
             else if(type.equals("image")){
-                String url = Environment.getExternalStoragePublicDirectory("DMS/Working/SurakshitImages/"+text).getAbsolutePath();
+                String url = "DMS/Working/SurakshitImages/"+text;
                 message.setImageurl(url);
             }
             else if(type.equals("map")){
