@@ -32,6 +32,7 @@ import com.disarm.surakshit.pdm.Chat.Holders.IncomingVideoHolders;
 import com.disarm.surakshit.pdm.Chat.Holders.OutgoingAudioHolders;
 import com.disarm.surakshit.pdm.Chat.Holders.OutgoingVideoHolders;
 import com.disarm.surakshit.pdm.Chat.Utils.ChatUtils;
+import com.disarm.surakshit.pdm.CollectMapDataActivity;
 import com.disarm.surakshit.pdm.DB.DBEntities.App;
 import com.disarm.surakshit.pdm.DB.DBEntities.Receiver;
 import com.disarm.surakshit.pdm.DB.DBEntities.Receiver_;
@@ -115,9 +116,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
         if (actionBar != null) {
             actionBar.setTitle(receiversName);
         }
-
         setChatConfig();
-
         setMessagesListAdapterListener();
 
         setMessageInputAttachmentListener();
@@ -294,6 +293,13 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                     @Override
                     public void onClick(View v) {
                         startCamera();
+                    }
+                });
+                ImageButton map = (ImageButton) view.findViewById(R.id.attach_map);
+                map.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        startMap();
                     }
                 });
                 materialDialog.show();
@@ -561,5 +567,10 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
     public void onBackPressed() {
         super.onBackPressed();
         finish();
+    }
+
+    public void startMap(){
+        Intent i = new Intent(this, CollectMapDataActivity.class);
+        startActivityForResult(i,777);
     }
 }
