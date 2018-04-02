@@ -75,5 +75,8 @@
     <string name="camera">Camera</string>
     <string name="attachment">Attachment</string>
     <string name="map">Map</string>
+    <string name="undo">UNDO</string>
+    <string name="draw">DRAW</string>
+    <string name="save_my_position">SAVE MY POSITION</string>
 
 </resources>

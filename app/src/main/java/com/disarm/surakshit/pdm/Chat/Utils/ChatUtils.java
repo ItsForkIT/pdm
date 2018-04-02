@@ -50,16 +50,16 @@ public class ChatUtils {
                 message.setImageurl(url);
             }
             else if(type.equals("map")){
-                String url = Environment.getExternalStoragePublicDirectory("DMS/Working/SurakshitMap/"+text).getAbsolutePath();
+                String url = "DMS/Working/SurakshitMap/"+text;
                 message.setImageurl(url);
                 message.setMapObjectID(mapObjectId);
             }
             else if(type.equals("audio")){
-                String url = Environment.getExternalStoragePublicDirectory("DMS/Working/SurakshitAudio/"+text).getAbsolutePath();
+                String url = "DMS/Working/SurakshitAudio/"+text;
                 message.setUrl(url);
             }
             else if(type.equals("video")){
-                String url = Environment.getExternalStoragePublicDirectory("DMS/Working/SurakshitVideos/"+text).getAbsolutePath();
+                String url = "DMS/Working/SurakshitVideos/"+text;
                 message.setUrl(url);
             }
         }

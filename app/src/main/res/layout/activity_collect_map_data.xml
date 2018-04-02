@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:theme="@style/AppTheme.NoActionBar"
     tools:context="com.disarm.surakshit.pdm.CollectMapDataActivity">
 
     <org.osmdroid.views.MapView
@@ -16,6 +17,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_add_data"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
@@ -23,5 +25,69 @@
         android:src="@drawable/ic_add_attachment"
         app:layout_constraintEnd_toEndOf="@+id/map_collect_data"
         app:layout_constraintTop_toTopOf="@+id/map_collect_data" />
+
+    <Button
+        android:id="@+id/btn_mapActivity_draw_save"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:visibility="invisible"
+        android:text="@string/draw"
+        app:layout_anchorGravity="top|left"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <Button
+        android:id="@+id/btn_mapActivity_cancel"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|start"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/cancel"
+        android:visibility="invisible"
+        app:layout_anchorGravity="top|right"
+        app:layout_constraintEnd_toEndOf="@+id/fab_add_data"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <Button
+        android:id="@+id/btn_mapActivity_undo_back"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="40dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/undo"
+        android:visibility="invisible"
+        app:layout_anchorGravity="top|center_horizontal"
+        app:layout_constraintEnd_toStartOf="@+id/btn_mapActivity_cancel"
+        app:layout_constraintHorizontal_bias="0.25"
+        app:layout_constraintStart_toEndOf="@+id/btn_mapActivity_draw_save"
+        app:layout_constraintTop_toTopOf="@+id/map_collect_data" />
+
+    <Button
+        android:id="@+id/btn_mapActivity_current_loc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:background="#FF4081"
+        android:text="@string/save_my_position"
+        android:textColor="#830707"
+        android:textSize="10sp"
+        app:layout_constraintEnd_toStartOf="@+id/btn_mapActivity_cancel"
+        app:layout_constraintHorizontal_bias="0.551"
+        app:layout_constraintStart_toEndOf="@+id/btn_mapActivity_draw_save"
+        app:layout_constraintTop_toTopOf="parent" />
+
 
 </android.support.constraint.ConstraintLayout>

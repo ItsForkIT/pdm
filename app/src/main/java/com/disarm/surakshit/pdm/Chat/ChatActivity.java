@@ -561,6 +561,9 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                 senderBox.closeThreadResources();
                 materialDialog.dismiss();
             }
+        if(requestCode == 777 && resultCode == -1){
+            populateChat();
+        }
     }
 
     @Override
@@ -570,7 +573,25 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
     }
 
     public void startMap(){
-        Intent i = new Intent(this, CollectMapDataActivity.class);
-        startActivityForResult(i,777);
+        Intent ii = new Intent(this, CollectMapDataActivity.class);
+        ii.putExtra("number",number);
+        File latestKmlDir = Environment.getExternalStoragePublicDirectory("DMS/KML/Source/LatestKml/");
+        File[] files = latestKmlDir.listFiles();
+        File latestKmlFile = null;
+        String fileName="";
+        for(int i=0;i<files.length;i++){
+            File file = files[i];
+            if(file.getName().contains(number)){
+                latestKmlFile = file;
+            }
+        }
+        if(latestKmlFile == null){
+            fileName = generateRandomString()+"_"+Params.SOURCE_PHONE_NO+"_"+number+"_50.kml";
+        }
+        else{
+            fileName = latestKmlFile.getName();
+        }
+        ii.putExtra("kml",fileName);
+        startActivityForResult(ii,777);
     }
 }

@@ -592,7 +592,6 @@ public class UI_Map extends AppCompatActivity
                 undo_back.setEnabled(true);
 
                 if(draw_save.getVisibility()==View.VISIBLE){
-
                     polygon_points.add(p);
                     final Marker marker = new Marker(map);
                     markerpoints.add(marker);

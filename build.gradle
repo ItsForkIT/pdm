@@ -16,6 +16,7 @@ buildscript {
 
 allprojects {
     repositories {
+        google()
         jcenter()
         flatDir {
             dirs 'libs'
@@ -23,7 +24,6 @@ allprojects {
         maven { url "https://jitpack.io" }
         maven { url "http://objectbox.net/beta-repo/" }
         maven { url 'https://dl.bintray.com/drummer-aidan/maven' }
-        google()
     }
 }
 
