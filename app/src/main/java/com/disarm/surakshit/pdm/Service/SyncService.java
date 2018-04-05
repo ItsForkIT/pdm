@@ -2,10 +2,12 @@ package com.disarm.surakshit.pdm.Service;
 
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Binder;
 import android.os.Environment;
 import android.os.IBinder;
 import android.util.Log;
+import android.widget.Toast;
 
 
 import com.disarm.surakshit.pdm.Util.Params;
@@ -41,6 +43,7 @@ public class SyncService extends Service {
     public Logger logger;
     private final IBinder syncServiceBinder = new SyncServiceBinder();
 
+    SharedPreferences sp;
     public SyncService() {
         source = Params.SOURCE_PHONE_NO;
         logger =new Logger(databaseDirectory,source);

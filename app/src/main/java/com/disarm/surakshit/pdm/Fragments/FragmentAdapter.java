@@ -21,8 +21,7 @@ public class FragmentAdapter extends FragmentStatePagerAdapter {
         if(position == 0){
             if(fm.getFragments().size()!=0)
                 return fm.getFragments().get(0);
-            ChatFragment chat = new ChatFragment();
-            return chat;
+            return new ChatFragment();
         }
         else{
             if(fm.getFragments().size()!=0)

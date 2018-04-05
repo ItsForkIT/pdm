@@ -89,7 +89,7 @@ public class CollectMapDataActivity extends AppCompatActivity {
         number = getIntent().getStringExtra("number");
         kmlFile = Environment.getExternalStoragePublicDirectory("DMS/KML/Source/LatestKml/"+kmlFileName);
         kml = new KmlDocument();
-        if(kmlFile!=null)
+        if(kmlFile.exists())
             kml.parseKMLFile(kmlFile);
         else
             kml.mKmlRoot.setExtendedData("total","0");
@@ -122,7 +122,7 @@ public class CollectMapDataActivity extends AppCompatActivity {
 
         }
         else{
-            currentPosition = new Marker(null);
+            currentPosition = new Marker(map);
             currentPosition.setPosition(new GeoPoint(l.getLatitude(),l.getLongitude()));
         }
         setMapTouch();
@@ -142,7 +142,7 @@ public class CollectMapDataActivity extends AppCompatActivity {
         map.setBuiltInZoomControls(true);
         map.setMultiTouchControls(true);
         IMapController mapController = map.getController();
-        mapController.setZoom(15);
+        mapController.setZoom(15.0);
         GeoPoint startPoint = new GeoPoint(23.5477,87.2931);
         mapController.setCenter(startPoint);
         CompassOverlay mCompassOverlay = new CompassOverlay(ctx, new InternalCompassOrientationProvider(ctx), map);
@@ -286,13 +286,13 @@ public class CollectMapDataActivity extends AppCompatActivity {
                     if(polygon_points.size() == 1) {
                         Marker marker = new Marker(map);
                         marker.setPosition(polygon_points.get(0));
-                        marker.setId(uniqueId);
+                        marker.setTitle(uniqueId);
                         KmlPlacemark kmlPlacemark = new KmlPlacemark(marker);
                         kml.mKmlRoot.add(kmlPlacemark);
                     }
                     else{
                         polygon.setPoints(polygon_points);
-                        polygon.setId(uniqueId);
+                        polygon.setTitle(uniqueId);
                         kml.mKmlRoot.addOverlay(polygon,kml);
                     }
                         String lastKey = getLatestKey();

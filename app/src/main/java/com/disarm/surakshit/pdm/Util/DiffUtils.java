@@ -7,6 +7,7 @@ import com.snatik.storage.Storage;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.osmdroid.bonuspack.kml.KmlDocument;
 import org.osmdroid.views.overlay.infowindow.InfoWindow;
 
 import java.io.File;
@@ -24,7 +25,7 @@ public class DiffUtils {
 
 
     public static boolean createDiff(File source,File destination) throws IOException {
-        File delta = Environment.getExternalStoragePublicDirectory("/DMS/Working/SurakshitDiff/"+getDeltaName(source));
+        File delta = Environment.getExternalStoragePublicDirectory("/DMS/Working/SurakshitDiff/"+getDeltaName(destination));
         try {
             JBDiff.bsdiff(source, destination, delta);
             return true;
@@ -55,17 +56,9 @@ public class DiffUtils {
     private static String getDeltaName(File source) throws IOException {
         File diffDir = Environment.getExternalStoragePublicDirectory("DMS/Working/SurakshitDiff");
         String name = FilenameUtils.getBaseName(source.getName());
-        int version=0;
-        for(File file : diffDir.listFiles()){
-            if(file.getName().contains(name)){
-                String s = FilenameUtils.getBaseName(file.getName());
-                int temp = Integer.parseInt(s.substring(s.lastIndexOf("_")+1, s.length()));
-                if(temp>version)
-                    version = temp;
-                FileUtils.forceDelete(file);
-            }
-        }
-        version++;
+        KmlDocument kml = new KmlDocument();
+        kml.parseKMLFile(source);
+        int version = Integer.parseInt(kml.mKmlRoot.getExtendedData("total"))-1;
         return name+"_"+version+".diff";
     }
 

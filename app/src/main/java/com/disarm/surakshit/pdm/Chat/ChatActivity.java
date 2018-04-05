@@ -40,6 +40,7 @@ import com.disarm.surakshit.pdm.DB.DBEntities.Sender;
 import com.disarm.surakshit.pdm.DB.DBEntities.Sender_;
 import com.disarm.surakshit.pdm.Encryption.KeyBasedFileProcessor;
 import com.disarm.surakshit.pdm.R;
+import com.disarm.surakshit.pdm.ShowMapDataActivity;
 import com.disarm.surakshit.pdm.Util.ContactUtil;
 import com.disarm.surakshit.pdm.Util.DiffUtils;
 import com.disarm.surakshit.pdm.Util.Params;
@@ -197,10 +198,16 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
             }
             if(previous_total < allMessages.size()) {
                 sortAllMessage();
-                messagesListAdapter.clear();
-                messagesListAdapter.notifyDataSetChanged();
-                messagesListAdapter.addToEnd(allMessages,false);
-                previous_total = allMessages.size();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        messagesListAdapter.clear();
+                        messagesListAdapter.notifyDataSetChanged();
+                        messagesListAdapter.addToEnd(allMessages,false);
+                        previous_total = allMessages.size();
+                    }
+                });
+
             }
 
     }
@@ -258,6 +265,18 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                 if(message.isImage()){
                     Intent i = new Intent(ChatActivity.this, ImageViewActivity.class);
                     i.putExtra("url",message.getImageUrl());
+                    startActivity(i);
+                }
+                else if(message.isMap()){
+                    Intent i = new Intent(ChatActivity.this, ShowMapDataActivity.class);
+                    if(message.getUser().getId().equals(Params.SOURCE_PHONE_NO)){
+                        i.putExtra("who","me");
+                    }
+                    else{
+                        i.putExtra("who","other");
+                    }
+                    i.putExtra("number",number);
+                    i.putExtra("uniqueId",message.getMapObjectID());
                     startActivity(i);
                 }
             }
@@ -563,6 +582,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
             }
         if(requestCode == 777 && resultCode == -1){
             populateChat();
+            materialDialog.dismiss();
         }
     }
 

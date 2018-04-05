@@ -89,7 +89,8 @@
             android:theme="@style/AppTheme" />
         <activity android:name=".Chat.ChatActivity" />
         <activity android:name=".Chat.ImageViewActivity" />
-        <activity android:name=".CollectMapDataActivity"></activity>
+        <activity android:name=".CollectMapDataActivity" />
+        <activity android:name=".ShowMapDataActivity"></activity>
     </application>
 
 </manifest>

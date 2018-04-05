@@ -7,6 +7,7 @@
     import android.content.DialogInterface;
     import android.content.Intent;
     import android.content.ServiceConnection;
+    import android.content.SharedPreferences;
     import android.content.pm.PackageManager;
     import android.graphics.drawable.GradientDrawable;
     import android.location.LocationListener;
@@ -61,6 +62,7 @@
     import org.apache.commons.io.FileUtils;
     import org.apache.commons.io.FilenameUtils;
     import org.osmdroid.bonuspack.kml.KmlDocument;
+    import org.osmdroid.bonuspack.kml.KmlPoint;
 
     import java.io.File;
     import java.io.FileNotFoundException;
@@ -84,7 +86,6 @@
 
     public class MainActivity extends AppCompatActivity {
 
-        private final int CONTACT_REQUEST = 100;
         HandlerThread ht;
         Handler h,h_diff;
         static int total_kml=0;
@@ -100,7 +101,6 @@
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_main);
-
             final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
             setSupportActionBar(toolbar);
             FragmentAdapter fragmentAdapter = new FragmentAdapter(getSupportFragmentManager());
@@ -136,7 +136,12 @@
                     File[] kmlfiles = kmlDir.listFiles();
                     if(kmlfiles.length > total_kml){
                         for(File file : kmlfiles) {
-                            if(!file.getName().contains(Params.SOURCE_PHONE_NO)){
+                            try {
+                                if (!file.getName().contains(Params.SOURCE_PHONE_NO)) {
+                                    continue;
+                                }
+                            }
+                            catch (Exception e){
                                 continue;
                             }
                             if(!kmlFilesList.contains(FilenameUtils.getBaseName(file.getName()))){
@@ -251,6 +256,9 @@
                     else{
                         for(File diff : diffFiles){
                             String split[] = diff.getName().split("_");
+                            if(split[1].equals(Params.SOURCE_PHONE_NO)){
+                                continue;
+                            }
                             String identifier = split[0];
                             File source = sourceFiles.get(identifier);
                             if(DiffUtils.applyPatch(source,diff)){
@@ -259,7 +267,6 @@
                                 String number = split[1];
                                 List<Receiver> receivers = receiverBox.query().equal(Receiver_.number,number).build().find();
                                 List<Sender> senders = senderBox.query().equal(Sender_.number,number).build().find();
-
                                 Receiver receiver = receivers.get(0);
                                 File latestkml = Environment.getExternalStoragePublicDirectory("DMS/KML/Dest/LatestKml");
                                 for(File kml : latestkml.listFiles() ){
@@ -447,9 +454,26 @@
         }
 
         private void startService(){
-            final Intent syncServiceIntent = new Intent(getBaseContext(), SyncService.class);
-            bindService(syncServiceIntent, syncServiceConnection, Context.BIND_AUTO_CREATE);
-            startService(syncServiceIntent);
+            final HandlerThread htd = new HandlerThread("Sync");
+            htd.start();
+            final Handler h = new Handler(htd.getLooper());
+            h.post(new Runnable() {
+                @Override
+                public void run() {
+                    if(Params.SOURCE_PHONE_NO == null){
+                        SharedPreferences sp = getSharedPreferences("Surakshit",MODE_PRIVATE);
+                        Params.SOURCE_PHONE_NO = sp.getString("phone_no",null);
+                        h.postDelayed(this,1000);
+                    }
+                    else{
+                        final Intent syncServiceIntent = new Intent(getBaseContext(), SyncService.class);
+                        bindService(syncServiceIntent, syncServiceConnection, Context.BIND_AUTO_CREATE);
+                        startService(syncServiceIntent);
+                        htd.quit();
+                    }
+                }
+            });
+
 
             //final Intent myServiceIntent = new Intent(getBaseContext(), DCService.class);
             //bindService(myServiceIntent, myServiceConnection, Context.BIND_AUTO_CREATE);
@@ -543,6 +567,7 @@
         }
 
         protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+            int CONTACT_REQUEST = 100;
             if (requestCode == 5 && resultCode == 0) {
                 String provider = Settings.Secure.getString(getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
                 if (provider != null) {
