@@ -322,6 +322,13 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                     }
                 });
                 materialDialog.show();
+                ImageButton video = (ImageButton) view.findViewById(R.id.attach_video);
+                video.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        startVideo();
+                    }
+                });
             }
         });
     }
@@ -504,14 +511,55 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
         startActivityForResult(cameraIntent,1000);
     }
 
+    private void startVideo(){
+        Intent cameraIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+        if(unique.equals("")){
+            File sourceDir = Environment.getExternalStoragePublicDirectory("DMS/KML/Source/SourceKml");
+            for(File file : sourceDir.listFiles()){
+                if(file.getName().contains(number)){
+                    String name = file.getName();
+                    unique = name.split("_")[0];
+                    break;
+                }
+            }
+            if(unique.equals("")){
+                File destDir = Environment.getExternalStoragePublicDirectory("DMS/KML/Dest/SourceKml");
+                for(File file : destDir.listFiles()){
+                    if(file.getName().contains(number)){
+                        String name = file.getName();
+                        unique = name.split("_")[0];
+                        break;
+                    }
+                }
+            }
+        }
+        if(unique.equals("")){
+            unique = generateRandomString();
+        }
+        String fileName = unique + "_" + Params.SOURCE_PHONE_NO + "_" + number + "_50_" + generateRandomString(8)+".mp4";
+        File image = Environment.getExternalStoragePublicDirectory("DMS/Working/SurakshitVideos/"+fileName);
+        Uri uri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID+".provider",image);
+        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT,uri);
+        cameraIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        cameraIntent.putExtra(MediaStore.EXTRA_DURATION_LIMIT,10);
+        last_file_name = image.getName();
+        startActivityForResult(cameraIntent,1001);
+    }
+
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == 1000 && resultCode == RESULT_OK) {
+        if (requestCode == 1000 || requestCode == 1001 && resultCode == RESULT_OK) {
                 final Box<Sender> senderBox = ((App) getApplication()).getBoxStore().boxFor(Sender.class);
                 List<Sender> senders = senderBox.query().contains(Sender_.number, number).build().find();
-
+                String type = "";
+                if(requestCode == 1000){
+                    type = "image";
+                }
+                else {
+                    type = "video";
+                }
                 if(messagesListAdapter.getItemCount() == 0 || senders.size() == 0) {
                     KmlDocument kml = new KmlDocument();
-                    String extendedDataFormat = ChatUtils.getExtendedDataFormatName(last_file_name, "image", "none");
+                    String extendedDataFormat = ChatUtils.getExtendedDataFormatName(last_file_name, type, "none");
                     kml.mKmlRoot.setExtendedData("source", extendedDataFormat);
                     kml.mKmlRoot.setExtendedData("total", "1");
                     String fileName = last_file_name.split("_")[0] + "_" + Params.SOURCE_PHONE_NO + "_" + number +"_50.kml";
@@ -555,7 +603,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                         msg = kml.mKmlRoot.getExtendedData(nextKey);
                         nextKey = getTimeStampFromMsg(msg);
                     }
-                    String extendedDataFormat = ChatUtils.getExtendedDataFormatName(last_file_name, "image", "none");
+                    String extendedDataFormat = ChatUtils.getExtendedDataFormatName(last_file_name, type, "none");
                     kml.mKmlRoot.setExtendedData(nextKey, extendedDataFormat);
                     int total = Integer.parseInt(kml.mKmlRoot.getExtendedData("total"));
                     total++;
