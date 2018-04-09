@@ -1,4 +1,4 @@
-# pdm
+# Codename: pdm
 Implementation of Android Application for acquisition of situational data and seamless data transfer among devices
 
 ![build passing](https://travis-ci.org/ItsForkIT/pdm.svg?branch=master)
@@ -17,7 +17,12 @@ The terms used in this Privacy Policy have the same meanings as in our Terms and
 
 ## Information Collection and Use
 
-For a better experience, while using our Service, we may require you to provide us with certain personally identifiable information, including but not limited to android.permission.RECORD_AUDIO,android.permission.READ_PHONE_STATE,android.permission.READ_CONTACTS. The information that we request is retained on your device and is not collected by me in any way.
+For a better experience, while using our Service, we may require you to provide us with certain personally identifiable information, including but not limited to
+* `android.permission.RECORD_AUDIO`
+* `android.permission.READ_PHONE_STATE`
+* `android.permission.READ_CONTACTS`  
+
+The information that we request is retained on your device and is not collected by us in any way.
 
 ## Security
 
@@ -29,7 +34,7 @@ This Service may contain links to other sites. If you click on a third-party lin
 
 ## Children’s Privacy
 
-These Services do not address anyone under the age of 13. We do not knowingly collect personally identifiable information from children under 13. In the case we discover that a child under 13 has provided me with personal information, we immediately delete this from our servers. If you are a parent or guardian and you are aware that your child has provided us with personal information, please contact us so that we will be able to do necessary actions.
+These Services do not address anyone under the age of 13. We do not knowingly collect personally identifiable information from children under 13. In the case we discover that a child under 13 has provided us with personal information, we immediately delete this from our servers. If you are a parent or guardian and you are aware that your child has provided us with personal information, please contact us so that we will be able to do necessary actions.
 
 ## Changes to This Privacy Policy
 
