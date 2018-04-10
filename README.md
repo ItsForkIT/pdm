@@ -3,7 +3,8 @@ Implementation of Android Application for acquisition of situational data and se
 
 ![build passing](https://travis-ci.org/ItsForkIT/pdm.svg?branch=master)
 
-[Download Latest APK](https://github.com/ItsForkIT/pdm/releases/latest)
+* [Download latest APK](https://github.com/ItsForkIT/pdm/releases/latest) BEWARE OF DRAGONS! Not all features are tested and we are not responsible for nuclear war!  
+* [Download latest stable APK](https://github.com/ItsForkIT/pdm/releases/download/v69/Surakshit_New_UI.apk)
  
 # Privacy Policy
 
