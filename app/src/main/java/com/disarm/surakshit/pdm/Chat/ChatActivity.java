@@ -488,16 +488,6 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                     break;
                 }
             }
-            if(unique.equals("")){
-                File destDir = Environment.getExternalStoragePublicDirectory("DMS/KML/Dest/SourceKml");
-                for(File file : destDir.listFiles()){
-                    if(file.getName().contains(number)){
-                        String name = file.getName();
-                        unique = name.split("_")[0];
-                        break;
-                    }
-                }
-            }
         }
         if(unique.equals("")){
             unique = generateRandomString();
@@ -522,16 +512,6 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                     break;
                 }
             }
-            if(unique.equals("")){
-                File destDir = Environment.getExternalStoragePublicDirectory("DMS/KML/Dest/SourceKml");
-                for(File file : destDir.listFiles()){
-                    if(file.getName().contains(number)){
-                        String name = file.getName();
-                        unique = name.split("_")[0];
-                        break;
-                    }
-                }
-            }
         }
         if(unique.equals("")){
             unique = generateRandomString();
@@ -547,7 +527,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == 1000 || requestCode == 1001 && resultCode == RESULT_OK) {
+        if ((requestCode == 1000 || requestCode == 1001) && resultCode == RESULT_OK) {
                 final Box<Sender> senderBox = ((App) getApplication()).getBoxStore().boxFor(Sender.class);
                 List<Sender> senders = senderBox.query().contains(Sender_.number, number).build().find();
                 String type = "";
@@ -643,13 +623,12 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
     public void startMap(){
         Intent ii = new Intent(this, CollectMapDataActivity.class);
         ii.putExtra("number",number);
-        File latestKmlDir = Environment.getExternalStoragePublicDirectory("DMS/KML/Source/LatestKml/");
+        File latestKmlDir = Environment.getExternalStoragePublicDirectory("DMS/KML/Source/SourceKml/");
         File[] files = latestKmlDir.listFiles();
         File latestKmlFile = null;
         String fileName="";
-        for(int i=0;i<files.length;i++){
-            File file = files[i];
-            if(file.getName().contains(number)){
+        for (File file : files) {
+            if (file.getName().contains(number)) {
                 latestKmlFile = file;
             }
         }

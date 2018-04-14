@@ -77,6 +77,7 @@ public class CollectMapDataActivity extends AppCompatActivity {
     ArrayList<Marker> markerpoints=new ArrayList<>();
     String kmlFileName;
     String number;
+    boolean source = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -89,10 +90,12 @@ public class CollectMapDataActivity extends AppCompatActivity {
         number = getIntent().getStringExtra("number");
         kmlFile = Environment.getExternalStoragePublicDirectory("DMS/KML/Source/LatestKml/"+kmlFileName);
         kml = new KmlDocument();
-        if(kmlFile.exists())
+        if(kmlFile.exists()) {
             kml.parseKMLFile(kmlFile);
+            source = true;
+        }
         else
-            kml.mKmlRoot.setExtendedData("total","0");
+            kml.mKmlRoot.setExtendedData("total", "0");
         setMapData();
         fab = (FloatingActionButton) findViewById(R.id.fab_add_data);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -302,6 +305,15 @@ public class CollectMapDataActivity extends AppCompatActivity {
                         total++;
                         kml.mKmlRoot.setExtendedData("total", total + "");
                         kml.saveAsKML(kmlFile);
+                        if(!source){
+                            File dest = Environment.getExternalStoragePublicDirectory("DMS/KML/Source/SourceKml/"+FilenameUtils.getBaseName(kmlFile.getName()) + ".kml");
+                            try {
+                                FileUtils.copyFile(kmlFile,dest);
+                                encryptIt(dest);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
                         final Box<Sender> senderBox = ((App) getApplication()).getBoxStore().boxFor(Sender.class);
                         List<Sender> senderList = senderBox.query().contains(Sender_.number, number).build().find();
                         Sender s;
@@ -329,13 +341,6 @@ public class CollectMapDataActivity extends AppCompatActivity {
                             generateDiff(kmlFile);
                         else{
                             setResult(RESULT_OK);
-                            File dest = Environment.getExternalStoragePublicDirectory("DMS/KML/Source/LatestKml/" + FilenameUtils.getBaseName(kmlFile.getName()) + ".kml");
-                            try {
-                                FileUtils.copyFile(kmlFile, dest);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                            encryptIt(kmlFile);
                             finish();
                         }
 
