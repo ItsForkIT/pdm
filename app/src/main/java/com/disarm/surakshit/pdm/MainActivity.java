@@ -590,10 +590,15 @@
                     // process the contacts...
                     Intent intent = new Intent(this,ChatActivity.class);
                     String s = contact.getPhone(0);
-                    if(s.contains("+")){
-                        s = s.substring(3,s.length());
+                    String num = "";
+                    for(int i= s.length()-1;i>=0;i--){
+                        if( s.charAt(i) >='0' && s.charAt(i) <='9' ){
+                            num = num + s.charAt(i);
+                        }
                     }
-                    intent.putExtra("number",s);
+                    StringBuilder sb = new StringBuilder(num);
+                    sb = sb.reverse();
+                    intent.putExtra("number",sb.toString());
                     startActivity(intent);
                 }
             }
