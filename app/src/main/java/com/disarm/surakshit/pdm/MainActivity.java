@@ -201,8 +201,9 @@
                             String split[] = fileName.split("_");
                             if(myDiffFiles.containsKey(split[0])){
                                 File diff = myDiffFiles.get(split[0]);
-                                String version = FilenameUtils.getBaseName(diff.getName()).split("_")[4];
-                                if(!version.equals(split[4])){
+                                int version = Integer.parseInt(FilenameUtils.getBaseName(diff.getName()).split("_")[4]);
+                                int curr_version = Integer.parseInt(split[4]);
+                                if(curr_version < version){
                                     File source = sourceFiles.get(split[0]);
                                     if(DiffUtils.applyPatch(source,diff)){
                                         try {
