@@ -131,11 +131,25 @@ public class ChatFragment extends Fragment {
                 // process the contacts...
                 Intent intent = new Intent(getActivity(),ChatActivity.class);
                 String s = contact.getPhone(0);
-                if(s.contains("+")){
-                    s = s.substring(3,s.length());
+                StringBuilder ph = new StringBuilder();
+                StringBuilder sb = new StringBuilder(s);
+                int i=10;
+                int charPos = sb.length()-1;
+                while(i>0){
+                    if(sb.charAt(charPos) >= '0' && sb.charAt(charPos)<='9'){
+                        ph.append(sb.charAt(charPos));
+                        i--;
+                    }
+                    charPos--;
                 }
-                intent.putExtra("number",s);
-                startActivity(intent);
+                ph = ph.reverse();
+                if(ph.length()!=10){
+                    Toast.makeText(getContext(),"Invalid phone number",Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    intent.putExtra("number", ph.toString());
+                    startActivity(intent);
+                }
             }
         }
     }
