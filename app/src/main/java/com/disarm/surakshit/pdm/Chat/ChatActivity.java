@@ -329,6 +329,13 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                         startVideo();
                     }
                 });
+                ImageButton audio = (ImageButton) view.findViewById(R.id.attach_audio);
+                audio.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        startAudio();
+                    }
+                });
             }
         });
     }
@@ -640,5 +647,18 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
         }
         ii.putExtra("kml",fileName);
         startActivityForResult(ii,777);
+    }
+
+    public void startAudio(){
+        View view = getLayoutInflater().inflate(R.layout.dialog_audio_record,null);
+        MaterialStyledDialog materialStyledDialog = new MaterialStyledDialog.Builder(ChatActivity.this)
+                .setTitle(R.string.attachment)
+                .setCustomView(view,10,20,10,20)
+                .withDialogAnimation(true, Duration.FAST)
+                .setCancelable(true)
+                .setStyle(Style.HEADER_WITH_TITLE)
+                .withDarkerOverlay(true)
+                .build();
+        materialDialog.dismiss();
     }
 }

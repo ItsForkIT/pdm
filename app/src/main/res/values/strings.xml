@@ -78,5 +78,6 @@
     <string name="undo">UNDO</string>
     <string name="draw">DRAW</string>
     <string name="save_my_position">SAVE MY POSITION</string>
+    <string name="record">Record</string>
 
 </resources>

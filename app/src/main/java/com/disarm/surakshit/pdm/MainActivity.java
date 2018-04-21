@@ -177,10 +177,16 @@
                     File sourceDestDir = Environment.getExternalStoragePublicDirectory("DMS/KML/Dest/SourceKml");
                     File[] diffFiles = diffDir.listFiles();
                     HashMap<String,File> myDiffFiles = new HashMap<>();
+                    HashMap<String,Integer> latestVersion = new HashMap<>();
+
                     for(File file : diffFiles){
-                        String[] name = file.getName().split("_");
-                        if(name[2].equals(Params.SOURCE_PHONE_NO)){
+                        String[] name = FilenameUtils.getBaseName(file.getName()).split("_");
+                        if(!latestVersion.containsKey(name[0])){
+                            latestVersion.put(name[0],Integer.parseInt(name[4]));
+                        }
+                        if(name[2].equals(Params.SOURCE_PHONE_NO) && Integer.parseInt(name[4]) >= latestVersion.get(name[0])){
                             myDiffFiles.put(name[0],file);
+                            latestVersion.put(name[0],Integer.parseInt(name[4]));
                         }
                     }
 
@@ -475,9 +481,6 @@
             });
 
 
-            //final Intent myServiceIntent = new Intent(getBaseContext(), DCService.class);
-            //bindService(myServiceIntent, myServiceConnection, Context.BIND_AUTO_CREATE);
-            //startService(myServiceIntent);
 
             if (!LocationState.with(MainActivity.this).locationServicesEnabled()){
                 enableGPS();
