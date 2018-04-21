@@ -288,6 +288,18 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
         messageInput.setAttachmentsListener(new MessageInput.AttachmentsListener() {
             @Override
             public void onAddAttachments() {
+                File keyDir = Environment.getExternalStoragePublicDirectory("DMS/Working/pgpKey");
+                boolean isKey = false;
+                for(File file : keyDir.listFiles()){
+                    if(file.getName().contains(number)){
+                        isKey = true;
+                        break;
+                    }
+                }
+                if(!isKey){
+                    Toast.makeText(ChatActivity.this,"No security key found",Toast.LENGTH_LONG).show();
+                    return;
+                }
                 View view = getLayoutInflater().inflate(R.layout.dialog_attachment,null);
                 materialDialog = new MaterialStyledDialog.Builder(ChatActivity.this)
                         .setTitle(R.string.attachment)
@@ -344,6 +356,18 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
         messageInput.setInputListener(new MessageInput.InputListener() {
             @Override
             public boolean onSubmit(CharSequence input) {
+                File keyDir = Environment.getExternalStoragePublicDirectory("DMS/Working/pgpKey");
+                boolean isKey = false;
+                for(File file : keyDir.listFiles()){
+                    if(file.getName().contains(number)){
+                        isKey = true;
+                        break;
+                    }
+                }
+                if(!isKey){
+                    Toast.makeText(ChatActivity.this,"No security key found",Toast.LENGTH_LONG).show();
+                    return false;
+                }
                 final Box<Sender> senderBox = ((App) getApplication()).getBoxStore().boxFor(Sender.class);
                 List<Sender> senders = senderBox.query().contains(Sender_.number, number).build().find();
                 if(messagesListAdapter.getItemCount() == 0 || senders.size() == 0) {
