@@ -30,7 +30,7 @@ public class SyncService extends Service {
 
     private static String sdcard = Environment.getExternalStorageDirectory().toString();
     private String syncDirectory = sdcard +"/DMS/Working/";
-    private String mapDirectory = sdcard +"/DMS/Map/";
+    private String mapDirectory = sdcard +"/osmdroid/";
     private String databaseDirectory = sdcard + "/DMS/";
     private static String databaseName = "fileDB.txt";
     static String line;

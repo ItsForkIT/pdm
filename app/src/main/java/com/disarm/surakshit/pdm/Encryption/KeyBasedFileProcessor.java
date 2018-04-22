@@ -6,6 +6,7 @@ package com.disarm.surakshit.pdm.Encryption;
 
 import android.os.Environment;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.bouncycastle.bcpg.ArmoredOutputStream;
 import org.bouncycastle.bcpg.CompressionAlgorithmTags;
@@ -157,7 +158,8 @@ public class KeyBasedFileProcessor
                 OutputStream fOut = new BufferedOutputStream(new FileOutputStream(file.getAbsolutePath()));
 
                 Streams.pipeAll(unc, fOut);
-
+                File latestKml = Environment.getExternalStoragePublicDirectory("DMS/KML/Dest/LatestKml/"+FilenameUtils.getBaseName(outFileName)+"_0.kml");
+                FileUtils.copyFile(file,latestKml);
                 fOut.close();
             }
             else if (message instanceof PGPOnePassSignatureList)

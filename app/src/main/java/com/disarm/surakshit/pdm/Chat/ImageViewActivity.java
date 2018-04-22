@@ -34,6 +34,6 @@ public class ImageViewActivity extends AppCompatActivity {
             height = 2450;
         if(width > 2450)
             width = 2450;
-        Picasso.with(this).load(f).resize(width,height).into(image);
+        Picasso.get().load(f).resize(width,height).into(image);
     }
 }
