@@ -13,7 +13,12 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 public class LatLonUtil {
+    static GeoPoint center = null;
+
     public static GeoPoint getBoundaryOfTiles(){
+        if(center != null){
+            return center;
+        }
         File zipFile = Environment.getExternalStoragePublicDirectory("osmdroid/tiles.zip");
         ZipFile f;
         try {
@@ -82,7 +87,8 @@ public class LatLonUtil {
                 }
             }
         }
-        return new GeoPoint(tile2lat((minXmaxY+minXminY+maxXmaxY+maxXminY)/4,minZoomLevel),tile2lon((minX+maxX)/2,minZoomLevel));
+        center = new GeoPoint(tile2lat((minXmaxY+minXminY+maxXmaxY+maxXminY)/4,minZoomLevel),tile2lon((minX+maxX)/2,minZoomLevel));
+        return center;
     }
 
 

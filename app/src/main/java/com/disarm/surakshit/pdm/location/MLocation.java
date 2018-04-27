@@ -18,6 +18,7 @@ by Almalence Inc. All Rights Reserved.
 
 package com.disarm.surakshit.pdm.location;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.location.Location;
 import android.location.LocationListener;
@@ -46,6 +47,7 @@ public class MLocation
 	static Context context_con;
 	public static boolean isGPS = false;
 
+	@SuppressLint("MissingPermission")
 	public static void subscribe(Context context)
 	{
 		context_con=context;
@@ -105,6 +107,7 @@ public class MLocation
 		}
 	}
 
+	@SuppressLint("MissingPermission")
 	private static Location getLastChanceLocation(Context ctx)
 	{
 		LocationManager lm = (LocationManager) ctx.getSystemService(Context.LOCATION_SERVICE);

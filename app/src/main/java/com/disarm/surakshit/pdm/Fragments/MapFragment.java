@@ -70,11 +70,24 @@ public class MapFragment extends Fragment {
         Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx));
         map.setBuiltInZoomControls(false);
         map.setMultiTouchControls(true);
-        IMapController mapController = map.getController();
+        final IMapController mapController = map.getController();
         mapController.setZoom(15.0);
-        GeoPoint startPoint = LatLonUtil.getBoundaryOfTiles();
-        if(startPoint!=null)
-            mapController.setCenter(startPoint);
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                final GeoPoint startPoint = LatLonUtil.getBoundaryOfTiles();
+                if(startPoint!=null) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mapController.setCenter(startPoint);
+                        }
+                    });
+
+                }
+            }
+        });
+        thread.start();
         CompassOverlay mCompassOverlay = new CompassOverlay(ctx, new InternalCompassOrientationProvider(ctx), map);
         mCompassOverlay.enableCompass();
         map.getOverlays().add(mCompassOverlay);

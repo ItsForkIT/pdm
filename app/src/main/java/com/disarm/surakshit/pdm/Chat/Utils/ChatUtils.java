@@ -22,7 +22,10 @@ public class ChatUtils {
 
     
     public static String getExtendedDataFormatName(String text,String type,String mapID){
-        return getTimeStamp()+"-"+type+"-"+mapID+"-"+text;
+        String lat = ChatActivity.currLoc.getLatitude()+"";
+        String lon = ChatActivity.currLoc.getLongitude()+"";
+        String latlon = lat + "_" + lon;
+        return getTimeStamp()+"-"+type+"-"+mapID+"-"+text+"-"+latlon;
     }
 
     public static String getTimeStamp(){
@@ -33,7 +36,7 @@ public class ChatUtils {
     public static Message getMessageObject(String extendedData, Author author){
         Message message = null;
         Pattern p = Pattern.compile("-");
-        String[] s = p.split(extendedData,4);
+        String[] s = p.split(extendedData,5);
         String date = s[0];
         String type = s[1];
         String mapObjectId = s[2];

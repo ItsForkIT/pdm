@@ -1,12 +1,9 @@
 package com.disarm.surakshit.pdm.Chat;
 
-import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.location.Location;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -15,13 +12,10 @@ import android.support.v4.content.FileProvider;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.util.DiffUtil;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -39,15 +33,16 @@ import com.disarm.surakshit.pdm.DB.DBEntities.Receiver_;
 import com.disarm.surakshit.pdm.DB.DBEntities.Sender;
 import com.disarm.surakshit.pdm.DB.DBEntities.Sender_;
 import com.disarm.surakshit.pdm.Encryption.KeyBasedFileProcessor;
+import com.disarm.surakshit.pdm.GetLocationActivity;
 import com.disarm.surakshit.pdm.R;
 import com.disarm.surakshit.pdm.ShowMapDataActivity;
 import com.disarm.surakshit.pdm.Util.ContactUtil;
 import com.disarm.surakshit.pdm.Util.DiffUtils;
 import com.disarm.surakshit.pdm.Util.Params;
+import com.disarm.surakshit.pdm.location.MLocation;
 import com.github.javiersantos.materialstyleddialogs.MaterialStyledDialog;
 import com.github.javiersantos.materialstyleddialogs.enums.Duration;
 import com.github.javiersantos.materialstyleddialogs.enums.Style;
-import com.snatik.storage.Storage;
 import com.squareup.picasso.Picasso;
 import com.stfalcon.chatkit.commons.ImageLoader;
 import com.stfalcon.chatkit.messages.MessageHolders;
@@ -58,9 +53,9 @@ import com.stfalcon.chatkit.messages.MessagesListAdapter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.osmdroid.bonuspack.kml.KmlDocument;
+import org.osmdroid.util.GeoPoint;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -91,10 +86,18 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
     Handler h;
     int previous_total =0;
     String last_file_name="";
-    public static Context appContext;
+    public static GeoPoint currLoc = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Location l = MLocation.getLocation(getApplicationContext());
+        if(l==null){
+            Intent i = new Intent(this, GetLocationActivity.class);
+            startActivityForResult(i,6666);
+        }
+        else{
+            currLoc = new GeoPoint(l.getLatitude(),l.getLongitude());
+        }
         setContentView(R.layout.activity_chat);
         messagesList = (MessagesList) findViewById(R.id.messagesList);
         messageInput = (MessageInput) findViewById(R.id.input);
@@ -107,7 +110,6 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
         ht = new HandlerThread("newMsg");
         ht.start();
         h = new Handler(ht.getLooper());
-        appContext = getApplicationContext();
         allMessages = new ArrayList<>();
         number = getIntent().getStringExtra("number");
         String receiversName = ContactUtil.getContactName(getApplicationContext(),number);
@@ -642,6 +644,16 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
         if(requestCode == 777 && resultCode == -1){
             populateChat();
             materialDialog.dismiss();
+        }
+
+        if(requestCode == 6666){
+            if(resultCode == 1){
+                currLoc = new GeoPoint(data.getDoubleExtra("lat",0.0),data.getDoubleExtra("lon",0.0));
+            }
+            else{
+                Toast.makeText(this,"Something went wrong!!! You can't proceed further",Toast.LENGTH_SHORT).show();
+                finish();
+            }
         }
     }
 

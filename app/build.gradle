@@ -1,14 +1,14 @@
 apply plugin: 'com.android.application'
 apply plugin: 'io.objectbox'
 android {
-    compileSdkVersion 25
+    compileSdkVersion 27
     buildToolsVersion '27.0.3'
 
 
     defaultConfig {
         applicationId "com.disarm.surakshit.pdm"
         minSdkVersion 19
-        targetSdkVersion 25
+        targetSdkVersion 27
         versionCode 1
         versionName "1.0"
         multiDexEnabled true
@@ -28,11 +28,11 @@ android {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     //Support Library
-    implementation 'com.android.support:support-v4:25.4.0'
+    implementation 'com.android.support:support-v4:27.1.0'
     implementation 'com.android.support:multidex:1.0.3'
-    implementation 'com.android.support:appcompat-v7:25.4.0'
-    implementation 'com.android.support:design:25.4.0'
-    implementation 'com.android.support:cardview-v7:25.4.0'
+    implementation 'com.android.support:appcompat-v7:27.1.0'
+    implementation 'com.android.support:design:27.1.0'
+    implementation 'com.android.support:cardview-v7:27.1.0'
     implementation 'com.android.support.constraint:constraint-layout:1.1.0'
     implementation 'org.apache.commons:commons-lang3:3.6'
     //PSync
@@ -46,8 +46,7 @@ dependencies {
     //OSMBonusPack
     implementation(name: 'osmbonuspack_6.5.1', ext: 'aar')
 
-    //Library to do storage tasks
-    implementation 'com.snatik:storage:2.1.0'
+
 
     //Chat UI Library - ChatKit
     implementation 'com.github.stfalcon:chatkit:0.2.2'
