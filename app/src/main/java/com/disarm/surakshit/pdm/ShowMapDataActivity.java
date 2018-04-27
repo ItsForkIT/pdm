@@ -14,6 +14,7 @@ import com.disarm.surakshit.pdm.DB.DBEntities.Receiver;
 import com.disarm.surakshit.pdm.DB.DBEntities.Receiver_;
 import com.disarm.surakshit.pdm.DB.DBEntities.Sender;
 import com.disarm.surakshit.pdm.DB.DBEntities.Sender_;
+import com.disarm.surakshit.pdm.Util.LatLonUtil;
 import com.disarm.surakshit.pdm.Util.Params;
 
 import org.osmdroid.api.IMapController;
@@ -63,8 +64,9 @@ public class ShowMapDataActivity extends AppCompatActivity {
         map.setMultiTouchControls(true);
         IMapController mapController = map.getController();
         mapController.setZoom(15.0);
-        GeoPoint startPoint = new GeoPoint(23.5477,87.2931);
-        mapController.setCenter(startPoint);
+        GeoPoint startPoint = LatLonUtil.getBoundaryOfTiles();
+        if(startPoint!=null)
+            mapController.setCenter(startPoint);
         CompassOverlay mCompassOverlay = new CompassOverlay(ctx, new InternalCompassOrientationProvider(ctx), map);
         mCompassOverlay.enableCompass();
         map.getOverlays().add(mCompassOverlay);
@@ -97,12 +99,14 @@ public class ShowMapDataActivity extends AppCompatActivity {
                 if( overlay instanceof Polygon){
                     if(((Polygon) overlay).getTitle().equals(uniqueId)){
                         map.getOverlays().add(overlay);
+                        mapController.setCenter(((Polygon) overlay).getPoints().get(0));
                         break;
                     }
                 }
                 else if( overlay instanceof Marker){
                     if(((Marker) overlay).getTitle().equals(uniqueId)){
                         map.getOverlays().add(overlay);
+                        mapController.setCenter(((Marker) overlay).getPosition());
                         break;
                     }
                 }

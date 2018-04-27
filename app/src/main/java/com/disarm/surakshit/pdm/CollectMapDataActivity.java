@@ -24,6 +24,7 @@ import com.disarm.surakshit.pdm.DB.DBEntities.Sender;
 import com.disarm.surakshit.pdm.DB.DBEntities.Sender_;
 import com.disarm.surakshit.pdm.Encryption.KeyBasedFileProcessor;
 import com.disarm.surakshit.pdm.Util.DiffUtils;
+import com.disarm.surakshit.pdm.Util.LatLonUtil;
 import com.disarm.surakshit.pdm.location.MLocation;
 
 import org.apache.commons.io.FileUtils;
@@ -146,8 +147,9 @@ public class CollectMapDataActivity extends AppCompatActivity {
         map.setMultiTouchControls(true);
         IMapController mapController = map.getController();
         mapController.setZoom(15.0);
-        GeoPoint startPoint = new GeoPoint(23.5477,87.2931);
-        mapController.setCenter(startPoint);
+        GeoPoint startPoint = LatLonUtil.getBoundaryOfTiles();
+        if(startPoint!=null)
+            mapController.setCenter(startPoint);
         CompassOverlay mCompassOverlay = new CompassOverlay(ctx, new InternalCompassOrientationProvider(ctx), map);
         mCompassOverlay.enableCompass();
         map.getOverlays().add(mCompassOverlay);

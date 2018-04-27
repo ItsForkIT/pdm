@@ -73,7 +73,8 @@ public class MapFragment extends Fragment {
         IMapController mapController = map.getController();
         mapController.setZoom(15.0);
         GeoPoint startPoint = LatLonUtil.getBoundaryOfTiles();
-        mapController.setCenter(startPoint);
+        if(startPoint!=null)
+            mapController.setCenter(startPoint);
         CompassOverlay mCompassOverlay = new CompassOverlay(ctx, new InternalCompassOrientationProvider(ctx), map);
         mCompassOverlay.enableCompass();
         map.getOverlays().add(mCompassOverlay);
