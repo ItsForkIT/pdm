@@ -1,5 +1,6 @@
 package com.disarm.surakshit.pdm.Chat;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
@@ -110,6 +111,20 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
         ht = new HandlerThread("newMsg");
         ht.start();
         h = new Handler(ht.getLooper());
+        final Handler locHandler = new Handler(ht.getLooper());
+        locHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                Location l = MLocation.getLocation(getApplicationContext());
+                if(l == null){
+                    locHandler.postDelayed(this,1000);
+                }
+                else{
+                    currLoc.setLatitude(l.getLatitude());
+                    currLoc.setLongitude(l.getLongitude());
+                }
+            }
+        });
         allMessages = new ArrayList<>();
         number = getIntent().getStringExtra("number");
         String receiversName = ContactUtil.getContactName(getApplicationContext(),number);

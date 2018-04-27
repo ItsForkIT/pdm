@@ -18,6 +18,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.disarm.surakshit.pdm.Chat.ChatActivity;
 import com.disarm.surakshit.pdm.Chat.Utils.ChatUtils;
 import com.disarm.surakshit.pdm.DB.DBEntities.App;
 import com.disarm.surakshit.pdm.DB.DBEntities.Sender;
@@ -78,7 +79,7 @@ public class CollectMapDataActivity extends AppCompatActivity {
     ArrayList<Marker> markerpoints=new ArrayList<>();
     String kmlFileName;
     String number;
-    boolean source = false;
+    boolean source = false, curr = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -120,14 +121,114 @@ public class CollectMapDataActivity extends AppCompatActivity {
         setCancelClick();
         setDrawClick();
         setSaveClick();
+        btn_save_current_marker.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                draw_save.setVisibility(View.GONE);
+                cancel.setVisibility(View.GONE);
+                undo_back.setVisibility(View.GONE);
+                btn_save_current_marker.setVisibility(View.GONE);
+                fab.setVisibility(View.GONE);
+                curr = true;
+                Bitmap bmp = takeScreenshot();
+                String mapFileName = FilenameUtils.getBaseName(kmlFileName);
+                mapFileName = mapFileName + "_" + generateRandomString(8) + ".png";
+                File f = Environment.getExternalStoragePublicDirectory("DMS/Working/SurakshitMap/"+mapFileName);
+                FileOutputStream out = null;
+                try {
+                    out = new FileOutputStream(f);
+                    bmp.compress(Bitmap.CompressFormat.PNG, 100, out);
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+                finally {
+                    try {
+                        if (out != null) {
+                            out.close();
+                        }
+                    }
+                    catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                String uniqueId = generateRandomString(8);
+                currentPosition.setTitle(uniqueId);
+                KmlPlacemark kmlPlacemark = new KmlPlacemark(currentPosition);
+                kml.mKmlRoot.add(kmlPlacemark);
+                String lastKey = getLatestKey();
+                String message = ChatUtils.getExtendedDataFormatName(mapFileName,"map",uniqueId);
+                kml.mKmlRoot.setExtendedData(lastKey,message);
+                int total = Integer.parseInt(kml.mKmlRoot.getExtendedData("total"));
+                total++;
+                kml.mKmlRoot.setExtendedData("total", total + "");
+                kml.saveAsKML(kmlFile);
+                if(!source){
+                    File dest = Environment.getExternalStoragePublicDirectory("DMS/KML/Source/SourceKml/"+FilenameUtils.getBaseName(kmlFile.getName()) + ".kml");
+                    try {
+                        FileUtils.copyFile(kmlFile,dest);
+                        encryptIt(dest);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                final Box<Sender> senderBox = ((App) getApplication()).getBoxStore().boxFor(Sender.class);
+                List<Sender> senderList = senderBox.query().contains(Sender_.number, number).build().find();
+                Sender s;
+                if(senderList.size()==0){
+                    s = new Sender();
+                    s.setNumber(number);
+                }
+                else {
+                    s = senderList.get(0);
+                    diff_flag = 1;
+                }
+                s.setLastUpdated(true);
+                s.setLastMessage(message);
+                String kmlString = "";
+                try {
+                    assert kmlFile != null;
+                    kmlString = FileUtils.readFileToString(kmlFile);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                s.setKml(kmlString);
+                senderBox.put(s);
+                senderBox.closeThreadResources();
+                if(diff_flag == 1)
+                    generateDiff(kmlFile);
+                else{
+                    setResult(RESULT_OK);
+                    finish();
+                }
+
+
+
+            }
+        });
         l = MLocation.getLocation(getApplicationContext());
         if(l == null){
             //Code to get user's location
-
+            currentPosition = new Marker(map);
+            currentPosition.setPosition(ChatActivity.currLoc);
+            currentPosition.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
+                @Override
+                public boolean onMarkerClick(Marker marker, MapView mapView) {
+                    return false;
+                }
+            });
+            map.getOverlays().add(currentPosition);
         }
         else{
             currentPosition = new Marker(map);
             currentPosition.setPosition(new GeoPoint(l.getLatitude(),l.getLongitude()));
+            currentPosition.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
+                @Override
+                public boolean onMarkerClick(Marker marker, MapView mapView) {
+                    return false;
+                }
+            });
+            map.getOverlays().add(currentPosition);
         }
         setMapTouch();
 
@@ -243,6 +344,9 @@ public class CollectMapDataActivity extends AppCompatActivity {
     }
 
     public Bitmap takeScreenshot(){
+        if(!curr){
+            map.getOverlays().remove(currentPosition);
+        }
         View view = getWindow().getDecorView().getRootView();
         view.setDrawingCacheEnabled(true);
         view.buildDrawingCache(true);
