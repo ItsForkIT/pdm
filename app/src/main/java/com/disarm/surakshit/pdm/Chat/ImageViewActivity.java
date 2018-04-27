@@ -2,10 +2,12 @@ package com.disarm.surakshit.pdm.Chat;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.Display;
 import android.widget.Toast;
 
 import com.alexvasilkov.gestures.views.GestureImageView;
@@ -30,10 +32,13 @@ public class ImageViewActivity extends AppCompatActivity {
         Bitmap bitmap = BitmapFactory.decodeFile(f.getAbsolutePath());
         int height = bitmap.getHeight();
         int width = bitmap.getWidth();
-        if(height > 2450)
-            height = 2450;
-        if(width > 2450)
-            width = 2450;
+        if(height > 2450 || width > 2450) {
+            Display display = getWindowManager().getDefaultDisplay();
+            Point size = new Point();
+            display.getSize(size);
+            width = size.x;
+            height = size.y;
+        }
         Picasso.get().load(f).resize(width,height).into(image);
     }
 }
