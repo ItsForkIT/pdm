@@ -237,7 +237,6 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
             public void loadImage(ImageView imageView, String url) {
                 File im = Environment.getExternalStoragePublicDirectory(url);
                 if(im.exists()) {
-                    Log.i("picasso","image here");
                     Picasso.get().load(im).resize(800,1000).centerCrop().into(imageView);
                 }
             }

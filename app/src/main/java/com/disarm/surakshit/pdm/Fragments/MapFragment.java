@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.disarm.surakshit.pdm.R;
+import com.disarm.surakshit.pdm.Util.LatLonUtil;
 
 import org.apache.commons.io.FileUtils;
 import org.osmdroid.api.IMapController;
@@ -71,7 +72,7 @@ public class MapFragment extends Fragment {
         map.setMultiTouchControls(true);
         IMapController mapController = map.getController();
         mapController.setZoom(15.0);
-        GeoPoint startPoint = new GeoPoint(23.5477,87.2931);
+        GeoPoint startPoint = LatLonUtil.getBoundaryOfTiles();
         mapController.setCenter(startPoint);
         CompassOverlay mCompassOverlay = new CompassOverlay(ctx, new InternalCompassOrientationProvider(ctx), map);
         mCompassOverlay.enableCompass();
