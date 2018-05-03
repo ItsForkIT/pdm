@@ -69,7 +69,7 @@ public class ChatFragment extends Fragment {
     HashMap<String,Integer> unreadMap;
     HandlerThread ht;
     Handler h;
-    FloatingActionButton fab;
+    FloatingActionButton fab,mcsbtn;
 
     @Nullable
     @Override
@@ -84,11 +84,18 @@ public class ChatFragment extends Fragment {
         });
 
         fab = (FloatingActionButton) view.findViewById(R.id.btn_new_message);
+        mcsbtn = (FloatingActionButton) view.findViewById(R.id.btn_new_mcs);
         dialogsList.setAdapter(dialogsListAdapter);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startContactActivity();
+            }
+        });
+        mcsbtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startVolunteer();
             }
         });
         dialogsListAdapter.setOnDialogClickListener(new DialogsListAdapter.OnDialogClickListener<DefaultDialog>() {
@@ -119,7 +126,11 @@ public class ChatFragment extends Fragment {
         return view;
     }
 
-
+    public void startVolunteer(){
+        Intent i = new Intent(getActivity(),ChatActivity.class);
+        i.putExtra("number","volunteer");
+        startActivity(i);
+    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {

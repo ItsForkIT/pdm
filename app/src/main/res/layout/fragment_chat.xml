@@ -21,4 +21,15 @@
         android:backgroundTint="@color/fbutton_color_turquoise"
         app:srcCompat="@drawable/new_message"
         />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/btn_new_mcs"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:layout_above="@+id/btn_new_message"
+        android:layout_alignParentEnd="true"
+        android:backgroundTint="@color/fbutton_color_turquoise"
+        app:srcCompat="@drawable/marker_cluster" />
+
 </RelativeLayout>

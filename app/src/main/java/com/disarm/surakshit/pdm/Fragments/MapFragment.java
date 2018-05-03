@@ -26,11 +26,14 @@ import org.osmdroid.tileprovider.tilesource.XYTileSource;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.FolderOverlay;
+import org.osmdroid.views.overlay.Overlay;
 import org.osmdroid.views.overlay.ScaleBarOverlay;
 import org.osmdroid.views.overlay.compass.CompassOverlay;
 import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashSet;
 
 /**
  * Created by naman on 25/2/18.
@@ -39,6 +42,7 @@ import java.io.File;
 public class MapFragment extends Fragment {
     MapView map;
     final int MIN_ZOOM=14,MAX_ZOOM=19,PIXEL=256;
+    ArrayList<Overlay> allParsed = new ArrayList<>();
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -47,11 +51,12 @@ public class MapFragment extends Fragment {
         setMapData();
         HandlerThread ht = new HandlerThread("Map");
         ht.start();
-        Handler h = new Handler(ht.getLooper());
+        final Handler h = new Handler(ht.getLooper());
         h.post(new Runnable() {
             @Override
             public void run() {
                 parseKml();
+                h.postDelayed(this,5000);
             }
         });
         return view;
@@ -98,6 +103,7 @@ public class MapFragment extends Fragment {
     }
 
     public void parseKml(){
+        map.getOverlays().removeAll(allParsed);
         File latestSource = Environment.getExternalStoragePublicDirectory("DMS/KML/Source/LatestKml");
         File latestDest = Environment.getExternalStoragePublicDirectory("DMS/KML/Dest/LatestKml");
         if(latestSource.listFiles().length > 0 ){
@@ -106,6 +112,7 @@ public class MapFragment extends Fragment {
                 kmlDocument.parseKMLFile(f);
                 FolderOverlay kmlOverlay = (FolderOverlay) kmlDocument.mKmlRoot.buildOverlay(map,null,null,kmlDocument);
                 map.getOverlays().add(kmlOverlay);
+                allParsed.add(kmlOverlay);
             }
         }
         if(latestDest.listFiles().length > 0 ){
@@ -114,9 +121,8 @@ public class MapFragment extends Fragment {
                 kmlDocument.parseKMLFile(f);
                 FolderOverlay kmlOverlay = (FolderOverlay) kmlDocument.mKmlRoot.buildOverlay(map,null,null,kmlDocument);
                 map.getOverlays().add(kmlOverlay);
+                allParsed.add(kmlOverlay);
             }
         }
     }
-
-
 }
