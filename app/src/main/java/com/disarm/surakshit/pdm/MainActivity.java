@@ -19,6 +19,7 @@
     import android.provider.Settings;
     import android.support.design.widget.TabLayout;
     import android.support.v4.app.ActivityCompat;
+    import android.support.v4.app.Fragment;
     import android.support.v7.app.AlertDialog;
     import android.support.v7.app.AppCompatActivity;
     import android.support.v7.preference.PreferenceManager;
@@ -26,6 +27,7 @@
 
     import android.support.v4.view.ViewPager;
     import android.os.Bundle;
+    import android.util.Log;
     import android.view.Menu;
     import android.view.MenuItem;
     import android.view.View;
@@ -78,10 +80,10 @@
         static int total_kml=0;
         static HashSet<String> kmlFilesList;
         private boolean gpsService = false;
-        SyncService syncService;
-        public DCService myService;
-        private boolean syncServiceBound = false;
-        private boolean myServiceBound = false;
+        public static SyncService syncService;
+        public static DCService myService;
+        public static boolean syncServiceBound = false;
+        public static boolean myServiceBound = false;
         LocationManager lm;
         LocationListener locationListener;
         @Override
@@ -90,6 +92,12 @@
             setContentView(R.layout.activity_main);
             final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
             setSupportActionBar(toolbar);
+            if(getSupportFragmentManager().getFragments().size()==2){
+                for(Fragment fragment : getSupportFragmentManager().getFragments()) {
+                    getSupportFragmentManager().beginTransaction().remove(fragment).commit();
+                    Log.d("Fragment","remove");
+                }
+            }
             FragmentAdapter fragmentAdapter = new FragmentAdapter(getSupportFragmentManager());
             ViewPager mViewPager = (ViewPager) findViewById(R.id.container);
             mViewPager.setAdapter(fragmentAdapter);
@@ -506,7 +514,7 @@
                 gpsService = false;
             }
         }
-        private ServiceConnection syncServiceConnection = new ServiceConnection() {
+        public static ServiceConnection syncServiceConnection = new ServiceConnection() {
 
             @Override
             public void onServiceConnected(ComponentName className,
@@ -522,7 +530,7 @@
             }
         };
 
-        private ServiceConnection myServiceConnection = new ServiceConnection() {
+        public static ServiceConnection myServiceConnection = new ServiceConnection() {
 
             @Override
             public void onServiceConnected(ComponentName className,

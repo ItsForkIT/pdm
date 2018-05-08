@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.os.Binder;
 import android.os.Environment;
 import android.os.IBinder;
+import android.support.v7.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -45,17 +46,24 @@ public class SyncService extends Service {
 
     SharedPreferences sp;
     public SyncService() {
-        source = Params.SOURCE_PHONE_NO;
+
+    }
+
+    @Override
+    public void onCreate() {
+        source = "";
+        sp = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        if(sp.getBoolean("mule_switch",false)){
+            source = "mule-";
+        }
+        source = source + Params.SOURCE_PHONE_NO;
+        Log.d("mule",source);
         logger =new Logger(databaseDirectory,source);
         discoverer = new Discoverer(BROADCAST_IP,source, PORT,logger);
         fileManager = new FileManager(source, databaseName, databaseDirectory,syncDirectory,mapDirectory,logger);
         fileTransporter = new FileTransporter(syncDirectory,logger);
         controller = new Controller(discoverer, fileManager, fileTransporter, syncInterval, maxRunningDownloads, logger,2, false);
         webServer = new WebServer(8080, controller,logger);
-    }
-
-    @Override
-    public void onCreate() {
     }
 
 

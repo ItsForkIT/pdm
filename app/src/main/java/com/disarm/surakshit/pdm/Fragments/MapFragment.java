@@ -82,12 +82,17 @@ public class MapFragment extends Fragment {
             public void run() {
                 final GeoPoint startPoint = LatLonUtil.getBoundaryOfTiles();
                 if(startPoint!=null) {
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            mapController.setCenter(startPoint);
-                        }
-                    });
+                    try {
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                mapController.setCenter(startPoint);
+                            }
+                        });
+                    }
+                    catch (Exception e){
+
+                    }
 
                 }
             }

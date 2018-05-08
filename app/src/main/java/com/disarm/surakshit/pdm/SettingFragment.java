@@ -16,6 +16,9 @@ import android.widget.Toast;
 
 import com.disarm.surakshit.pdm.Service.SyncService;
 
+import static com.disarm.surakshit.pdm.MainActivity.syncServiceBound;
+import static com.disarm.surakshit.pdm.MainActivity.syncServiceConnection;
+
 /**
  * A simple {@link Fragment} subclass.
  */
@@ -32,9 +35,24 @@ public class SettingFragment extends PreferenceFragmentCompat implements SharedP
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+        Context c = getContext();
 
         if(s.equals("mule_switch")){
-            Toast.makeText(getContext(),sharedPreferences.getBoolean(s,false)+"",Toast.LENGTH_LONG).show();
+            try {
+                Intent i = new Intent(c, MainActivity.class);
+                i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                if (getActivity().getSupportFragmentManager().getFragments().size() != 0) {
+                    for (Fragment fragment : getActivity().getSupportFragmentManager().getFragments()) {
+                        if (fragment != null) {
+                            getActivity().getSupportFragmentManager().beginTransaction().remove(fragment).commit();
+                        }
+                    }
+                }
+                c.startActivity(i);
+            }
+            catch (Exception e){
+
+            }
         }
 
 
