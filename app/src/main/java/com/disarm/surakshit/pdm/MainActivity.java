@@ -21,6 +21,7 @@
     import android.support.v4.app.ActivityCompat;
     import android.support.v7.app.AlertDialog;
     import android.support.v7.app.AppCompatActivity;
+    import android.support.v7.preference.PreferenceManager;
     import android.support.v7.widget.Toolbar;
 
     import android.support.v4.view.ViewPager;
@@ -112,6 +113,7 @@
                 kmlFilesList.add(FilenameUtils.getBaseName(file.getName()));
                 total_kml++;
             }
+            PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
             ht = new HandlerThread("FileWatcher");
             ht.start();
             h = new Handler(ht.getLooper());
@@ -337,6 +339,8 @@
 
             //noinspection SimplifiableIfStatement
             if (id == R.id.action_settings) {
+                Intent i = new Intent(this,SettingActivity.class);
+                startActivity(i);
                 return true;
             }
 
@@ -459,7 +463,7 @@
                         h.postDelayed(this,1000);
                     }
                     else{
-                        final Intent syncServiceIntent = new Intent(getBaseContext(), SyncService.class);
+                        final Intent syncServiceIntent = new Intent(getApplicationContext(), SyncService.class);
                         bindService(syncServiceIntent, syncServiceConnection, Context.BIND_AUTO_CREATE);
                         startService(syncServiceIntent);
                         htd.quit();
@@ -474,15 +478,18 @@
             }
             MLocation.subscribe(MainActivity.this);
         }
-        private void unbindAllService() {
-            final Intent syncServiceIntent = new Intent(getBaseContext(), SyncService.class);
+        public void unbindSyncService(){
+            final Intent syncServiceIntent = new Intent(getApplicationContext(), SyncService.class);
             if (syncServiceBound) {
                 unbindService(syncServiceConnection);
             }
             syncServiceBound = false;
             stopService(syncServiceIntent);
+        }
+        private void unbindAllService() {
+            unbindSyncService();
 
-            final Intent myServiceIntent = new Intent(getBaseContext(), DCService.class);
+            final Intent myServiceIntent = new Intent(getApplicationContext(), DCService.class);
             if (myServiceBound) {
                 unbindService(myServiceConnection);
             }

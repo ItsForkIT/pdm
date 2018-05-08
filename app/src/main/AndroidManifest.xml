@@ -64,11 +64,6 @@
         <service android:name=".DisarmConnect.DataMuleService" />
 
         <activity
-            android:name=".UI_Map"
-            android:label="@string/app_name"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
             android:name="com.onegravity.contactpicker.core.ContactPickerActivity"
             android:enabled="true"
             android:exported="false">
@@ -91,7 +86,14 @@
         <activity android:name=".Chat.ImageViewActivity" />
         <activity android:name=".CollectMapDataActivity" />
         <activity android:name=".ShowMapDataActivity" />
-        <activity android:name=".GetLocationActivity"></activity>
+        <activity android:name=".GetLocationActivity" />
+        <activity android:name=".SettingActivity"
+            android:label="Settings"
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity"/>
+        </activity>
     </application>
 
 </manifest>

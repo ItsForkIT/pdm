@@ -82,5 +82,10 @@
     <string name="no_location"> We couldn\'t find your location!!!  </string>
     <string name="no_location_des"> 1. Drag the marker to your approximate current location\n2. Tap on the marker when you are done </string>
     <string name="okay"> Okay </string>
+    <string name="mule">Turn this on if you want to act as a mule</string>
+    <string name="data_mule">Data Mule</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>
