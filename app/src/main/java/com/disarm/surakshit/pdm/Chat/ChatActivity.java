@@ -396,6 +396,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                 else{
                     destinationPath = "DMS/KML/Source/LatestKml/";
                 }
+                String sourcePath = "DMS/KML/Source/SourceKml/";
                 final Box<Sender> senderBox = ((App) getApplication()).getBoxStore().boxFor(Sender.class);
                 List<Sender> senders = senderBox.query().contains(Sender_.number, number).build().find();
                 if(messagesListAdapter.getItemCount() == 0 || senders.size() == 0) {
@@ -403,7 +404,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                     String extendedDataFormat = ChatUtils.getExtendedDataFormatName(input.toString(), "text", "none");
                     kml.mKmlRoot.setExtendedData("source", extendedDataFormat);
                     kml.mKmlRoot.setExtendedData("total", "1");
-                    File file = getNewFileObject(destinationPath);
+                    File file = getNewFileObject(sourcePath);
                     kml.saveAsKML(file);
                     if(isKey) {
                         File dest = Environment.getExternalStoragePublicDirectory(destinationPath + FilenameUtils.getBaseName(file.getName()) + ".kml");
@@ -534,7 +535,9 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                     }
                 }
                 try {
+                    Log.d("Diff","Diff start");
                     DiffUtils.createDiff(source,dest);
+                    Log.d("Diff","diff end");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
