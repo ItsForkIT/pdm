@@ -10,6 +10,10 @@ import com.afollestad.easyvideoplayer.EasyVideoPlayer;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.disarm.surakshit.pdm.R;
 
+import org.apache.commons.io.FilenameUtils;
+
+import java.io.File;
+
 public class VideoPlayer extends AppCompatActivity implements EasyVideoCallback {
 
     private EasyVideoPlayer player;
@@ -21,7 +25,12 @@ public class VideoPlayer extends AppCompatActivity implements EasyVideoCallback 
         player = (EasyVideoPlayer) findViewById(R.id.video_player);
         player.setCallback(this);
         String source = getIntent().getStringExtra("url");
-        player.setSource(Uri.fromFile(Environment.getExternalStoragePublicDirectory(source)));
+        File src = Environment.getExternalStoragePublicDirectory(source);
+        if(!src.exists()){
+            String name = FilenameUtils.getName(source);
+            src = Environment.getExternalStoragePublicDirectory("DMS/tempMedia/"+name);
+        }
+        player.setSource(Uri.fromFile(src));
 
     }
 

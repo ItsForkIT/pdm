@@ -45,25 +45,31 @@ public class ChatUtils {
         try {
             Date d = df.parse(date);
             message = new Message(date, author, type, d);
-            if(type.equals("text")){
-                message.setText(text);
-            }
-            else if(type.equals("image")){
-                String url = "DMS/Working/SurakshitImages/"+text;
-                message.setImageurl(url);
-            }
-            else if(type.equals("map")){
-                String url = "DMS/Working/SurakshitMap/"+text;
-                message.setImageurl(url);
-                message.setMapObjectID(mapObjectId);
-            }
-            else if(type.equals("audio")){
-                String url = "DMS/Working/SurakshitAudio/"+text;
-                message.setUrl(url);
-            }
-            else if(type.equals("video")){
-                String url = "DMS/Working/SurakshitVideos/"+text;
-                message.setUrl(url);
+            switch (type) {
+                case "text":
+                    message.setText(text);
+                    break;
+                case "image": {
+                    String url = "DMS/Working/SurakshitImages/" + text;
+                    message.setImageurl(url);
+                    break;
+                }
+                case "map": {
+                    String url = "DMS/Working/SurakshitMap/" + text;
+                    message.setImageurl(url);
+                    message.setMapObjectID(mapObjectId);
+                    break;
+                }
+                case "audio": {
+                    String url = "DMS/Working/SurakshitAudio/" + text;
+                    message.setUrl(url);
+                    break;
+                }
+                case "video": {
+                    String url = "DMS/Working/SurakshitVideos/" + text;
+                    message.setUrl(url);
+                    break;
+                }
             }
         }
         catch (Exception e){

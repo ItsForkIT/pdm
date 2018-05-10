@@ -253,8 +253,14 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
             @Override
             public void loadImage(ImageView imageView, String url) {
                 File im = Environment.getExternalStoragePublicDirectory(url);
+
                 if(im.exists()) {
                     Picasso.get().load(im).resize(800,1000).centerCrop().into(imageView);
+                }
+                else{
+                    String name = FilenameUtils.getName(url);
+                    File img = Environment.getExternalStoragePublicDirectory("DMS/tempMedia/"+name);
+                    Picasso.get().load(img).resize(800,1000).centerCrop().into(imageView);
                 }
             }
         };
@@ -336,10 +342,11 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                 wlp.flags &= ~WindowManager.LayoutParams.FLAG_DIM_BEHIND;
                 window.setAttributes(wlp);
                 ImageButton camera = view.findViewById(R.id.attach_camera);
+                final boolean finalIsKey = isKey;
                 camera.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        startCamera();
+                        startCamera(finalIsKey);
                     }
                 });
                 ImageButton map = view.findViewById(R.id.attach_map);
@@ -354,7 +361,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                 video.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        startVideo();
+                        startVideo(finalIsKey);
                     }
                 });
                 ImageButton audio = view.findViewById(R.id.attach_audio);
@@ -539,7 +546,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
         ht.quit();
     }
 
-    private void startCamera(){
+    private void startCamera(Boolean isKey){
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if(unique.equals("")){
             File sourceDir = Environment.getExternalStoragePublicDirectory("DMS/KML/Source/SourceKml");
@@ -564,7 +571,14 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
             unique = generateRandomString();
         }
         String fileName = unique + "_" + Params.SOURCE_PHONE_NO + "_" + number + "_50_" + generateRandomString(8)+".jpeg";
-        File image = Environment.getExternalStoragePublicDirectory("DMS/Working/SurakshitImages/"+fileName);
+        String path;
+        if(isKey){
+            path = "DMS/Working/SurakshitImages/";
+        }
+        else{
+            path = "DMS/tempMedia/";
+        }
+        File image = Environment.getExternalStoragePublicDirectory(path+fileName);
         Uri uri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID+".provider",image);
         cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT,uri);
         cameraIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -572,7 +586,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
         startActivityForResult(cameraIntent,1000);
     }
 
-    private void startVideo(){
+    private void startVideo(Boolean isKey){
         Intent cameraIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
         if(unique.equals("")){
             File sourceDir = Environment.getExternalStoragePublicDirectory("DMS/KML/Source/SourceKml");
@@ -596,7 +610,14 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
             unique = generateRandomString();
         }
         String fileName = unique + "_" + Params.SOURCE_PHONE_NO + "_" + number + "_50_" + generateRandomString(8)+".mp4";
-        File image = Environment.getExternalStoragePublicDirectory("DMS/Working/SurakshitVideos/"+fileName);
+        String path;
+        if(isKey){
+            path = "DMS/Working/SurakshitVideos/";
+        }
+        else{
+            path = "DMS/tempMedia/";
+        }
+        File image = Environment.getExternalStoragePublicDirectory(path+fileName);
         Uri uri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID+".provider",image);
         cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT,uri);
         cameraIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);

@@ -283,10 +283,15 @@ public class ChatFragment extends Fragment {
                 receiverDone.add(r.getNumber());
             }
             else{
-                Author author = new Author(s.getNumber(),ContactUtil.getContactName(getActivity().getApplicationContext(),s.getNumber()));
-                Author me =  new Author(Params.SOURCE_PHONE_NO,ContactUtil.getContactName(getActivity().getApplicationContext(),s.getNumber()));
-                Message msg = ChatUtils.getMessageObject(s.getLastMessage(),me);
-                addDialog(msg,author,0);
+                try {
+                    Author author = new Author(s.getNumber(), ContactUtil.getContactName(getActivity().getApplicationContext(), s.getNumber()));
+                    Author me = new Author(Params.SOURCE_PHONE_NO, ContactUtil.getContactName(getActivity().getApplicationContext(), s.getNumber()));
+                    Message msg = ChatUtils.getMessageObject(s.getLastMessage(), me);
+                    addDialog(msg, author, 0);
+                }
+                catch (Exception e){
+
+                }
             }
         }
 

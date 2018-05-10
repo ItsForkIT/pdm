@@ -24,6 +24,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.security.spec.EncodedKeySpec;
 
 //First Activity
 public class SplashActivity extends AppCompatActivity implements View.OnClickListener {
@@ -32,7 +33,7 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
     public File dmsFolder = Environment.getExternalStoragePublicDirectory("DMS/");
     public File workingFolder = Environment.getExternalStoragePublicDirectory("DMS/Working");
     public File mapFolder = Environment.getExternalStoragePublicDirectory("DMS/Map");
-
+    public File tempMedia = Environment.getExternalStoragePublicDirectory("DMS/tempMedia");
     public File tempFolder = Environment.getExternalStoragePublicDirectory("DMS/temp");
     public File SurakshitImages = Environment.getExternalStoragePublicDirectory("DMS/Working/SurakshitImages");
     public File SurakshitVideos = Environment.getExternalStoragePublicDirectory("DMS/Working/SurakshitVideos");
@@ -147,6 +148,9 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
         }
         if(!tempFolder.exists()){
             tempFolder.mkdir();
+        }
+        if(!tempMedia.exists()){
+            tempMedia.mkdir();
         }
         copyAssets();
     }

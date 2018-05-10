@@ -139,7 +139,14 @@ public class CollectMapDataActivity extends AppCompatActivity {
                 Bitmap bmp = takeScreenshot();
                 String mapFileName = FilenameUtils.getBaseName(kmlFileName);
                 mapFileName = mapFileName + "_" + generateRandomString(8) + ".png";
-                File f = Environment.getExternalStoragePublicDirectory("DMS/Working/SurakshitMap/"+mapFileName);
+                String path;
+                if(isKey){
+                    path = "DMS/Working/SurakshitMap/";
+                }
+                else{
+                    path = "DMS/tempMedia/";
+                }
+                File f = Environment.getExternalStoragePublicDirectory(path+mapFileName);
                 FileOutputStream out = null;
                 try {
                     out = new FileOutputStream(f);
@@ -390,7 +397,14 @@ public class CollectMapDataActivity extends AppCompatActivity {
                     Bitmap bmp = takeScreenshot();
                     String mapFileName = FilenameUtils.getBaseName(kmlFileName);
                     mapFileName = mapFileName + "_" + generateRandomString(8) + ".png";
-                    File f = Environment.getExternalStoragePublicDirectory("DMS/Working/SurakshitMap/"+mapFileName);
+                    String path;
+                    if(isKey){
+                        path = "DMS/Working/SurakshitMap/";
+                    }
+                    else{
+                        path = "DMS/tempMedia/";
+                    }
+                    File f = Environment.getExternalStoragePublicDirectory(path+mapFileName);
                     FileOutputStream out = null;
                     try {
                         out = new FileOutputStream(f);

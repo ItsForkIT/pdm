@@ -14,6 +14,8 @@ import com.disarm.surakshit.pdm.Chat.VideoPlayer;
 import com.disarm.surakshit.pdm.R;
 import com.stfalcon.chatkit.messages.MessagesListAdapter;
 
+import org.apache.commons.io.FilenameUtils;
+
 import java.io.File;
 
 /**
@@ -35,6 +37,9 @@ public class OutgoingVideoHolders extends MessagesListAdapter.BaseMessageViewHol
     @Override
     public void onBind(final Message message) {
         File f = Environment.getExternalStoragePublicDirectory(message.getUrl());
+        if(!f.exists()){
+            f = Environment.getExternalStoragePublicDirectory("DMS/tempMedia/"+ FilenameUtils.getName(message.getUrl()));
+        }
         Bitmap bmp = ThumbnailUtils.createVideoThumbnail(f.getAbsolutePath(), MediaStore.Images.Thumbnails.MINI_KIND);
         preview.setImageBitmap(bmp);
         playbtn.setOnClickListener(new View.OnClickListener() {

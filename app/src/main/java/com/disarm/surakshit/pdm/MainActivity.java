@@ -341,7 +341,9 @@
                     }
 
                     for(File file : tempDir.listFiles()){
-                        String fileNumber = FilenameUtils.getBaseName(file.getName()).split("_")[2];
+                        String fileName[] = FilenameUtils.getBaseName(file.getName()).split("_");
+                        String fileNumber = fileName[2];
+                        String unique = fileName[0];
                         if(keyFile.containsKey(fileNumber)){
                             String inputPath = file.getAbsolutePath();
                             String publicKeyPath = Environment.getExternalStoragePublicDirectory("DMS/Working/pgpKey/pub_"+fileNumber+".bgp").getAbsolutePath();
@@ -357,6 +359,27 @@
                                 FileUtils.copyFile(file,file1);
                                 FileUtils.copyFile(file,file2);
                                 FileUtils.forceDelete(file);
+                                File tempMedia = Environment.getExternalStoragePublicDirectory("DMS/tempMedia");
+                                for(File f : tempMedia.listFiles()){
+                                    String type="";
+                                    if(f.getName().contains(unique)){
+                                        switch (FilenameUtils.getExtension(f.getName())){
+                                            case "jpeg":
+                                                type = "Images";
+                                                break;
+                                            case "mp4":
+                                                type = "Videos";
+                                                break;
+                                            case "png":
+                                                type = "Map";
+                                                break;
+                                        }
+                                        String outputFolder = "DMS/Working/Surakshit"+type+"/";
+                                        File outputFile = Environment.getExternalStoragePublicDirectory(outputFolder+f.getName());
+                                        FileUtils.moveFile(f,outputFile);
+                                    }
+                                }
+
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
