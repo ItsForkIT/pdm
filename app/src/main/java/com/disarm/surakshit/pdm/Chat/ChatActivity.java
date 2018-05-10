@@ -389,14 +389,17 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                     }
                 }
                 String destinationPath="";
+                String sourcePath="";
                 if(!isKey){
                     Toast.makeText(ChatActivity.this,"No security key found!!! It will be sent after getting the encryption key",Toast.LENGTH_LONG).show();
                     destinationPath = "DMS/temp/";
+                    sourcePath = "DMS/temp/";
                 }
                 else{
                     destinationPath = "DMS/KML/Source/LatestKml/";
+                    sourcePath = "DMS/KML/Source/SourceKml/";
                 }
-                String sourcePath = "DMS/KML/Source/SourceKml/";
+
                 final Box<Sender> senderBox = ((App) getApplication()).getBoxStore().boxFor(Sender.class);
                 List<Sender> senders = senderBox.query().contains(Sender_.number, number).build().find();
                 if(messagesListAdapter.getItemCount() == 0 || senders.size() == 0) {
