@@ -13,6 +13,7 @@ import android.support.v4.content.FileProvider;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.Window;
@@ -472,8 +473,10 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                     s.setKml(kmlString);
                     senderBox.put(s);
                     populateChat();
-                    if(isKey)
+                    if(isKey) {
                         generateDiff(kmlFile);
+                        Log.d("DIff","Generating diff");
+                    }
                 }
                 senderBox.closeThreadResources();
                 return true;
