@@ -328,7 +328,43 @@
                     h_diff.postDelayed(this,1500);
                 }
             });
+            final Handler h_tempKey = new Handler(ht.getLooper());
+            h_tempKey.post(new Runnable() {
+                @Override
+                public void run() {
+                    File tempDir = Environment.getExternalStoragePublicDirectory("DMS/temp");
+                    File pgpKeyDir = Environment.getExternalStoragePublicDirectory("DMS/Working/pgpKey");
+                    HashMap<String,File> keyFile = new HashMap<>();
+                    for(File file : pgpKeyDir.listFiles()){
+                        String number = FilenameUtils.getBaseName(file.getName()).split("_")[1];
+                        keyFile.put(number,file);
+                    }
 
+                    for(File file : tempDir.listFiles()){
+                        String fileNumber = FilenameUtils.getBaseName(file.getName()).split("_")[2];
+                        if(keyFile.containsKey(fileNumber)){
+                            String inputPath = file.getAbsolutePath();
+                            String publicKeyPath = Environment.getExternalStoragePublicDirectory("DMS/Working/pgpKey/pub_"+fileNumber+".bgp").getAbsolutePath();
+                            String outputFilePath = Environment.getExternalStoragePublicDirectory("DMS/Working/SurakshitKml/"
+                                    +FilenameUtils.getBaseName(file.getName())+".bgp")
+                                    .getAbsolutePath();
+                            try {
+                                KeyBasedFileProcessor.encrypt(inputPath,publicKeyPath,outputFilePath);
+                                String outputPath = "DMS/KML/Source/LatestKml/";
+                                String outputPath2 = "DMS/KML/Source/SourceKml/";
+                                File file1 = Environment.getExternalStoragePublicDirectory(outputPath+file.getName());
+                                File file2 = Environment.getExternalStoragePublicDirectory(outputPath2+file.getName());
+                                FileUtils.copyFile(file,file1);
+                                FileUtils.copyFile(file,file2);
+                                FileUtils.forceDelete(file);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                    h_tempKey.postDelayed(this,1000);
+                }
+            });
         }
 
         @Override
@@ -596,10 +632,14 @@
                     Intent intent = new Intent(this,ChatActivity.class);
                     String s = contact.getPhone(0);
                     String num = "";
+                    int count=0;
                     for(int i= s.length()-1;i>=0;i--){
                         if( s.charAt(i) >='0' && s.charAt(i) <='9' ){
                             num = num + s.charAt(i);
+                            count++;
                         }
+                        if(count==10)
+                            break;
                     }
                     StringBuilder sb = new StringBuilder(num);
                     sb = sb.reverse();

@@ -314,8 +314,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                     }
                 }
                 if(!isKey){
-                    Toast.makeText(ChatActivity.this,"No security key found",Toast.LENGTH_LONG).show();
-                    return;
+                    Toast.makeText(ChatActivity.this,"No security key found!!! It will be sent after getting encryption key",Toast.LENGTH_LONG).show();
                 }
                 View view = getLayoutInflater().inflate(R.layout.dialog_attachment,null);
                 materialDialog = new MaterialStyledDialog.Builder(ChatActivity.this)
@@ -336,14 +335,14 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                 wlp.gravity = Gravity.BOTTOM;
                 wlp.flags &= ~WindowManager.LayoutParams.FLAG_DIM_BEHIND;
                 window.setAttributes(wlp);
-                ImageButton camera = (ImageButton) view.findViewById(R.id.attach_camera);
+                ImageButton camera = view.findViewById(R.id.attach_camera);
                 camera.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         startCamera();
                     }
                 });
-                ImageButton map = (ImageButton) view.findViewById(R.id.attach_map);
+                ImageButton map = view.findViewById(R.id.attach_map);
                 map.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -351,14 +350,14 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                     }
                 });
                 materialDialog.show();
-                ImageButton video = (ImageButton) view.findViewById(R.id.attach_video);
+                ImageButton video = view.findViewById(R.id.attach_video);
                 video.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         startVideo();
                     }
                 });
-                ImageButton audio = (ImageButton) view.findViewById(R.id.attach_audio);
+                ImageButton audio = view.findViewById(R.id.attach_audio);
                 audio.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -381,9 +380,13 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                         break;
                     }
                 }
+                String destinationPath="";
                 if(!isKey){
-                    Toast.makeText(ChatActivity.this,"No security key found",Toast.LENGTH_LONG).show();
-                    return false;
+                    Toast.makeText(ChatActivity.this,"No security key found!!! It will be sent after getting the encryption key",Toast.LENGTH_LONG).show();
+                    destinationPath = "DMS/temp/";
+                }
+                else{
+                    destinationPath = "DMS/KML/Source/LatestKml/";
                 }
                 final Box<Sender> senderBox = ((App) getApplication()).getBoxStore().boxFor(Sender.class);
                 List<Sender> senders = senderBox.query().contains(Sender_.number, number).build().find();
@@ -392,13 +395,15 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                     String extendedDataFormat = ChatUtils.getExtendedDataFormatName(input.toString(), "text", "none");
                     kml.mKmlRoot.setExtendedData("source", extendedDataFormat);
                     kml.mKmlRoot.setExtendedData("total", "1");
-                    File file = getNewFileObject();
+                    File file = getNewFileObject(destinationPath);
                     kml.saveAsKML(file);
-                    File dest = Environment.getExternalStoragePublicDirectory("DMS/KML/Source/LatestKml/" + FilenameUtils.getBaseName(file.getName()) + ".kml");
-                    try {
-                        FileUtils.copyFile(file, dest);
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                    if(isKey) {
+                        File dest = Environment.getExternalStoragePublicDirectory(destinationPath + FilenameUtils.getBaseName(file.getName()) + ".kml");
+                        try {
+                            FileUtils.copyFile(file, dest);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
                     Sender sender = new Sender();
                     sender.setNumber(number);
@@ -413,11 +418,19 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                     sender.setKml(kmlString);
                     senderBox.put(sender);
                     populateChat();
-                    encryptIt(file);
+                    if(isKey)
+                        encryptIt(file);
                 }
                 else {
+                    String destination="";
+                    if(!isKey){
+                        destination="DMS/temp";
+                    }
+                    else{
+                        destination="DMS/KML/Source/LatestKml";
+                    }
                     KmlDocument kml = new KmlDocument();
-                    File latestSourceDir = Environment.getExternalStoragePublicDirectory("DMS/KML/Source/LatestKml");
+                    File latestSourceDir = Environment.getExternalStoragePublicDirectory(destination);
                     File kmlFile = null;
                     for (File file : latestSourceDir.listFiles()) {
                         if (file.getName().contains(number)) {
@@ -452,7 +465,8 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                     s.setKml(kmlString);
                     senderBox.put(s);
                     populateChat();
-                    generateDiff(kmlFile);
+                    if(isKey)
+                        generateDiff(kmlFile);
                 }
                 senderBox.closeThreadResources();
                 return true;
@@ -476,9 +490,9 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
     }
 
 
-    private File getNewFileObject(){
+    private File getNewFileObject(String path){
         String fileName = generateRandomString() + "_" + Params.SOURCE_PHONE_NO + "_" + number + "_" + "50";
-        return Environment.getExternalStoragePublicDirectory("DMS/KML/Source/SourceKml/"+fileName+".kml");
+        return Environment.getExternalStoragePublicDirectory(path+fileName+".kml");
     }
 
     private void encryptIt(File file){
@@ -536,7 +550,16 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                     break;
                 }
             }
+            File tempDir = Environment.getExternalStoragePublicDirectory("DMS/temp");
+            for(File file : tempDir.listFiles()){
+                if(file.getName().contains(number)){
+                    String name = file.getName();
+                    unique = name.split("_")[0];
+                    break;
+                }
+            }
         }
+
         if(unique.equals("")){
             unique = generateRandomString();
         }
@@ -554,6 +577,14 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
         if(unique.equals("")){
             File sourceDir = Environment.getExternalStoragePublicDirectory("DMS/KML/Source/SourceKml");
             for(File file : sourceDir.listFiles()){
+                if(file.getName().contains(number)){
+                    String name = file.getName();
+                    unique = name.split("_")[0];
+                    break;
+                }
+            }
+            File tempDir = Environment.getExternalStoragePublicDirectory("DMS/temp");
+            for(File file : tempDir.listFiles()){
                 if(file.getName().contains(number)){
                     String name = file.getName();
                     unique = name.split("_")[0];
@@ -585,19 +616,41 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                 else {
                     type = "video";
                 }
+                File keyDir = Environment.getExternalStoragePublicDirectory("DMS/Working/pgpKey");
+                boolean isKey = false;
+                for(File file : keyDir.listFiles()){
+                    if(file.getName().contains(number)){
+                        isKey = true;
+                        break;
+                    }
+                }
+                String destinationPath="";
+                if(!isKey){
+                    Toast.makeText(ChatActivity.this,"No security key found!!! It will be sent after getting the encryption key",Toast.LENGTH_LONG).show();
+                    destinationPath = "DMS/temp/";
+                }
+                else{
+                    destinationPath = "DMS/KML/Source/LatestKml/";
+                }
                 if(messagesListAdapter.getItemCount() == 0 || senders.size() == 0) {
                     KmlDocument kml = new KmlDocument();
                     String extendedDataFormat = ChatUtils.getExtendedDataFormatName(last_file_name, type, "none");
                     kml.mKmlRoot.setExtendedData("source", extendedDataFormat);
                     kml.mKmlRoot.setExtendedData("total", "1");
                     String fileName = last_file_name.split("_")[0] + "_" + Params.SOURCE_PHONE_NO + "_" + number +"_50.kml";
-                    File file =Environment.getExternalStoragePublicDirectory("DMS/KML/Source/SourceKml/"+fileName);
+                    File file = null;
+                    if(isKey)
+                        file =Environment.getExternalStoragePublicDirectory("DMS/KML/Source/SourceKml/"+fileName);
+                    else
+                        file =Environment.getExternalStoragePublicDirectory(destinationPath+fileName);
                     kml.saveAsKML(file);
-                    File dest = Environment.getExternalStoragePublicDirectory("DMS/KML/Source/LatestKml/" + FilenameUtils.getBaseName(file.getName()) + ".kml");
-                    try {
-                        FileUtils.copyFile(file, dest);
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                    if(isKey) {
+                        File dest = Environment.getExternalStoragePublicDirectory(destinationPath + FilenameUtils.getBaseName(file.getName()) + ".kml");
+                        try {
+                            FileUtils.copyFile(file, dest);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
                     Sender sender = new Sender();
                     sender.setNumber(number);
@@ -612,11 +665,19 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                     sender.setKml(kmlString);
                     senderBox.put(sender);
                     populateChat();
-                    encryptIt(file);
+                    if(isKey)
+                        encryptIt(file);
                 }
                 else {
+                    String destination;
+                    if(isKey){
+                       destination ="DMS/KML/Source/LatestKml" ;
+                    }
+                    else{
+                        destination =  "DMS/temp";
+                    }
                     KmlDocument kml = new KmlDocument();
-                    File latestSourceDir = Environment.getExternalStoragePublicDirectory("DMS/KML/Source/LatestKml");
+                    File latestSourceDir = Environment.getExternalStoragePublicDirectory(destination);
                     File kmlFile = null;
                     for (File file : latestSourceDir.listFiles()) {
                         if (file.getName().contains(number)) {
@@ -651,7 +712,8 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                     s.setKml(kmlString);
                     senderBox.put(s);
                     populateChat();
-                    generateDiff(kmlFile);
+                    if(isKey)
+                        generateDiff(kmlFile);
                 }
                 senderBox.closeThreadResources();
                 materialDialog.dismiss();
@@ -684,10 +746,22 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
         File latestKmlDir = Environment.getExternalStoragePublicDirectory("DMS/KML/Source/SourceKml/");
         File[] files = latestKmlDir.listFiles();
         File latestKmlFile = null;
-        String fileName="";
+        boolean isKey = false;
+        String fileName;
         for (File file : files) {
             if (file.getName().contains(number)) {
                 latestKmlFile = file;
+                isKey=true;
+                break;
+            }
+        }
+        if(!isKey) {
+            File tempDir = Environment.getExternalStoragePublicDirectory("DMS/temp");
+            for (File file : tempDir.listFiles()) {
+                if (file.getName().contains(number)) {
+                    latestKmlFile = file;
+                    break;
+                }
             }
         }
         if(latestKmlFile == null){
@@ -697,6 +771,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
             fileName = latestKmlFile.getName();
         }
         ii.putExtra("kml",fileName);
+        ii.putExtra("key",isKey);
         startActivityForResult(ii,777);
     }
 

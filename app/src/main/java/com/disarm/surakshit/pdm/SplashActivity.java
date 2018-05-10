@@ -33,7 +33,7 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
     public File workingFolder = Environment.getExternalStoragePublicDirectory("DMS/Working");
     public File mapFolder = Environment.getExternalStoragePublicDirectory("DMS/Map");
 
-    public File PubKey = Environment.getExternalStoragePublicDirectory("DMS/Working/PubKey");
+    public File tempFolder = Environment.getExternalStoragePublicDirectory("DMS/temp");
     public File SurakshitImages = Environment.getExternalStoragePublicDirectory("DMS/Working/SurakshitImages");
     public File SurakshitVideos = Environment.getExternalStoragePublicDirectory("DMS/Working/SurakshitVideos");
     public File SurakshitAudio = Environment.getExternalStoragePublicDirectory("DMS/Working/SurakshitAudio");
@@ -144,6 +144,9 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
         }
         if(!LatestDest.exists()){
             LatestDest.mkdir();
+        }
+        if(!tempFolder.exists()){
+            tempFolder.mkdir();
         }
         copyAssets();
     }
