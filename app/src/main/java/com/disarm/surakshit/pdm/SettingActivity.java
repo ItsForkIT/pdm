@@ -17,8 +17,6 @@ public class SettingActivity extends AppCompatActivity {
                     .replace(android.R.id.content, new SettingFragment())
                     .commit();
         }
-
-
     }
 
 

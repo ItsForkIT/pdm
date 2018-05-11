@@ -406,8 +406,25 @@
 
             //noinspection SimplifiableIfStatement
             if (id == R.id.action_settings) {
-                Intent i = new Intent(this,SettingActivity.class);
-                startActivity(i);
+                AlertDialog ad = new AlertDialog.Builder(this)
+                        .setTitle("WARNING")
+                        .setMessage("Changing any settings will lead you to restart of the app")
+                        .setPositiveButton("Continue", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                Intent ii = new Intent(MainActivity.this,SettingActivity.class);
+                                startActivity(ii);
+                                dialogInterface.dismiss();
+                            }
+                        })
+                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
+                            }
+                        })
+                        .create();
+                ad.show();
                 return true;
             }
 
