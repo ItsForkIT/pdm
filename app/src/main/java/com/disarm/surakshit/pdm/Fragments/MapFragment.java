@@ -1,5 +1,6 @@
 package com.disarm.surakshit.pdm.Fragments;
 
+import android.app.Application;
 import android.content.Context;
 import android.graphics.Point;
 import android.os.Bundle;
@@ -14,12 +15,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.disarm.surakshit.pdm.DB.DBEntities.App;
+import com.disarm.surakshit.pdm.DB.DBEntities.Receiver;
+import com.disarm.surakshit.pdm.DB.DBEntities.Sender;
 import com.disarm.surakshit.pdm.R;
 import com.disarm.surakshit.pdm.Util.LatLonUtil;
 
 import org.apache.commons.io.FileUtils;
 import org.osmdroid.api.IMapController;
 import org.osmdroid.bonuspack.kml.KmlDocument;
+import org.osmdroid.bonuspack.kml.Style;
+import org.osmdroid.bonuspack.kml.StyleMap;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.tileprovider.tilesource.ITileSource;
 import org.osmdroid.tileprovider.tilesource.XYTileSource;
@@ -31,16 +37,20 @@ import org.osmdroid.views.overlay.ScaleBarOverlay;
 import org.osmdroid.views.overlay.compass.CompassOverlay;
 import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
+
+import io.objectbox.Box;
 
 /**
  * Created by naman on 25/2/18.
  */
 
 public class MapFragment extends Fragment {
-    MapView map;
+    public static MapView map;
     final int MIN_ZOOM=14,MAX_ZOOM=19,PIXEL=256;
     ArrayList<Overlay> allParsed = new ArrayList<>();
     @Nullable
@@ -55,8 +65,7 @@ public class MapFragment extends Fragment {
         h.post(new Runnable() {
             @Override
             public void run() {
-                parseKml();
-                h.postDelayed(this,5000);
+                parseKml(getActivity().getApplication());
             }
         });
         return view;
@@ -107,27 +116,33 @@ public class MapFragment extends Fragment {
         map.getOverlays().add(mScaleBarOverlay);
     }
 
-    public void parseKml(){
-        map.getOverlays().removeAll(allParsed);
-        File latestSource = Environment.getExternalStoragePublicDirectory("DMS/KML/Source/LatestKml");
-        File latestDest = Environment.getExternalStoragePublicDirectory("DMS/KML/Dest/LatestKml");
-        if(latestSource.listFiles().length > 0 ){
-            for(File f : latestSource.listFiles()){
-                KmlDocument kmlDocument = new KmlDocument();
-                kmlDocument.parseKMLFile(f);
-                FolderOverlay kmlOverlay = (FolderOverlay) kmlDocument.mKmlRoot.buildOverlay(map,null,null,kmlDocument);
-                map.getOverlays().add(kmlOverlay);
-                allParsed.add(kmlOverlay);
+    public static void parseKml(Application app){
+        try {
+            final Box<Receiver> receiverBox = ((App) app).getBoxStore().boxFor(Receiver.class);
+            final Box<Sender> senderBox = ((App) app).getBoxStore().boxFor(Sender.class);
+            List<Receiver> receivers = receiverBox.getAll();
+            List<Sender> senders = senderBox.getAll();
+            map.getOverlays().clear();
+            for(Receiver receiver : receivers){
+                String kmlString = receiver.getKml();
+                ByteArrayInputStream is = new ByteArrayInputStream(kmlString.getBytes());
+                KmlDocument kml = new KmlDocument();
+                kml.parseKMLStream(is,null);
+                FolderOverlay overlay = (FolderOverlay) kml.mKmlRoot.buildOverlay(map,null,null,kml);
+                map.getOverlays().add(overlay);
+            }
+            for(Sender sender : senders){
+                String kmlString = sender.getKml();
+                ByteArrayInputStream is = new ByteArrayInputStream(kmlString.getBytes());
+                KmlDocument kml = new KmlDocument();
+                kml.parseKMLStream(is,null);
+                FolderOverlay overlay = (FolderOverlay) kml.mKmlRoot.buildOverlay(map,null,null,kml);
+                map.getOverlays().add(overlay);
             }
         }
-        if(latestDest.listFiles().length > 0 ){
-            for(File f : latestDest.listFiles()){
-                KmlDocument kmlDocument = new KmlDocument();
-                kmlDocument.parseKMLFile(f);
-                FolderOverlay kmlOverlay = (FolderOverlay) kmlDocument.mKmlRoot.buildOverlay(map,null,null,kmlDocument);
-                map.getOverlays().add(kmlOverlay);
-                allParsed.add(kmlOverlay);
-            }
+
+        catch (Exception e){
+            e.printStackTrace();
         }
     }
 }

@@ -1,18 +1,17 @@
 package com.disarm.surakshit.pdm.Util;
 
-import android.content.Context;
+import android.app.Application;
 import android.os.Environment;
 
 
+import com.disarm.surakshit.pdm.Fragments.MapFragment;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.osmdroid.bonuspack.kml.KmlDocument;
-import org.osmdroid.views.overlay.infowindow.InfoWindow;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.regex.Pattern;
 
 import ie.wombat.jbdiff.JBDiff;
 import ie.wombat.jbdiff.JBPatch;
@@ -24,25 +23,25 @@ import ie.wombat.jbdiff.JBPatch;
 public class DiffUtils {
 
 
-    public static boolean createDiff(File source,File destination) throws IOException {
+    public static void createDiff(File source, File destination, Application app) throws IOException {
         File delta = Environment.getExternalStoragePublicDirectory("/DMS/Working/SurakshitDiff/"+getDeltaName(destination));
         try {
             JBDiff.bsdiff(source, destination, delta);
-            return true;
+            MapFragment.parseKml(app);
         }
         catch (Exception e){
             e.printStackTrace();
-            return false;
         }
     }
 
 
-    public static boolean applyPatch(File source,File delta){
+    public static boolean applyPatch(File source,File delta, Application app){
         if(delta!=null){
             File destination = getDestinationFile(delta);
             try {
                 JBPatch.bspatch(source, destination, delta);
                 FileUtils.forceDelete(delta);
+                MapFragment.parseKml(app);
                 return true;
             }
             catch (Exception  e){

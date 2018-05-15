@@ -201,7 +201,7 @@
                                 int curr_version = Integer.parseInt(split[4]);
                                 if(curr_version < version){
                                     File source = sourceFiles.get(split[0]);
-                                    if(DiffUtils.applyPatch(source,diff)){
+                                    if(DiffUtils.applyPatch(source,diff,getApplication())){
                                         try {
                                             FileUtils.forceDelete(file);
                                             final Box<Receiver> receiverBox = ((App)getApplication()).getBoxStore().boxFor(Receiver.class);
@@ -264,7 +264,7 @@
                             }
                             String identifier = split[0];
                             File source = sourceFiles.get(identifier);
-                            if(DiffUtils.applyPatch(source,diff)){
+                            if(DiffUtils.applyPatch(source,diff,getApplication())){
                                 final Box<Receiver> receiverBox = ((App)getApplication()).getBoxStore().boxFor(Receiver.class);
                                 final Box<Sender> senderBox = ((App)getApplication()).getBoxStore().boxFor(Sender.class);
                                 String number = split[1];

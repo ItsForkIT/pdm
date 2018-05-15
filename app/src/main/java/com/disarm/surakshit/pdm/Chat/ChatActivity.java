@@ -539,7 +539,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                 }
                 try {
                     Log.d("Diff","Diff start");
-                    DiffUtils.createDiff(source,dest);
+                    DiffUtils.createDiff(source,dest,getApplication());
                     Log.d("Diff","diff end");
                 } catch (IOException e) {
                     e.printStackTrace();

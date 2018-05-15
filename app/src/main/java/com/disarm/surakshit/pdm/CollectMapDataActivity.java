@@ -36,10 +36,8 @@ import org.osmdroid.bonuspack.kml.KmlPlacemark;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.tileprovider.tilesource.ITileSource;
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.tileprovider.tilesource.XYTileSource;
 import org.osmdroid.util.GeoPoint;
-import org.osmdroid.views.MapController;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
@@ -105,7 +103,7 @@ public class CollectMapDataActivity extends AppCompatActivity {
         else
             kml.mKmlRoot.setExtendedData("total", "0");
         setMapData();
-        fab = (FloatingActionButton) findViewById(R.id.fab_add_data);
+        fab = findViewById(R.id.fab_add_data);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -120,10 +118,10 @@ public class CollectMapDataActivity extends AppCompatActivity {
             }
         });
 
-        draw_save = (Button) findViewById(R.id.btn_mapActivity_draw_save);
-        cancel = (Button) findViewById(R.id.btn_mapActivity_cancel);
-        undo_back = (Button) findViewById(R.id.btn_mapActivity_undo_back);
-        btn_save_current_marker = (Button) findViewById(R.id.btn_mapActivity_current_loc);
+        draw_save = findViewById(R.id.btn_mapActivity_draw_save);
+        cancel = findViewById(R.id.btn_mapActivity_cancel);
+        undo_back = findViewById(R.id.btn_mapActivity_undo_back);
+        btn_save_current_marker = findViewById(R.id.btn_mapActivity_current_loc);
         setCancelClick();
         setDrawClick();
         setSaveClick();
@@ -138,7 +136,7 @@ public class CollectMapDataActivity extends AppCompatActivity {
                 curr = true;
                 Bitmap bmp = takeScreenshot();
                 String mapFileName = FilenameUtils.getBaseName(kmlFileName);
-                mapFileName = mapFileName + "_" + generateRandomString(8) + ".png";
+                mapFileName = mapFileName + "_" + generateRandomString() + ".png";
                 String path;
                 if(isKey){
                     path = "DMS/Working/SurakshitMap/";
@@ -165,7 +163,7 @@ public class CollectMapDataActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                 }
-                String uniqueId = generateRandomString(8);
+                String uniqueId = generateRandomString();
                 currentPosition.setTitle(uniqueId);
                 KmlPlacemark kmlPlacemark = new KmlPlacemark(currentPosition);
                 kml.mKmlRoot.add(kmlPlacemark);
@@ -247,7 +245,7 @@ public class CollectMapDataActivity extends AppCompatActivity {
     }
 
     public void setMapData(){
-        map = (MapView) findViewById(R.id.map_collect_data);
+        map = findViewById(R.id.map_collect_data);
         ITileSource tileSource = new XYTileSource("tiles",MIN_ZOOM,MAX_ZOOM,PIXEL,".png",new String[]{});
         map.setTileSource(tileSource);
         Display display = getWindowManager().getDefaultDisplay();
@@ -396,7 +394,7 @@ public class CollectMapDataActivity extends AppCompatActivity {
                     fab.setVisibility(View.INVISIBLE);
                     Bitmap bmp = takeScreenshot();
                     String mapFileName = FilenameUtils.getBaseName(kmlFileName);
-                    mapFileName = mapFileName + "_" + generateRandomString(8) + ".png";
+                    mapFileName = mapFileName + "_" + generateRandomString() + ".png";
                     String path;
                     if(isKey){
                         path = "DMS/Working/SurakshitMap/";
@@ -423,7 +421,7 @@ public class CollectMapDataActivity extends AppCompatActivity {
                             e.printStackTrace();
                         }
                     }
-                    String uniqueId = generateRandomString(8);
+                    String uniqueId = generateRandomString();
                     if(polygon_points.size() == 1) {
                         Marker marker = new Marker(map);
                         marker.setPosition(polygon_points.get(0));
@@ -540,9 +538,9 @@ public class CollectMapDataActivity extends AppCompatActivity {
         });
     }
 
-    private String generateRandomString(int size){
+    private String generateRandomString(){
         SecureRandom secureRandom = new SecureRandom();
-        byte[] token = new byte[size];
+        byte[] token = new byte[8];
         secureRandom.nextBytes(token);
         return new BigInteger(1, token).toString(16);
     }
@@ -578,7 +576,7 @@ public class CollectMapDataActivity extends AppCompatActivity {
                     }
                 }
                 try {
-                    DiffUtils.createDiff(source,dest);
+                    DiffUtils.createDiff(source,dest,getApplication());
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
