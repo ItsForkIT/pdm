@@ -169,7 +169,7 @@ public class MapFragment extends Fragment {
                         kml.parseKMLStream(is,null);
                         FolderOverlay overlay = (FolderOverlay) kml.mKmlRoot.buildOverlay(map,null,null,kml);
                         Object[] objects = extractPointsFromOverlay(overlay);
-                        HashMap<GeoPoint,String> pointsToId = (HashMap<GeoPoint, String>) objects[1];
+                        HashMap<String,String> pointsToId = (HashMap<String, String>) objects[1];
                         ArrayList<GeoPoint> points = (ArrayList<GeoPoint>) objects[0];
                         List<Overlay> overlays = (List<Overlay>)objects[2];
                         assignMediaToGISObjects(points,pointsToId,kml,overlays,context,true);
@@ -181,13 +181,12 @@ public class MapFragment extends Fragment {
                         kml.parseKMLStream(is,null);
                         FolderOverlay overlay = (FolderOverlay) kml.mKmlRoot.buildOverlay(map,null,null,kml);
                         Object[] objects = extractPointsFromOverlay(overlay);
-                        HashMap<GeoPoint,String> pointsToId = (HashMap<GeoPoint, String>) objects[1];
+                        HashMap<String,String> pointsToId = (HashMap<String, String>) objects[1];
                         ArrayList<GeoPoint> points = (ArrayList<GeoPoint>) objects[0];
                         List<Overlay> overlays = (List<Overlay>)objects[2];
                         assignMediaToGISObjects(points,pointsToId,kml,overlays,context,false);
                     }
                 }
-
                 catch (Exception e){
                     e.printStackTrace();
                 }
@@ -197,21 +196,21 @@ public class MapFragment extends Fragment {
     }
 
     public static Object[] extractPointsFromOverlay(FolderOverlay folderOverlay){
-        HashMap<GeoPoint,String> pointsToId = new HashMap<>();
+        HashMap<String,String> pointsToId = new HashMap<>();
         List<GeoPoint> points = new ArrayList<>();
         List<Overlay> overlayList = new ArrayList<>();
         for( Overlay overlay : folderOverlay.getItems()){
             if(overlay instanceof Polygon){
                 String id = ((Polygon) overlay).getTitle();
                 for(GeoPoint point : ((Polygon) overlay).getPoints()){
-                    pointsToId.put(point,id);
+                    pointsToId.put(point.toDoubleString(),id);
                     points.add(point);
                 }
                 overlayList.add(overlay);
             }
             else if(overlay instanceof Marker){
                 String id = ((Marker) overlay).getTitle();
-                pointsToId.put(((Marker) overlay).getPosition(),id);
+                pointsToId.put(((Marker) overlay).getPosition().toDoubleString(),id);
                 points.add(((Marker) overlay).getPosition());
                 overlayList.add(overlay);
             }
@@ -220,7 +219,7 @@ public class MapFragment extends Fragment {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public static void assignMediaToGISObjects(ArrayList<GeoPoint> points, HashMap<GeoPoint,String> pointsToId, KmlDocument kml, List<Overlay> overlayList, Context context, Boolean color){
+    public static void assignMediaToGISObjects(ArrayList<GeoPoint> points, HashMap<String,String> pointsToId, KmlDocument kml, List<Overlay> overlayList, Context context, Boolean color){
         String key = "source";
         HashMap<String,String> idToSnippet = new HashMap<>();
         while(kml.mKmlRoot.mExtendedData.containsKey(key)){
@@ -229,7 +228,6 @@ public class MapFragment extends Fragment {
             String type = msg[1];
             if(type.contains("image") || type.contains("video") || type.contains("audio")){
                 String latlon[] = msg[4].split("_");
-                Log.d("Snippet",type);
                 Double lat = Double.parseDouble(latlon[0]);
                 Double lon = Double.parseDouble(latlon[1]);
                 GeoPoint g = new GeoPoint(lat,lon);
@@ -237,8 +235,8 @@ public class MapFragment extends Fragment {
                 Double minDis = 9999999999.0;
                 for(GeoPoint geoPoint : points){
                     Double distance = g.distanceToAsDouble(geoPoint);
-                    if( distance < 50){
-                        Log.d("Snippet",geoPoint.toString());
+                    if( distance < 100){
+                        Log.d("Snippet","Minimum distance found");
                         if(minDisPoint == null) {
                             minDisPoint = geoPoint;
                             minDis = distance;
@@ -264,18 +262,19 @@ public class MapFragment extends Fragment {
                         m.setIcon(d);
                     }
                     map.getOverlays().add(m);
+                    Log.d("Snippet","No minimum distance point");
                     allPlotted.add(m);
                 }
                 else{
-                    String id = pointsToId.get(minDisPoint);
+                    String id = pointsToId.get(minDisPoint.toDoubleString());
                     if(idToSnippet.containsKey(id)){
                         String f = idToSnippet.get(id);
                         f = f + ";" + msg[3];
+                        Log.d("Snippet",f);
                         idToSnippet.put(id,f);
                     }
                     else{
                         idToSnippet.put(id,msg[3]);
-                        Log.d("Snippet",msg[3]);
                     }
                 }
             }
