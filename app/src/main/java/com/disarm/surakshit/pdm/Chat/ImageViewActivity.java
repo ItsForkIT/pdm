@@ -27,18 +27,35 @@ public class ImageViewActivity extends AppCompatActivity {
 
         GestureImageView image  = (GestureImageView) findViewById(R.id.imageview);
         String path = getIntent().getStringExtra("url");
-        File f = Environment.getExternalStoragePublicDirectory(path);
-
-        Bitmap bitmap = BitmapFactory.decodeFile(f.getAbsolutePath());
-        int height = bitmap.getHeight();
-        int width = bitmap.getWidth();
-        if(height > 2450 || width > 2450) {
-            Display display = getWindowManager().getDefaultDisplay();
-            Point size = new Point();
-            display.getSize(size);
-            width = size.x;
-            height = size.y;
+        File file = Environment.getExternalStoragePublicDirectory(path);
+        int height=0,width=0;
+        File f = null;
+        try {
+            f = Environment.getExternalStoragePublicDirectory(path);
+            Bitmap bitmap = BitmapFactory.decodeFile(f.getAbsolutePath());
+            height = bitmap.getHeight();
+            width = bitmap.getWidth();
+            if (height > 2450 || width > 2450) {
+                Display display = getWindowManager().getDefaultDisplay();
+                Point size = new Point();
+                display.getSize(size);
+                width = size.x;
+                height = size.y;
+            }
         }
-        Picasso.get().load(f).resize(width,height).into(image);
+        catch (Exception e){
+            f = Environment.getExternalStoragePublicDirectory("DMS/tempMedia/"+file.getName());
+            Bitmap bitmap = BitmapFactory.decodeFile(f.getAbsolutePath());
+            height = bitmap.getHeight();
+            width = bitmap.getWidth();
+            if (height > 2450 || width > 2450) {
+                Display display = getWindowManager().getDefaultDisplay();
+                Point size = new Point();
+                display.getSize(size);
+                width = size.x;
+                height = size.y;
+            }
+        }
+            Picasso.get().load(f).resize(width,height).into(image);
     }
 }

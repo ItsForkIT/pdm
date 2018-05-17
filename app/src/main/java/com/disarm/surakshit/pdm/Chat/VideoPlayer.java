@@ -31,7 +31,6 @@ public class VideoPlayer extends AppCompatActivity implements EasyVideoCallback 
             src = Environment.getExternalStoragePublicDirectory("DMS/tempMedia/"+name);
         }
         player.setSource(Uri.fromFile(src));
-
     }
 
     @Override

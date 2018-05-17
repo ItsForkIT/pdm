@@ -576,7 +576,7 @@ public class CollectMapDataActivity extends AppCompatActivity {
                     }
                 }
                 try {
-                    DiffUtils.createDiff(source,dest,getApplication());
+                    DiffUtils.createDiff(source,dest,getApplication(),CollectMapDataActivity.this);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

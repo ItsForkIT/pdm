@@ -39,7 +39,7 @@ android {
 
     defaultConfig {
         applicationId "com.disarm.surakshit.pdm"
-        minSdkVersion 19
+        minSdkVersion 21
         targetSdkVersion 27
         versionCode versionMajor * 10000 + versionMinor * 100 + versionBuild
         versionName versionMajor.toString() + "." + versionMinor.toString() + "." + versionBuild + "." + BUILD_DATE

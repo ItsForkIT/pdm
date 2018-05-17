@@ -3,13 +3,18 @@ package com.disarm.surakshit.pdm.Fragments;
 import android.app.Application;
 import android.content.Context;
 import android.graphics.Point;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
+import android.util.Log;
+import android.util.Pair;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,6 +24,7 @@ import com.disarm.surakshit.pdm.DB.DBEntities.App;
 import com.disarm.surakshit.pdm.DB.DBEntities.Receiver;
 import com.disarm.surakshit.pdm.DB.DBEntities.Sender;
 import com.disarm.surakshit.pdm.R;
+import com.disarm.surakshit.pdm.Util.CustomInfoWindow;
 import com.disarm.surakshit.pdm.Util.LatLonUtil;
 
 import org.apache.commons.io.FileUtils;
@@ -27,12 +33,16 @@ import org.osmdroid.bonuspack.kml.KmlDocument;
 import org.osmdroid.bonuspack.kml.Style;
 import org.osmdroid.bonuspack.kml.StyleMap;
 import org.osmdroid.config.Configuration;
+import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.tileprovider.tilesource.ITileSource;
 import org.osmdroid.tileprovider.tilesource.XYTileSource;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.FolderOverlay;
+import org.osmdroid.views.overlay.MapEventsOverlay;
+import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Overlay;
+import org.osmdroid.views.overlay.Polygon;
 import org.osmdroid.views.overlay.ScaleBarOverlay;
 import org.osmdroid.views.overlay.compass.CompassOverlay;
 import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider;
@@ -40,6 +50,7 @@ import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
@@ -52,7 +63,7 @@ import io.objectbox.Box;
 public class MapFragment extends Fragment {
     public static MapView map;
     final int MIN_ZOOM=14,MAX_ZOOM=19,PIXEL=256;
-    ArrayList<Overlay> allParsed = new ArrayList<>();
+    public static List<Overlay> allPlotted = new ArrayList<>();
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -62,12 +73,7 @@ public class MapFragment extends Fragment {
         HandlerThread ht = new HandlerThread("Map");
         ht.start();
         final Handler h = new Handler(ht.getLooper());
-        h.post(new Runnable() {
-            @Override
-            public void run() {
-                parseKml(getActivity().getApplication());
-            }
-        });
+        parseKml(getActivity().getApplication(),getContext());
         return view;
     }
 
@@ -114,35 +120,199 @@ public class MapFragment extends Fragment {
         mScaleBarOverlay.setCentred(true);
         mScaleBarOverlay.setScaleBarOffset(width/2, 10);
         map.getOverlays().add(mScaleBarOverlay);
+        MapEventsReceiver mapEventsReceiver = new MapEventsReceiver() {
+            @Override
+            public boolean singleTapConfirmedHelper(GeoPoint p) {
+                for(Overlay overlay : allPlotted){
+                    if(overlay instanceof Polygon){
+                        ((Polygon) overlay).getInfoWindow().close();
+                    }
+                    else if(overlay instanceof Marker){
+                        ((Marker) overlay).getInfoWindow().close();
+                    }
+                }
+                return false;
+            }
+
+            @Override
+            public boolean longPressHelper(GeoPoint p) {
+                return false;
+            }
+        };
+        MapEventsOverlay mapEventsOverlay = new MapEventsOverlay(mapEventsReceiver);
+        map.getOverlays().add(mapEventsOverlay);
     }
 
-    public static void parseKml(Application app){
-        try {
-            final Box<Receiver> receiverBox = ((App) app).getBoxStore().boxFor(Receiver.class);
-            final Box<Sender> senderBox = ((App) app).getBoxStore().boxFor(Sender.class);
-            List<Receiver> receivers = receiverBox.getAll();
-            List<Sender> senders = senderBox.getAll();
-            map.getOverlays().clear();
-            for(Receiver receiver : receivers){
-                String kmlString = receiver.getKml();
-                ByteArrayInputStream is = new ByteArrayInputStream(kmlString.getBytes());
-                KmlDocument kml = new KmlDocument();
-                kml.parseKMLStream(is,null);
-                FolderOverlay overlay = (FolderOverlay) kml.mKmlRoot.buildOverlay(map,null,null,kml);
-                map.getOverlays().add(overlay);
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public static void parseKml(final Application app, final Context context){
+        HandlerThread handlerThread = new HandlerThread("ParseKML");
+        handlerThread.start();
+        Handler h = new Handler(handlerThread.getLooper());
+        h.post(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    final Box<Receiver> receiverBox = ((App) app).getBoxStore().boxFor(Receiver.class);
+                    final Box<Sender> senderBox = ((App) app).getBoxStore().boxFor(Sender.class);
+                    List<Receiver> receivers = receiverBox.getAll();
+                    List<Sender> senders = senderBox.getAll();
+                    for(Overlay overlay : map.getOverlays()){
+                        if( ! (overlay instanceof MapEventsOverlay)){
+                            map.getOverlays().remove(overlay);
+                        }
+                    }
+                    allPlotted.clear();
+                    for(Receiver receiver : receivers){
+                        String kmlString = receiver.getKml();
+                        ByteArrayInputStream is = new ByteArrayInputStream(kmlString.getBytes());
+                        KmlDocument kml = new KmlDocument();
+                        kml.parseKMLStream(is,null);
+                        FolderOverlay overlay = (FolderOverlay) kml.mKmlRoot.buildOverlay(map,null,null,kml);
+                        Object[] objects = extractPointsFromOverlay(overlay);
+                        HashMap<GeoPoint,String> pointsToId = (HashMap<GeoPoint, String>) objects[1];
+                        ArrayList<GeoPoint> points = (ArrayList<GeoPoint>) objects[0];
+                        List<Overlay> overlays = (List<Overlay>)objects[2];
+                        assignMediaToGISObjects(points,pointsToId,kml,overlays,context,true);
+                    }
+                    for(Sender sender : senders){
+                        String kmlString = sender.getKml();
+                        ByteArrayInputStream is = new ByteArrayInputStream(kmlString.getBytes());
+                        KmlDocument kml = new KmlDocument();
+                        kml.parseKMLStream(is,null);
+                        FolderOverlay overlay = (FolderOverlay) kml.mKmlRoot.buildOverlay(map,null,null,kml);
+                        Object[] objects = extractPointsFromOverlay(overlay);
+                        HashMap<GeoPoint,String> pointsToId = (HashMap<GeoPoint, String>) objects[1];
+                        ArrayList<GeoPoint> points = (ArrayList<GeoPoint>) objects[0];
+                        List<Overlay> overlays = (List<Overlay>)objects[2];
+                        assignMediaToGISObjects(points,pointsToId,kml,overlays,context,false);
+                    }
+                }
+
+                catch (Exception e){
+                    e.printStackTrace();
+                }
             }
-            for(Sender sender : senders){
-                String kmlString = sender.getKml();
-                ByteArrayInputStream is = new ByteArrayInputStream(kmlString.getBytes());
-                KmlDocument kml = new KmlDocument();
-                kml.parseKMLStream(is,null);
-                FolderOverlay overlay = (FolderOverlay) kml.mKmlRoot.buildOverlay(map,null,null,kml);
-                map.getOverlays().add(overlay);
+        });
+
+    }
+
+    public static Object[] extractPointsFromOverlay(FolderOverlay folderOverlay){
+        HashMap<GeoPoint,String> pointsToId = new HashMap<>();
+        List<GeoPoint> points = new ArrayList<>();
+        List<Overlay> overlayList = new ArrayList<>();
+        for( Overlay overlay : folderOverlay.getItems()){
+            if(overlay instanceof Polygon){
+                String id = ((Polygon) overlay).getTitle();
+                for(GeoPoint point : ((Polygon) overlay).getPoints()){
+                    pointsToId.put(point,id);
+                    points.add(point);
+                }
+                overlayList.add(overlay);
+            }
+            else if(overlay instanceof Marker){
+                String id = ((Marker) overlay).getTitle();
+                pointsToId.put(((Marker) overlay).getPosition(),id);
+                points.add(((Marker) overlay).getPosition());
+                overlayList.add(overlay);
             }
         }
+        return new Object[]{points,pointsToId,overlayList};
+    }
 
-        catch (Exception e){
-            e.printStackTrace();
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public static void assignMediaToGISObjects(ArrayList<GeoPoint> points, HashMap<GeoPoint,String> pointsToId, KmlDocument kml, List<Overlay> overlayList, Context context, Boolean color){
+        String key = "source";
+        HashMap<String,String> idToSnippet = new HashMap<>();
+        while(kml.mKmlRoot.mExtendedData.containsKey(key)){
+            String msg[] = kml.mKmlRoot.getExtendedData(key).split("-");
+            key = msg[0];
+            String type = msg[1];
+            if(type.contains("image") || type.contains("video") || type.contains("audio")){
+                String latlon[] = msg[4].split("_");
+                Log.d("Snippet",type);
+                Double lat = Double.parseDouble(latlon[0]);
+                Double lon = Double.parseDouble(latlon[1]);
+                GeoPoint g = new GeoPoint(lat,lon);
+                GeoPoint minDisPoint = null;
+                Double minDis = 9999999999.0;
+                for(GeoPoint geoPoint : points){
+                    Double distance = g.distanceToAsDouble(geoPoint);
+                    if( distance < 50){
+                        Log.d("Snippet",geoPoint.toString());
+                        if(minDisPoint == null) {
+                            minDisPoint = geoPoint;
+                            minDis = distance;
+                        }
+                        else if ( minDis > distance){
+                            minDis = distance;
+                            minDisPoint = geoPoint;
+                        }
+                    }
+                }
+                if(minDisPoint==null){
+                    Marker m = new Marker(map);
+                    m.setPosition(g);
+                    m.setSnippet(msg[3]);
+                    CustomInfoWindow ciw = new CustomInfoWindow(R.layout.custom_info_window,map,m,context);
+                    m.setInfoWindow(ciw);
+                    if(color) {
+                        Drawable d = context.getDrawable(R.drawable.marker_red);
+                        m.setIcon(d);
+                    }
+                    else{
+                        Drawable d = context.getDrawable(R.drawable.marker_blue);
+                        m.setIcon(d);
+                    }
+                    map.getOverlays().add(m);
+                    allPlotted.add(m);
+                }
+                else{
+                    String id = pointsToId.get(minDisPoint);
+                    if(idToSnippet.containsKey(id)){
+                        String f = idToSnippet.get(id);
+                        f = f + ";" + msg[3];
+                        idToSnippet.put(id,f);
+                    }
+                    else{
+                        idToSnippet.put(id,msg[3]);
+                        Log.d("Snippet",msg[3]);
+                    }
+                }
+            }
+        }
+        for(Overlay overlay : overlayList){
+            if(overlay instanceof Polygon){
+                String id = ((Polygon) overlay).getTitle();
+                String snippet = idToSnippet.get(id);
+                ((Polygon) overlay).setSnippet(snippet);
+                CustomInfoWindow ciw = new CustomInfoWindow(R.layout.custom_info_window,map,(Polygon)overlay,context);
+                if(color){
+                    ((Polygon) overlay).setStrokeColor(R.color.blue);
+                }
+                else {
+                    ((Polygon) overlay).setStrokeColor(R.color.red);
+                }
+                ((Polygon) overlay).setInfoWindow(ciw);
+                map.getOverlays().add(overlay);
+                allPlotted.add(overlay);
+            }
+            else if(overlay instanceof Marker){
+                String id = ((Marker) overlay).getTitle();
+                String snippet = idToSnippet.get(id);
+                ((Marker) overlay).setSnippet(snippet);
+                if(color){
+                    Drawable d = context.getDrawable(R.drawable.marker_blue);
+                    ((Marker) overlay).setImage(d);
+                }
+                else{
+                    Drawable d = context.getDrawable(R.drawable.marker_red);
+                    ((Marker) overlay).setImage(d);
+                }
+                CustomInfoWindow ciw = new CustomInfoWindow(R.layout.custom_info_window,map,(Marker) overlay,context);
+                ((Marker) overlay).setInfoWindow(ciw);
+                map.getOverlays().add(overlay);
+                allPlotted.add(overlay);
+            }
         }
     }
 }
