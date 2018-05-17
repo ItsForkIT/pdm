@@ -2,6 +2,8 @@ package com.disarm.surakshit.pdm.Chat;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.net.Uri;
@@ -59,8 +61,11 @@ import org.osmdroid.util.GeoPoint;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
@@ -88,7 +93,9 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
     Handler h;
     int previous_total =0;
     String last_file_name="";
+    String pathToFile = "";
     public static GeoPoint currLoc = null;
+    Uri uri;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -557,6 +564,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
 
     private void startCamera(Boolean isKey){
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        cameraIntent.putExtra(MediaStore.EXTRA_SIZE_LIMIT,"262144");
         if(unique.equals("")){
             File sourceDir = Environment.getExternalStoragePublicDirectory("DMS/KML/Source/SourceKml");
             for(File file : sourceDir.listFiles()){
@@ -588,7 +596,8 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
             path = "DMS/tempMedia/";
         }
         File image = Environment.getExternalStoragePublicDirectory(path+fileName);
-        Uri uri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID+".provider",image);
+        pathToFile = path+fileName;
+        uri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID+".provider",image);
         cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT,uri);
         cameraIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         last_file_name = image.getName();
@@ -626,6 +635,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
         else{
             path = "DMS/tempMedia/";
         }
+
         File image = Environment.getExternalStoragePublicDirectory(path+fileName);
         Uri uri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID+".provider",image);
         cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT,uri);
@@ -641,7 +651,32 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                 List<Sender> senders = senderBox.query().contains(Sender_.number, number).build().find();
                 String type = "";
                 if(requestCode == 1000){
+
                     type = "image";
+                    Bitmap bitmap = null;
+                    try {
+                        bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    Bitmap resized = Bitmap.createScaledBitmap(bitmap, 450, 640, true);
+                    FileOutputStream out = null;
+                    File f = Environment.getExternalStoragePublicDirectory(pathToFile);
+                    try {
+                        out = new FileOutputStream(f.getAbsoluteFile());
+                        resized.compress(Bitmap.CompressFormat.JPEG, 100, out); // bmp is your Bitmap instance
+                        // PNG is a lossless format, the compression factor (100) is ignored
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    } finally {
+                        try {
+                            if (out != null) {
+                                out.close();
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
                 else {
                     type = "video";

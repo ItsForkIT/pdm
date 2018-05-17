@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
+import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -26,6 +27,7 @@ import com.disarm.surakshit.pdm.DB.DBEntities.Sender;
 import com.disarm.surakshit.pdm.R;
 import com.disarm.surakshit.pdm.Util.CustomInfoWindow;
 import com.disarm.surakshit.pdm.Util.LatLonUtil;
+import com.disarm.surakshit.pdm.location.MLocation;
 
 import org.apache.commons.io.FileUtils;
 import org.osmdroid.api.IMapController;
@@ -64,6 +66,7 @@ public class MapFragment extends Fragment {
     public static MapView map;
     final int MIN_ZOOM=14,MAX_ZOOM=19,PIXEL=256;
     public static List<Overlay> allPlotted = new ArrayList<>();
+    public static Marker marker;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -72,8 +75,30 @@ public class MapFragment extends Fragment {
         setMapData();
         HandlerThread ht = new HandlerThread("Map");
         ht.start();
-        final Handler h = new Handler(ht.getLooper());
         parseKml(getActivity().getApplication(),getContext());
+        final Handler locHandler = new Handler(ht.getLooper());
+        locHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                Location l = MLocation.getLocation(getContext().getApplicationContext());
+                if(l == null){
+                    locHandler.postDelayed(this,1000);
+                }
+                else{
+                   GeoPoint g = new GeoPoint(l.getLatitude(),l.getLongitude());
+                   if(marker==null) {
+                       marker = new Marker(map);
+                       marker.setPosition(g);
+                       map.getOverlays().add(marker);
+                   }
+                   else {
+                       map.getOverlays().remove(marker);
+                       marker.setPosition(g);
+                       map.getOverlays().add(marker);
+                   }
+                }
+            }
+        });
         return view;
     }
 
@@ -158,7 +183,11 @@ public class MapFragment extends Fragment {
                     List<Sender> senders = senderBox.getAll();
                     for(Overlay overlay : map.getOverlays()){
                         if( ! (overlay instanceof MapEventsOverlay)){
-                            map.getOverlays().remove(overlay);
+                            if( overlay instanceof Marker){
+                                if(overlay != marker){
+                                    map.getOverlays().remove(overlay);
+                                }
+                            }
                         }
                     }
                     allPlotted.clear();
@@ -295,6 +324,7 @@ public class MapFragment extends Fragment {
                 map.getOverlays().add(overlay);
                 allPlotted.add(overlay);
             }
+
             else if(overlay instanceof Marker){
                 String id = ((Marker) overlay).getTitle();
                 String snippet = idToSnippet.get(id);
