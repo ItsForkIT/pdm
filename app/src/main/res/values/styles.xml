@@ -10,6 +10,10 @@
         <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
     </style>
 
+    <style name="menu_labels_style">
+        <item name="android:background">@color/fbutton_color_turquoise</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>

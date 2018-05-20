@@ -106,6 +106,7 @@ dependencies {
 
     //Button Library
     implementation 'com.github.jd-alexander:android-flat-button:v1.1'
+    implementation 'com.getbase:floatingactionbutton:1.10.1'
 
     //EditText
     implementation 'com.github.florent37:materialtextfield:1.0.7'

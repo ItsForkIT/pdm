@@ -1,13 +1,12 @@
 package com.disarm.surakshit.pdm.Fragments;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,7 +24,6 @@ import com.disarm.surakshit.pdm.Chat.Message;
 import com.disarm.surakshit.pdm.Chat.Utils.ChatUtils;
 import com.disarm.surakshit.pdm.DB.DBEntities.App;
 import com.disarm.surakshit.pdm.DB.DBEntities.Receiver;
-import com.disarm.surakshit.pdm.DB.DBEntities.Receiver_;
 import com.disarm.surakshit.pdm.DB.DBEntities.Sender;
 import com.disarm.surakshit.pdm.R;
 import com.disarm.surakshit.pdm.Util.ContactUtil;
@@ -43,7 +41,6 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -51,8 +48,6 @@ import java.util.List;
 import java.util.Locale;
 
 import io.objectbox.Box;
-import io.objectbox.BoxStore;
-import io.objectbox.BoxStoreBuilder;
 
 /**
  * Created by naman on 25/2/18.
@@ -69,22 +64,26 @@ public class ChatFragment extends Fragment {
     HashMap<String,Integer> unreadMap;
     HandlerThread ht;
     Handler h;
-    FloatingActionButton fab,mcsbtn;
+    com.getbase.floatingactionbutton.FloatingActionButton fab,mcsbtn,userbtn;
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_chat,container,false);
-        dialogsList = (DialogsList) view.findViewById(R.id.dialoglist);
-        dialogsListAdapter = new DialogsListAdapter<DefaultDialog>(new ImageLoader() {
+        dialogsList = view.findViewById(R.id.dialoglist);
+        dialogsListAdapter = new DialogsListAdapter<>(new ImageLoader() {
             @Override
             public void loadImage(ImageView imageView, String url) {
                 imageView.setImageDrawable(generateTextDrawable(url));
             }
         });
 
-        fab = (FloatingActionButton) view.findViewById(R.id.btn_new_message);
-        mcsbtn = (FloatingActionButton) view.findViewById(R.id.btn_new_mcs);
+        fab = view.findViewById(R.id.btn_new_message);
+        mcsbtn = view.findViewById(R.id.btn_new_mcs);
+        userbtn = view.findViewById(R.id.btn_new_user);
+
+
+
         dialogsList.setAdapter(dialogsListAdapter);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -98,17 +97,34 @@ public class ChatFragment extends Fragment {
                 startVolunteer();
             }
         });
+        userbtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startUser();
+            }
+        });
         dialogsListAdapter.setOnDialogClickListener(new DialogsListAdapter.OnDialogClickListener<DefaultDialog>() {
             @Override
             public void onDialogClick(DefaultDialog dialog) {
-                Intent i = new Intent(getActivity(), ChatActivity.class);
-                i.putExtra("number",dialog.getUsers().get(0).getId());
-                startActivity(i);
+                String number = dialog.getUsers().get(0).getId();
+                if(!(number.contains("Volunteer") || number.contains("User"))) {
+                    Intent i = new Intent(getActivity(), ChatActivity.class);
+                    i.putExtra("number", number);
+                    startActivity(i);
+                }
             }
         });
         dialogID = new ArrayList<>();
         lastMsg = new HashMap<>();
         unreadMap = new HashMap<>();
+        Author author = new Author("Volunteer","Volunteer");
+        Message message = new Message("Volunteer",author,"text");
+        message.setText(" ");
+        addDialog(message,author,0);
+        Author author1 = new Author("Users","Users");
+        Message message1 = new Message("Users",author1,"text");
+        message1.setText(" ");
+        addDialog(message1,author1,0);
         ht = new HandlerThread("Dialog");
         ht.start();
         h = new Handler(ht.getLooper());
@@ -129,6 +145,12 @@ public class ChatFragment extends Fragment {
     public void startVolunteer(){
         Intent i = new Intent(getActivity(),ChatActivity.class);
         i.putExtra("number","volunteer");
+        startActivity(i);
+    }
+
+    public void startUser(){
+        Intent i = new Intent(getActivity(),ChatActivity.class);
+        i.putExtra("number","user");
         startActivity(i);
     }
 
@@ -262,6 +284,9 @@ public class ChatFragment extends Fragment {
         HashSet<String> receiverDone = new HashSet<>();
         for(int i=0;i<senders.size();i++){
             Sender s = senders.get(i);
+            if(s.getNumber().contains("Volunteer") || s.getNumber().contains("Users")){
+                continue;
+            }
             if(receiverHashMap.containsKey(s.getNumber())){
                 Receiver r = receiverHashMap.get(s.getNumber());
                 Author other = new Author(s.getNumber(),ContactUtil.getContactName(getActivity().getApplicationContext(),s.getNumber()));

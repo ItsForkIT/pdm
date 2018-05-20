@@ -24,8 +24,10 @@ import com.disarm.surakshit.pdm.DB.DBEntities.App;
 import com.disarm.surakshit.pdm.DB.DBEntities.Sender;
 import com.disarm.surakshit.pdm.DB.DBEntities.Sender_;
 import com.disarm.surakshit.pdm.Encryption.KeyBasedFileProcessor;
+import com.disarm.surakshit.pdm.Encryption.SignedFileProcessor;
 import com.disarm.surakshit.pdm.Util.DiffUtils;
 import com.disarm.surakshit.pdm.Util.LatLonUtil;
+import com.disarm.surakshit.pdm.Util.Params;
 import com.disarm.surakshit.pdm.location.MLocation;
 
 import org.apache.commons.io.FileUtils;
@@ -597,5 +599,36 @@ public class CollectMapDataActivity extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void signAndEncrypt(File file, String broadcastTo) throws IOException {
+        String inputPath = file.getAbsolutePath();
+        String secretKeyPath;
+        String outputPath = Environment.getExternalStoragePublicDirectory("DMS/temp/"+FilenameUtils.getBaseName(file.getName())+".asc").getAbsolutePath();
+        if(broadcastTo.equals("user") || broadcastTo.equals("volunteer")){
+            secretKeyPath = Environment.getExternalStoragePublicDirectory("DMS/Working/pgpKey/pri_"+broadcastTo+".bgp").getAbsolutePath();
+        }
+        else{
+            secretKeyPath = Environment.getExternalStoragePublicDirectory("DMS/pgpPrivate/pri_"+number+".bgp").getAbsolutePath();
+        }
+        SignedFileProcessor signedFileProcessor = new SignedFileProcessor();
+        String pass;
+        if(broadcastTo.equals("volunteer")){
+            pass = "volunteer@disarm321";
+        }
+        else{
+            pass = Params.PASS_PHRASE;
+        }
+        signedFileProcessor.signFile(inputPath,outputPath,secretKeyPath,pass);
+        String publicKeyPath = Environment.getExternalStoragePublicDirectory("DMS/Working/pgpKey/pub_"+number+".bgp").getAbsolutePath();
+        String outputFilePath = Environment.getExternalStoragePublicDirectory("DMS/Working/SurakshitKml/"
+                +FilenameUtils.getBaseName(file.getName())+".bgp")
+                .getAbsolutePath();
+        try {
+            KeyBasedFileProcessor.encrypt(outputPath,publicKeyPath,outputFilePath);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        FileUtils.forceDelete(Environment.getExternalStoragePublicDirectory("DMS/temp/temp.asc"));
     }
 }

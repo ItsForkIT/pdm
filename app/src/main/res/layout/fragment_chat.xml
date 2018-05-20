@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+<RelativeLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <com.stfalcon.chatkit.dialogs.DialogsList
@@ -11,25 +11,47 @@
         android:layout_height="match_parent">
     </com.stfalcon.chatkit.dialogs.DialogsList>
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/btn_new_message"
+    <com.getbase.floatingactionbutton.FloatingActionsMenu
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
         android:layout_margin="10dp"
+        app:fab_addButtonSize="mini"
+        app:fab_labelStyle="@style/menu_labels_style"
+        app:fab_addButtonColorNormal="@color/fbutton_color_turquoise"
         android:backgroundTint="@color/fbutton_color_turquoise"
-        app:srcCompat="@drawable/new_message"
-        />
+        app:srcCompat="@drawable/new_message">
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/btn_new_mcs"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:layout_above="@+id/btn_new_message"
-        android:layout_alignParentEnd="true"
-        android:backgroundTint="@color/fbutton_color_turquoise"
-        app:srcCompat="@drawable/marker_cluster" />
+        <com.getbase.floatingactionbutton.FloatingActionButton
+            android:id="@+id/btn_new_user"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:fab_icon="@drawable/broadcast"
+            app:fab_size="mini"
+            app:fab_colorNormal="@color/fbutton_color_turquoise"
+            app:fab_title="@string/broadcast_users"/>
+
+
+        <com.getbase.floatingactionbutton.FloatingActionButton
+            android:id="@+id/btn_new_mcs"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:fab_icon="@drawable/broadcast"
+            app:fab_colorNormal="@color/fbutton_color_turquoise"
+            app:fab_size="mini"
+            app:fab_title="@string/broadcast_volunteers"/>
+
+
+        <com.getbase.floatingactionbutton.FloatingActionButton
+            android:id="@+id/btn_new_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/new_message"
+            app:fab_colorNormal="@color/fbutton_color_turquoise"
+            app:fab_icon="@drawable/new_message"
+            app:fab_size="mini"
+            app:fab_title="@string/cp_contact_tab_title"/>
+    </com.getbase.floatingactionbutton.FloatingActionsMenu>
 
 </RelativeLayout>

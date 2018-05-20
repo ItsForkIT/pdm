@@ -154,13 +154,33 @@ public class KeyBasedFileProcessor
                 InputStream unc = ld.getInputStream();
 
                 //Output path
-                File file = Environment.getExternalStoragePublicDirectory("DMS/KML/Dest/SourceKml/"+outFileName);
+//                File file = Environment.getExternalStoragePublicDirectory("DMS/KML/Dest/SourceKml/"+outFileName);
+//                OutputStream fOut = new BufferedOutputStream(new FileOutputStream(file.getAbsolutePath()));
+//
+//                Streams.pipeAll(unc, fOut);
+//                File latestKml = Environment.getExternalStoragePublicDirectory("DMS/KML/Dest/LatestKml/"+FilenameUtils.getBaseName(outFileName)+"_0.kml");
+//                FileUtils.copyFile(file,latestKml);
+//                fOut.close();
+                File file = Environment.getExternalStoragePublicDirectory("DMS/tempDecrypt/"+outFileName);
                 OutputStream fOut = new BufferedOutputStream(new FileOutputStream(file.getAbsolutePath()));
-
                 Streams.pipeAll(unc, fOut);
-                File latestKml = Environment.getExternalStoragePublicDirectory("DMS/KML/Dest/LatestKml/"+FilenameUtils.getBaseName(outFileName)+"_0.kml");
-                FileUtils.copyFile(file,latestKml);
                 fOut.close();
+                String source = file.getName().split("_")[1];
+                String pubKey = Environment.getExternalStoragePublicDirectory("DMS/Working/pgpKey/pub_"+source+".bgp").getAbsolutePath();
+                if(file.getName().contains("asc")){
+                    SignedFileProcessor sfg = new SignedFileProcessor();
+                    sfg.verifyFile(file.getAbsolutePath(),pubKey,defaultFileName+".kml");
+                    File latestKml = Environment.getExternalStoragePublicDirectory("DMS/KML/Dest/LatestKml/"+FilenameUtils.getBaseName(outFileName)+"_0.kml");
+                    File s = Environment.getExternalStoragePublicDirectory(defaultFileName+".kml");
+                    FileUtils.copyFile(s,latestKml);
+                    FileUtils.forceDelete(file);
+                }
+                else{
+                    File s = Environment.getExternalStoragePublicDirectory("DMS/KML/Source/SourceKml/"+file.getName());
+                    FileUtils.moveFile(file,s);
+                    File latestKml = Environment.getExternalStoragePublicDirectory("DMS/KML/Dest/LatestKml/"+FilenameUtils.getBaseName(outFileName)+"_0.kml");
+                    FileUtils.copyFile(s,latestKml);
+                }
             }
             else if (message instanceof PGPOnePassSignatureList)
             {
@@ -309,6 +329,6 @@ public class KeyBasedFileProcessor
     {
         Security.addProvider(new BouncyCastleProvider());
         File f = Environment.getExternalStoragePublicDirectory(inputFilePath);
-        decryptFile(inputFilePath, keyFilePath, passphrase.toCharArray(), FilenameUtils.getBaseName(f.getName()));
+        decryptFile(inputFilePath, keyFilePath, passphrase.toCharArray(), f.getAbsolutePath());
     }
 }

@@ -48,6 +48,7 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
     public File SourceSourceKml = Environment.getExternalStoragePublicDirectory("DMS/KML/Source/SourceKml");
     public File LatestDest = Environment.getExternalStoragePublicDirectory("DMS/KML/Dest/LatestKml");
     public File DestSourceKml = Environment.getExternalStoragePublicDirectory("DMS/KML/Dest/SourceKml");
+    public File tempDecrypt = Environment.getExternalStoragePublicDirectory("DMS/tempDecrypt");
 
     private EditText phoneText1;
     private Button submitButton;
@@ -151,6 +152,9 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
         }
         if(!tempMedia.exists()){
             tempMedia.mkdir();
+        }
+        if(!tempDecrypt.exists()){
+            tempDecrypt.mkdir();
         }
         copyAssets();
     }

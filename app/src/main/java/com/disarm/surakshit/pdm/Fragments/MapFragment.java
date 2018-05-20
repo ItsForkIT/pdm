@@ -89,6 +89,8 @@ public class MapFragment extends Fragment {
                    if(marker==null) {
                        marker = new Marker(map);
                        marker.setPosition(g);
+                       marker.setIcon(getContext().getDrawable(R.drawable.marker_google));
+                       marker.setSnippet("You are here");
                        map.getOverlays().add(marker);
                    }
                    else {

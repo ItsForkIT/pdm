@@ -37,6 +37,7 @@ import com.disarm.surakshit.pdm.DB.DBEntities.Receiver_;
 import com.disarm.surakshit.pdm.DB.DBEntities.Sender;
 import com.disarm.surakshit.pdm.DB.DBEntities.Sender_;
 import com.disarm.surakshit.pdm.Encryption.KeyBasedFileProcessor;
+import com.disarm.surakshit.pdm.Encryption.SignedFileProcessor;
 import com.disarm.surakshit.pdm.GetLocationActivity;
 import com.disarm.surakshit.pdm.R;
 import com.disarm.surakshit.pdm.ShowMapDataActivity;
@@ -517,6 +518,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
     }
 
     private void encryptIt(File file){
+
         String inputPath = file.getAbsolutePath();
         String publicKeyPath = Environment.getExternalStoragePublicDirectory("DMS/Working/pgpKey/pub_"+number+".bgp").getAbsolutePath();
         String outputFilePath = Environment.getExternalStoragePublicDirectory("DMS/Working/SurakshitKml/"
@@ -527,6 +529,37 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void signAndEncrypt(File file, String broadcastTo) throws IOException {
+        String inputPath = file.getAbsolutePath();
+        String secretKeyPath;
+        String outputPath = Environment.getExternalStoragePublicDirectory("DMS/temp/"+FilenameUtils.getBaseName(file.getName())+".asc").getAbsolutePath();
+        if(broadcastTo.equals("user") || broadcastTo.equals("volunteer")){
+            secretKeyPath = Environment.getExternalStoragePublicDirectory("DMS/Working/pgpKey/pri_"+broadcastTo+".bgp").getAbsolutePath();
+        }
+        else{
+            secretKeyPath = Environment.getExternalStoragePublicDirectory("DMS/pgpPrivate/pri_"+number+".bgp").getAbsolutePath();
+        }
+        SignedFileProcessor signedFileProcessor = new SignedFileProcessor();
+        String pass;
+        if(broadcastTo.equals("volunteer")){
+            pass = "volunteer@disarm321";
+        }
+        else{
+            pass = Params.PASS_PHRASE;
+        }
+        signedFileProcessor.signFile(inputPath,outputPath,secretKeyPath,pass);
+        String publicKeyPath = Environment.getExternalStoragePublicDirectory("DMS/Working/pgpKey/pub_"+number+".bgp").getAbsolutePath();
+        String outputFilePath = Environment.getExternalStoragePublicDirectory("DMS/Working/SurakshitKml/"
+                +FilenameUtils.getBaseName(file.getName())+".bgp")
+                .getAbsolutePath();
+        try {
+            KeyBasedFileProcessor.encrypt(outputPath,publicKeyPath,outputFilePath);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        FileUtils.forceDelete(Environment.getExternalStoragePublicDirectory("DMS/temp/temp.asc"));
     }
 
     private void generateDiff(final File dest){
@@ -654,11 +687,14 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
 
                     type = "image";
                     Bitmap bitmap = null;
+
                     try {
                         bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
-                    } catch (IOException e) {
+                    }
+                    catch (IOException e) {
                         e.printStackTrace();
                     }
+
                     Bitmap resized = Bitmap.createScaledBitmap(bitmap, 450, 640, true);
                     FileOutputStream out = null;
                     File f = Environment.getExternalStoragePublicDirectory(pathToFile);
@@ -730,8 +766,17 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                     sender.setKml(kmlString);
                     senderBox.put(sender);
                     populateChat();
-                    if(isKey)
-                        encryptIt(file);
+                    if(isKey) {
+                        if(!(number.contains("user") || number.contains("volunteer")))
+                            encryptIt(file);
+                        else{
+                            try {
+                                signAndEncrypt(file,number);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
                 }
                 else {
                     String destination;
