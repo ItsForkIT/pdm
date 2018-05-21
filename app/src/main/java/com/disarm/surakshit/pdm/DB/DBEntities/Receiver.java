@@ -16,6 +16,8 @@ public class Receiver {
     int totalMsg;
     int unread;
     String lastMessage;
+    Boolean isVolunteer;
+    Boolean isUser;
     Boolean lastUpdated;
 
     public String getLastMessage() {
@@ -48,6 +50,22 @@ public class Receiver {
     public Receiver(String number,String kml){
         this.number = number;
         this.kml = kml;
+    }
+
+    public Boolean getVolunteer() {
+        return isVolunteer;
+    }
+
+    public void setVolunteer(Boolean volunteer) {
+        isVolunteer = volunteer;
+    }
+
+    public Boolean getUser() {
+        return isUser;
+    }
+
+    public void setUser(Boolean user) {
+        isUser = user;
     }
 
     public String getNumber() {

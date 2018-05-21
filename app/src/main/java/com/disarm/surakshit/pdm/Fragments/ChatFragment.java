@@ -17,6 +17,7 @@ import android.widget.Toast;
 import com.amulyakhare.textdrawable.TextDrawable;
 import com.amulyakhare.textdrawable.util.ColorGenerator;
 import com.disarm.surakshit.pdm.Chat.Author;
+import com.disarm.surakshit.pdm.Chat.BroadcastListActivity;
 import com.disarm.surakshit.pdm.Chat.ChatActivity;
 import com.disarm.surakshit.pdm.Chat.DefaultDialog;
 
@@ -112,6 +113,11 @@ public class ChatFragment extends Fragment {
                     i.putExtra("number", number);
                     startActivity(i);
                 }
+                else{
+                    Intent i = new Intent(getActivity(), BroadcastListActivity.class);
+                    i.putExtra("from",number.toLowerCase());
+                    startActivity(i);
+                }
             }
         });
         dialogID = new ArrayList<>();
@@ -145,12 +151,18 @@ public class ChatFragment extends Fragment {
     public void startVolunteer(){
         Intent i = new Intent(getActivity(),ChatActivity.class);
         i.putExtra("number","volunteer");
+        if(Params.WHO.equalsIgnoreCase("volunteer")){
+            i.putExtra("from","volunteer");
+        }
         startActivity(i);
     }
 
     public void startUser(){
         Intent i = new Intent(getActivity(),ChatActivity.class);
         i.putExtra("number","user");
+        if(Params.WHO.equalsIgnoreCase("volunteer")){
+            i.putExtra("from","volunteer");
+        }
         startActivity(i);
     }
 
@@ -284,7 +296,7 @@ public class ChatFragment extends Fragment {
         HashSet<String> receiverDone = new HashSet<>();
         for(int i=0;i<senders.size();i++){
             Sender s = senders.get(i);
-            if(s.getNumber().contains("Volunteer") || s.getNumber().contains("Users")){
+            if(s.getNumber().contains("volunteer") || s.getNumber().contains("user")){
                 continue;
             }
             if(receiverHashMap.containsKey(s.getNumber())){
@@ -295,7 +307,7 @@ public class ChatFragment extends Fragment {
                 String receiverDate = r.getLastMessage().split("-")[0];
                 Date sDate = df.parse(senderDate);
                 Date rDate = df.parse(receiverDate);
-                Message msg =  null;
+                Message msg;
                 if(sDate.before(rDate)){
                     msg = ChatUtils.getMessageObject(r.getLastMessage(),other);
                 }

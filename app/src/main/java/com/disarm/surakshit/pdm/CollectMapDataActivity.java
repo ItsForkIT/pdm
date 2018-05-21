@@ -21,6 +21,8 @@ import android.widget.Toast;
 import com.disarm.surakshit.pdm.Chat.ChatActivity;
 import com.disarm.surakshit.pdm.Chat.Utils.ChatUtils;
 import com.disarm.surakshit.pdm.DB.DBEntities.App;
+import com.disarm.surakshit.pdm.DB.DBEntities.Receiver;
+import com.disarm.surakshit.pdm.DB.DBEntities.Receiver_;
 import com.disarm.surakshit.pdm.DB.DBEntities.Sender;
 import com.disarm.surakshit.pdm.DB.DBEntities.Sender_;
 import com.disarm.surakshit.pdm.Encryption.KeyBasedFileProcessor;
@@ -79,6 +81,7 @@ public class CollectMapDataActivity extends AppCompatActivity {
     ArrayList<Marker> markerpoints=new ArrayList<>();
     String kmlFileName;
     String number;
+    String from;
     Boolean isKey;
     boolean source = false, curr = false;
     @Override
@@ -92,6 +95,7 @@ public class CollectMapDataActivity extends AppCompatActivity {
         kmlFileName = getIntent().getStringExtra("kml");
         number = getIntent().getStringExtra("number");
         isKey = getIntent().getBooleanExtra("key",false);
+        from = getIntent().getExtras().getString("from","normal");
         if(isKey)
             kmlFile = Environment.getExternalStoragePublicDirectory("DMS/KML/Source/LatestKml/"+kmlFileName);
         else{
@@ -165,6 +169,7 @@ public class CollectMapDataActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                 }
+
                 String uniqueId = generateRandomString();
                 currentPosition.setTitle(uniqueId);
                 KmlPlacemark kmlPlacemark = new KmlPlacemark(currentPosition);
@@ -181,25 +186,57 @@ public class CollectMapDataActivity extends AppCompatActivity {
                         File dest = Environment.getExternalStoragePublicDirectory("DMS/KML/Source/SourceKml/" + FilenameUtils.getBaseName(kmlFile.getName()) + ".kml");
                         try {
                             FileUtils.copyFile(kmlFile, dest);
-                            encryptIt(dest);
+                            if(!(from.equalsIgnoreCase("user") || from.equalsIgnoreCase("volunteer")))
+                                encryptIt(dest);
+                            else
+                                signAndEncrypt(dest,from);
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
                     }
                 }
-                final Box<Sender> senderBox = ((App) getApplication()).getBoxStore().boxFor(Sender.class);
-                List<Sender> senderList = senderBox.query().contains(Sender_.number, number).build().find();
+                final Box<Receiver> receiverBox = ((App)getApplication()).getBoxStore().boxFor(Receiver.class);
+                List<Receiver> receivers;
+                final Box<Sender> senderBox = ((App)getApplication()).getBoxStore().boxFor(Sender.class);
+                List<Sender> senders;
+                if(from.equals("volunteer")){
+                    receivers = receiverBox.query().equal(Receiver_.number,number).equal(Receiver_.isVolunteer,true).build().find();
+                    senders = senderBox.query().equal(Sender_.number,number).equal(Sender_.isVolunteer,true).build().find();
+                }
+                else if(from.equals("user")){
+                    receivers = receiverBox.query().equal(Receiver_.number,number).equal(Receiver_.isUser,true).build().find();
+                    senders = senderBox.query().equal(Sender_.number,number).equal(Sender_.isUser,true).build().find();
+                }
+                else{
+                    receivers = receiverBox.query().equal(Receiver_.number,number).equal(Receiver_.isVolunteer,false).equal(Receiver_.isUser,false).build().find();
+                    senders = senderBox.query().equal(Sender_.number,number).equal(Sender_.isVolunteer,false).equal(Sender_.isUser,false).build().find();
+                }
                 Sender s;
-                if(senderList.size()==0){
+                if(senders.size()==0){
                     s = new Sender();
                     s.setNumber(number);
                 }
                 else {
-                    s = senderList.get(0);
+                    s = senders.get(0);
                     diff_flag = 1;
                 }
                 s.setLastUpdated(true);
                 s.setLastMessage(message);
+                switch (from) {
+                    case "user":
+                        s.setUser(true);
+                        s.setVolunteer(false);
+                        break;
+                    case "volunteer":
+                        s.setVolunteer(true);
+                        s.setUser(false);
+                        break;
+                    default:
+                        s.setUser(false);
+                        s.setVolunteer(false);
+                        break;
+                }
+
                 String kmlString = "";
                 try {
                     assert kmlFile != null;
@@ -447,25 +484,57 @@ public class CollectMapDataActivity extends AppCompatActivity {
                             File dest = Environment.getExternalStoragePublicDirectory("DMS/KML/Source/SourceKml/"+FilenameUtils.getBaseName(kmlFile.getName()) + ".kml");
                             try {
                                 FileUtils.copyFile(kmlFile,dest);
-                                encryptIt(dest);
+                                if(!(from.equalsIgnoreCase("user") || from.equalsIgnoreCase("volunteer")))
+                                    encryptIt(dest);
+                                else
+                                    signAndEncrypt(dest,from);
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
                         }
-                        final Box<Sender> senderBox = ((App) getApplication()).getBoxStore().boxFor(Sender.class);
-                        List<Sender> senderList = senderBox.query().contains(Sender_.number, number).build().find();
-                        Sender s;
-                        if(senderList.size()==0){
+                    final Box<Receiver> receiverBox = ((App)getApplication()).getBoxStore().boxFor(Receiver.class);
+                    List<Receiver> receivers;
+                    final Box<Sender> senderBox = ((App)getApplication()).getBoxStore().boxFor(Sender.class);
+                    List<Sender> senders;
+                    if(from.equals("volunteer")){
+                        receivers = receiverBox.query().equal(Receiver_.number,number).equal(Receiver_.isVolunteer,true).build().find();
+                        senders = senderBox.query().equal(Sender_.number,number).equal(Sender_.isVolunteer,true).build().find();
+                    }
+                    else if(from.equals("user")){
+                        receivers = receiverBox.query().equal(Receiver_.number,number).equal(Receiver_.isUser,true).build().find();
+                        senders = senderBox.query().equal(Sender_.number,number).equal(Sender_.isUser,true).build().find();
+                    }
+                    else{
+                        receivers = receiverBox.query().equal(Receiver_.number,number).equal(Receiver_.isVolunteer,false).equal(Receiver_.isUser,false).build().find();
+                        senders = senderBox.query().equal(Sender_.number,number).equal(Sender_.isVolunteer,false).equal(Sender_.isUser,false).build().find();
+                    }
+                    Sender s;
+                        if(senders.size()==0){
                             s = new Sender();
                             s.setNumber(number);
                         }
                         else {
-                            s = senderList.get(0);
+                            s = senders.get(0);
                             diff_flag = 1;
                         }
                         s.setLastUpdated(true);
                         s.setLastMessage(message);
-                        String kmlString = "";
+                    switch (from) {
+                        case "user":
+                            s.setUser(true);
+                            s.setVolunteer(false);
+                            break;
+                        case "volunteer":
+                            s.setVolunteer(true);
+                            s.setUser(false);
+                            break;
+                        default:
+                            s.setUser(false);
+                            s.setVolunteer(false);
+                            break;
+                    }
+
+                    String kmlString = "";
                         try {
                             assert kmlFile != null;
                             kmlString = FileUtils.readFileToString(kmlFile);

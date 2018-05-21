@@ -33,7 +33,7 @@
     },
     {
       "id": "2:7160886611727526126",
-      "lastPropertyId": "6:2487935633014097516",
+      "lastPropertyId": "7:1943034003690905338",
       "name": "Receiver",
       "properties": [
         {
@@ -59,12 +59,144 @@
         {
           "id": "6:2487935633014097516",
           "name": "lastUpdated"
+        },
+        {
+          "id": "7:1943034003690905338",
+          "name": "unread"
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "3:123017473882529989",
+      "lastPropertyId": "7:1379438054685443371",
+      "name": "VolunteerReceiver",
+      "properties": [
+        {
+          "id": "1:8222019944745251326",
+          "name": "id"
+        },
+        {
+          "id": "2:6135449445953366551",
+          "name": "number"
+        },
+        {
+          "id": "3:3876120398972415815",
+          "name": "kml"
+        },
+        {
+          "id": "4:4316559427766398046",
+          "name": "totalMsg"
+        },
+        {
+          "id": "5:5287465160223522714",
+          "name": "unread"
+        },
+        {
+          "id": "6:8953164506805220600",
+          "name": "lastMessage"
+        },
+        {
+          "id": "7:1379438054685443371",
+          "name": "lastUpdated"
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "4:3581759549105047978",
+      "lastPropertyId": "5:5445380689982870696",
+      "name": "VolunteerSender",
+      "properties": [
+        {
+          "id": "1:8450810475730337780",
+          "name": "id"
+        },
+        {
+          "id": "2:8642104266436015794",
+          "name": "number"
+        },
+        {
+          "id": "3:6231379620359830105",
+          "name": "kml"
+        },
+        {
+          "id": "4:4849440738820228655",
+          "name": "lastMessage"
+        },
+        {
+          "id": "5:5445380689982870696",
+          "name": "lastUpdated"
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "5:6664208378476093496",
+      "lastPropertyId": "7:1925121666365238889",
+      "name": "UserReceiver",
+      "properties": [
+        {
+          "id": "1:7065529439471594312",
+          "name": "id"
+        },
+        {
+          "id": "2:6405690722300163894",
+          "name": "number"
+        },
+        {
+          "id": "3:8718292348592669120",
+          "name": "kml"
+        },
+        {
+          "id": "4:8640888995531589891",
+          "name": "totalMsg"
+        },
+        {
+          "id": "5:3414217267428282445",
+          "name": "unread"
+        },
+        {
+          "id": "6:6373936929972727768",
+          "name": "lastMessage"
+        },
+        {
+          "id": "7:1925121666365238889",
+          "name": "lastUpdated"
+        }
+      ],
+      "relations": []
+    },
+    {
+      "id": "6:2613192916433329767",
+      "lastPropertyId": "5:7516427514085413843",
+      "name": "UserSender",
+      "properties": [
+        {
+          "id": "1:6677999230375532506",
+          "name": "id"
+        },
+        {
+          "id": "2:1507950469533386989",
+          "name": "number"
+        },
+        {
+          "id": "3:5145710003745621770",
+          "name": "kml"
+        },
+        {
+          "id": "4:3459214825716966775",
+          "name": "lastMessage"
+        },
+        {
+          "id": "5:7516427514085413843",
+          "name": "lastUpdated"
         }
       ],
       "relations": []
     }
   ],
-  "lastEntityId": "2:7160886611727526126",
+  "lastEntityId": "6:2613192916433329767",
   "lastIndexId": "0:0",
   "lastRelationId": "0:0",
   "lastSequenceId": "0:0",

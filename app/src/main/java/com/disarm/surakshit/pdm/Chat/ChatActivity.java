@@ -36,6 +36,7 @@ import com.disarm.surakshit.pdm.DB.DBEntities.Receiver;
 import com.disarm.surakshit.pdm.DB.DBEntities.Receiver_;
 import com.disarm.surakshit.pdm.DB.DBEntities.Sender;
 import com.disarm.surakshit.pdm.DB.DBEntities.Sender_;
+
 import com.disarm.surakshit.pdm.Encryption.KeyBasedFileProcessor;
 import com.disarm.surakshit.pdm.Encryption.SignedFileProcessor;
 import com.disarm.surakshit.pdm.GetLocationActivity;
@@ -84,6 +85,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
     ImageLoader load;
     String number;
     String unique="";
+    String from;
     Author me,other;
     MessagesListAdapter<Message> messagesListAdapter;
     ArrayList<Message> allMessages;
@@ -96,6 +98,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
     String last_file_name="";
     String pathToFile = "";
     public static GeoPoint currLoc = null;
+    String source_number;
     Uri uri;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -136,8 +139,19 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
         });
         allMessages = new ArrayList<>();
         number = getIntent().getStringExtra("number");
+        from = getIntent().getExtras().getString("from","normal");
         String receiversName = ContactUtil.getContactName(getApplicationContext(),number);
-        me = new Author(Params.SOURCE_PHONE_NO,"Me");
+        if(number.contains("user") || number.contains("volunteer")){
+            if(Params.WHO.equalsIgnoreCase("volunteer")){
+                source_number = "v"+Params.SOURCE_PHONE_NO;
+                me = new Author(source_number,"Me");
+            }
+            else{
+                source_number = Params.SOURCE_PHONE_NO;
+                me = new Author(source_number,"Me");
+            }
+        }
+
         other = new Author(number,receiversName);
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -153,14 +167,29 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
         h.post(new Runnable() {
             @Override
             public void run() {
+
                 final Box<Receiver> receiverBox = ((App)getApplication()).getBoxStore().boxFor(Receiver.class);
-                List<Receiver> receivers = receiverBox.query().equal(Receiver_.number,number).build().find();
-                final Box<Sender> senderBox = ((App)getApplication()).getBoxStore().boxFor(Sender.class);
-                List<Sender> senders = senderBox.query().equal(Sender_.number,number).build().find();
-                if(receivers.size()!=0 || senders.size()!=0){
-                    populateChat();
+                    List<Receiver> receivers;
+                    final Box<Sender> senderBox = ((App)getApplication()).getBoxStore().boxFor(Sender.class);
+                    List<Sender> senders;
+                    if(from.equals("volunteer")){
+                        receivers = receiverBox.query().equal(Receiver_.number,number).equal(Receiver_.isVolunteer,true).build().find();
+                        senders = senderBox.query().equal(Sender_.number,number).equal(Sender_.isVolunteer,true).build().find();
+                    }
+                    else if(from.equals("user")){
+                        receivers = receiverBox.query().equal(Receiver_.number,number).equal(Receiver_.isUser,true).build().find();
+                        senders = senderBox.query().equal(Sender_.number,number).equal(Sender_.isUser,true).build().find();
+                    }
+                    else{
+                        receivers = receiverBox.query().equal(Receiver_.number,number).build().find();
+                        senders = senderBox.query().equal(Sender_.number,number).build().find();
+                    }
+                    if(receivers.size()!=0 || senders.size()!=0){
+                        populateChat();
+
+                    h.postDelayed(this,1500);
                 }
-                h.postDelayed(this,1500);
+
             }
         });
 
@@ -179,16 +208,28 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
 
     private void populateChat(){
 
-        final Box<Sender> senderBox = ((App)getApplication()).getBoxStore().boxFor(Sender.class);
         final Box<Receiver> receiverBox = ((App)getApplication()).getBoxStore().boxFor(Receiver.class);
-
-        List<Sender> senders = senderBox.query().equal(Sender_.number,number).build().find();
-        List<Receiver> receivers = receiverBox.query().equal(Receiver_.number,number).build().find();
-
+        List<Receiver> receivers;
+        final Box<Sender> senderBox = ((App)getApplication()).getBoxStore().boxFor(Sender.class);
+        List<Sender> senders;
+        if(from.equals("volunteer")){
+            Log.d("CHAT","Volunteer Populate Chat");
+            receivers = receiverBox.query().equal(Receiver_.number,number).equal(Receiver_.isVolunteer,true).build().find();
+            senders = senderBox.query().equal(Sender_.number,number).equal(Sender_.isVolunteer,true).build().find();
+        }
+        else if(from.equals("user")){
+            receivers = receiverBox.query().equal(Receiver_.number,number).equal(Receiver_.isUser,true).build().find();
+            senders = senderBox.query().equal(Sender_.number,number).equal(Sender_.isUser,true).build().find();
+        }
+        else{
+            receivers = receiverBox.query().equal(Receiver_.number,number).equal(Receiver_.isVolunteer,false).equal(Receiver_.isUser,false).build().find();
+            senders = senderBox.query().equal(Sender_.number,number).equal(Sender_.isVolunteer,false).equal(Sender_.isUser,false).build().find();
+        }
         KmlDocument senderKml = new KmlDocument();
         KmlDocument receiversKml = new KmlDocument();
 
         if(senders.size() != 0 ) {
+            Log.d("CHAT","Sender size not 0");
             String sendersKml = senders.get(0).getKml();
             InputStream sendersStream = new ByteArrayInputStream(sendersKml.getBytes(StandardCharsets.UTF_8));
             senderKml.parseKMLStream(sendersStream, null);
@@ -283,7 +324,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                 OutgoingVideoHolders.class,R.layout.chat_outgoing_video,
                 this);
 
-        messagesListAdapter = new MessagesListAdapter<Message>(Params.SOURCE_PHONE_NO,holders,load);
+        messagesListAdapter = new MessagesListAdapter<Message>(source_number,holders,load);
     }
 
     private void setMessagesListAdapterListener(){
@@ -301,7 +342,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                 }
                 else if(message.isMap()){
                     Intent i = new Intent(ChatActivity.this, ShowMapDataActivity.class);
-                    if(message.getUser().getId().equals(Params.SOURCE_PHONE_NO)){
+                    if(message.getUser().getId().equals(source_number)){
                         i.putExtra("who","me");
                     }
                     else{
@@ -408,8 +449,22 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                     sourcePath = "DMS/KML/Source/SourceKml/";
                 }
 
-                final Box<Sender> senderBox = ((App) getApplication()).getBoxStore().boxFor(Sender.class);
-                List<Sender> senders = senderBox.query().contains(Sender_.number, number).build().find();
+                final Box<Receiver> receiverBox = ((App)getApplication()).getBoxStore().boxFor(Receiver.class);
+                List<Receiver> receivers;
+                final Box<Sender> senderBox = ((App)getApplication()).getBoxStore().boxFor(Sender.class);
+                List<Sender> senders;
+                if(from.equals("volunteer")){
+                    receivers = receiverBox.query().equal(Receiver_.number,number).equal(Receiver_.isVolunteer,true).build().find();
+                    senders = senderBox.query().equal(Sender_.number,number).equal(Sender_.isVolunteer,true).build().find();
+                }
+                else if(from.equals("user")){
+                    receivers = receiverBox.query().equal(Receiver_.number,number).equal(Receiver_.isUser,true).build().find();
+                    senders = senderBox.query().equal(Sender_.number,number).equal(Sender_.isUser,true).build().find();
+                }
+                else{
+                    receivers = receiverBox.query().equal(Receiver_.number,number).equal(Receiver_.isVolunteer,false).equal(Receiver_.isUser,false).build().find();
+                    senders = senderBox.query().equal(Sender_.number,number).equal(Sender_.isVolunteer,false).equal(Sender_.isUser,false).build().find();
+                }
                 if(messagesListAdapter.getItemCount() == 0 || senders.size() == 0) {
                     KmlDocument kml = new KmlDocument();
                     String extendedDataFormat = ChatUtils.getExtendedDataFormatName(input.toString(), "text", "none");
@@ -429,6 +484,20 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                     sender.setNumber(number);
                     sender.setLastMessage(extendedDataFormat);
                     sender.setLastUpdated(true);
+                    switch (from) {
+                        case "user":
+                            sender.setUser(true);
+                            sender.setVolunteer(false);
+                            break;
+                        case "volunteer":
+                            sender.setVolunteer(true);
+                            sender.setUser(false);
+                            break;
+                        default:
+                            sender.setUser(false);
+                            sender.setVolunteer(false);
+                            break;
+                    }
                     String kmlString = "";
                     try {
                         kmlString = FileUtils.readFileToString(file);
@@ -438,8 +507,17 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                     sender.setKml(kmlString);
                     senderBox.put(sender);
                     populateChat();
-                    if(isKey)
-                        encryptIt(file);
+                    if(isKey) {
+                        if(!(number.contains("user") || number.contains("volunteer")))
+                            encryptIt(file);
+                        else{
+                            try {
+                                signAndEncrypt(file,number);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
                 }
                 else {
                     String destination="";
@@ -453,7 +531,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                     File latestSourceDir = Environment.getExternalStoragePublicDirectory(destination);
                     File kmlFile = null;
                     for (File file : latestSourceDir.listFiles()) {
-                        if (file.getName().contains(number)) {
+                        if (file.getName().contains(number) && file.getName().contains(source_number)) {
                             kml.parseKMLFile(file);
                             kmlFile = file;
                             break;
@@ -471,10 +549,24 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                     total++;
                     kml.mKmlRoot.setExtendedData("total", total + "");
                     kml.saveAsKML(kmlFile);
-                    List<Sender> senderList = senderBox.query().contains(Sender_.number, number).build().find();
-                    Sender s = senderList.get(0);
-                    s.setLastUpdated(true);
-                    s.setLastMessage(extendedDataFormat);
+                    Sender sender = senders.get(0);
+                    sender.setLastUpdated(true);
+                    sender.setLastMessage(extendedDataFormat);
+                    switch (from) {
+                        case "user":
+                            sender.setUser(true);
+                            sender.setVolunteer(false);
+                            break;
+                        case "volunteer":
+                            sender.setVolunteer(true);
+                            sender.setUser(false);
+                            break;
+                        default:
+                            sender.setUser(false);
+                            sender.setVolunteer(false);
+                            break;
+                    }
+
                     String kmlString = "";
                     try {
                         assert kmlFile != null;
@@ -482,8 +574,8 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    s.setKml(kmlString);
-                    senderBox.put(s);
+                    sender.setKml(kmlString);
+                    senderBox.put(sender);
                     populateChat();
                     if(isKey) {
                         generateDiff(kmlFile);
@@ -513,7 +605,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
 
 
     private File getNewFileObject(String path){
-        String fileName = generateRandomString() + "_" + Params.SOURCE_PHONE_NO + "_" + number + "_" + "50";
+        String fileName = generateRandomString() + "_" + source_number + "_" + number + "_" + "50";
         return Environment.getExternalStoragePublicDirectory(path+fileName+".kml");
     }
 
@@ -559,7 +651,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
         } catch (Exception e) {
             e.printStackTrace();
         }
-        FileUtils.forceDelete(Environment.getExternalStoragePublicDirectory("DMS/temp/temp.asc"));
+        FileUtils.forceDelete(new File(outputPath));
     }
 
     private void generateDiff(final File dest){
@@ -620,7 +712,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
         if(unique.equals("")){
             unique = generateRandomString();
         }
-        String fileName = unique + "_" + Params.SOURCE_PHONE_NO + "_" + number + "_50_" + generateRandomString(8)+".jpeg";
+        String fileName = unique + "_" + source_number + "_" + number + "_50_" + generateRandomString(8)+".jpeg";
         String path;
         if(isKey){
             path = "DMS/Working/SurakshitImages/";
@@ -660,7 +752,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
         if(unique.equals("")){
             unique = generateRandomString();
         }
-        String fileName = unique + "_" + Params.SOURCE_PHONE_NO + "_" + number + "_50_" + generateRandomString(8)+".mp4";
+        String fileName = unique + "_" + source_number + "_" + number + "_50_" + generateRandomString(8)+".mp4";
         String path;
         if(isKey){
             path = "DMS/Working/SurakshitVideos/";
@@ -680,9 +772,23 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if ((requestCode == 1000 || requestCode == 1001) && resultCode == RESULT_OK) {
-                final Box<Sender> senderBox = ((App) getApplication()).getBoxStore().boxFor(Sender.class);
-                List<Sender> senders = senderBox.query().contains(Sender_.number, number).build().find();
-                String type = "";
+            final Box<Receiver> receiverBox = ((App)getApplication()).getBoxStore().boxFor(Receiver.class);
+            List<Receiver> receivers;
+            final Box<Sender> senderBox = ((App)getApplication()).getBoxStore().boxFor(Sender.class);
+            List<Sender> senders;
+            if(from.equals("volunteer")){
+                receivers = receiverBox.query().equal(Receiver_.number,number).equal(Receiver_.isVolunteer,true).build().find();
+                senders = senderBox.query().equal(Sender_.number,number).equal(Sender_.isVolunteer,true).build().find();
+            }
+            else if(from.equals("user")){
+                receivers = receiverBox.query().equal(Receiver_.number,number).equal(Receiver_.isUser,true).build().find();
+                senders = senderBox.query().equal(Sender_.number,number).equal(Sender_.isUser,true).build().find();
+            }
+            else{
+                receivers = receiverBox.query().equal(Receiver_.number,number).equal(Receiver_.isVolunteer,false).equal(Receiver_.isUser,false).build().find();
+                senders = senderBox.query().equal(Sender_.number,number).equal(Sender_.isVolunteer,false).equal(Sender_.isUser,false).build().find();
+            }
+            String type = "";
                 if(requestCode == 1000){
 
                     type = "image";
@@ -738,7 +844,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                     String extendedDataFormat = ChatUtils.getExtendedDataFormatName(last_file_name, type, "none");
                     kml.mKmlRoot.setExtendedData("source", extendedDataFormat);
                     kml.mKmlRoot.setExtendedData("total", "1");
-                    String fileName = last_file_name.split("_")[0] + "_" + Params.SOURCE_PHONE_NO + "_" + number +"_50.kml";
+                    String fileName = last_file_name.split("_")[0] + "_" + source_number + "_" + number +"_50.kml";
                     File file = null;
                     if(isKey)
                         file =Environment.getExternalStoragePublicDirectory("DMS/KML/Source/SourceKml/"+fileName);
@@ -757,6 +863,21 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                     sender.setNumber(number);
                     sender.setLastMessage(extendedDataFormat);
                     sender.setLastUpdated(true);
+                    switch (from) {
+                        case "user":
+                            sender.setUser(true);
+                            sender.setVolunteer(false);
+                            break;
+                        case "volunteer":
+                            sender.setVolunteer(true);
+                            sender.setUser(false);
+                            break;
+                        default:
+                            sender.setUser(false);
+                            sender.setVolunteer(false);
+                            break;
+                    }
+
                     String kmlString = "";
                     try {
                         kmlString = FileUtils.readFileToString(file);
@@ -808,10 +929,25 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                     total++;
                     kml.mKmlRoot.setExtendedData("total", total + "");
                     kml.saveAsKML(kmlFile);
-                    List<Sender> senderList = senderBox.query().contains(Sender_.number, number).build().find();
-                    Sender s = senderList.get(0);
+
+                    Sender s = senders.get(0);
                     s.setLastUpdated(true);
                     s.setLastMessage(extendedDataFormat);
+                    switch (from) {
+                        case "user":
+                            s.setUser(true);
+                            s.setVolunteer(false);
+                            break;
+                        case "volunteer":
+                            s.setVolunteer(true);
+                            s.setUser(false);
+                            break;
+                        default:
+                            s.setUser(false);
+                            s.setVolunteer(false);
+                            break;
+                    }
+
                     String kmlString = "";
                     try {
                         assert kmlFile != null;
@@ -853,6 +989,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
     public void startMap(){
         Intent ii = new Intent(this, CollectMapDataActivity.class);
         ii.putExtra("number",number);
+        ii.putExtra("from",from);
         File latestKmlDir = Environment.getExternalStoragePublicDirectory("DMS/KML/Source/SourceKml/");
         File[] files = latestKmlDir.listFiles();
         File latestKmlFile = null;
@@ -875,7 +1012,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
             }
         }
         if(latestKmlFile == null){
-            fileName = generateRandomString()+"_"+Params.SOURCE_PHONE_NO+"_"+number+"_50.kml";
+            fileName = generateRandomString()+"_"+source_number+"_"+number+"_50.kml";
         }
         else{
             fileName = latestKmlFile.getName();

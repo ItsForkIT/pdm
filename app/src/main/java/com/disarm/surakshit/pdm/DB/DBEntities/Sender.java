@@ -14,7 +14,7 @@ public class Sender {
     String number;
     String kml;
     String lastMessage;
-    Boolean lastUpdated;
+    Boolean lastUpdated, isUser, isVolunteer;
     public Sender(){
 
     }
@@ -48,6 +48,22 @@ public class Sender {
 
     public Boolean getLastUpdated() {
         return lastUpdated;
+    }
+
+    public Boolean getUser() {
+        return isUser;
+    }
+
+    public void setUser(Boolean user) {
+        isUser = user;
+    }
+
+    public Boolean getVolunteer() {
+        return isVolunteer;
+    }
+
+    public void setVolunteer(Boolean volunteer) {
+        isVolunteer = volunteer;
     }
 
     public void setLastUpdated(Boolean lastUpdated) {

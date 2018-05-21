@@ -4,7 +4,6 @@ apply plugin: 'io.objectbox'
 android {
 
 
-
     compileSdkVersion 27
     buildToolsVersion '27.0.3'
     def BUILD_DATE = new Date().format('yyyy_MM_dd_HHmm')
@@ -46,7 +45,7 @@ android {
         multiDexEnabled true
     }
     buildTypes {
-        debug{
+        debug {
             versionNameSuffix ".debug"
             resValue "string", "app_version",
                     "${defaultConfig.versionName}${versionNameSuffix}"
@@ -56,12 +55,12 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             applicationVariants.all { variant ->
                 variant.outputs.all {
-                    outputFileName = "Surakshit_New_UI_"+defaultConfig.getVersionName()+".apk"
+                    outputFileName = "Surakshit_New_UI_" + defaultConfig.getVersionName() + ".apk"
                 }
             }
         }
     }
-    gradle.taskGraph.whenReady {taskGraph ->
+    gradle.taskGraph.whenReady { taskGraph ->
         if (taskGraph.hasTask(assembleDebug)) {  /* when run debug task */
             autoIncrementBuildNumber()
         } else if (taskGraph.hasTask(assembleRelease)) { /* when run release task */
