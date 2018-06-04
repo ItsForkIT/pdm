@@ -16,9 +16,9 @@ public class Receiver {
     int totalMsg;
     int unread;
     String lastMessage;
-    Boolean isVolunteer;
-    Boolean isUser;
-    Boolean lastUpdated;
+    boolean forVolunteer;
+    boolean forUser;
+    boolean lastUpdated;
 
     public String getLastMessage() {
         return lastMessage;
@@ -28,11 +28,11 @@ public class Receiver {
         this.lastMessage = lastMessage;
     }
 
-    public Boolean getLastUpdated() {
+    public boolean getLastUpdated() {
         return lastUpdated;
     }
 
-    public void setLastUpdated(Boolean lastUpdated) {
+    public void setLastUpdated(boolean lastUpdated) {
         this.lastUpdated = lastUpdated;
     }
 
@@ -52,20 +52,32 @@ public class Receiver {
         this.kml = kml;
     }
 
-    public Boolean getVolunteer() {
-        return isVolunteer;
+    public long getId() {
+        return id;
     }
 
-    public void setVolunteer(Boolean volunteer) {
-        isVolunteer = volunteer;
+    public void setId(long id) {
+        this.id = id;
     }
 
-    public Boolean getUser() {
-        return isUser;
+    public boolean isForVolunteer() {
+        return forVolunteer;
     }
 
-    public void setUser(Boolean user) {
-        isUser = user;
+    public void setForVolunteer(boolean forVolunteer) {
+        this.forVolunteer = forVolunteer;
+    }
+
+    public boolean isForUser() {
+        return forUser;
+    }
+
+    public void setForUser(boolean forUser) {
+        this.forUser = forUser;
+    }
+
+    public boolean isLastUpdated() {
+        return lastUpdated;
     }
 
     public String getNumber() {

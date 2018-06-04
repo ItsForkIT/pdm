@@ -1,5 +1,6 @@
 package com.disarm.surakshit.pdm.Chat;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -69,6 +70,16 @@ public class BroadcastListActivity extends AppCompatActivity {
         } catch (ParseException e) {
             e.printStackTrace();
         }
+        dialogsListAdapter.setOnDialogClickListener(new DialogsListAdapter.OnDialogClickListener<DefaultDialog>() {
+            @Override
+            public void onDialogClick(DefaultDialog dialog) {
+                Intent i = new Intent(BroadcastListActivity.this,ChatActivity.class);
+                i.putExtra("from",from);
+                i.putExtra("number",dialog.getId());
+                i.putExtra("reply",false);
+                startActivity(i);
+            }
+        });
     }
 
     private void addDialog(final Message msg ,final Author author ,final int unread){
@@ -137,15 +148,13 @@ public class BroadcastListActivity extends AppCompatActivity {
         final List<Sender> senders;
         final List<Receiver> receivers;
 
-        if(from.equalsIgnoreCase("users")){
-            Log.d("BROADCAST","Users");
-            senders = senderBox.query().equal(Sender_.number,"user").build().find();
-            receivers = receiverBox.query().equal(Receiver_.number,"user").build().find();
+        if(from.equalsIgnoreCase("user")){
+            senders = senderBox.query().equal(Sender_.forUser,true).build().find();
+            receivers = receiverBox.query().equal(Receiver_.forUser,true).build().find();
         }
         else{
-            Log.d("BROADCAST","Volunteer");
-            senders = senderBox.query().equal(Sender_.number,"volunteer").build().find();
-            receivers = receiverBox.query().equal(Receiver_.number,"volunteer").build().find();
+            senders = senderBox.query().equal(Sender_.forVolunteer,true).build().find();
+            receivers = receiverBox.query().equal(Receiver_.forVolunteer,true).build().find();
         }
         HashMap<String,Receiver> receiverHashMap = new HashMap<>();
 
@@ -184,7 +193,7 @@ public class BroadcastListActivity extends AppCompatActivity {
                     addDialog(msg, author, 0);
                 }
                 catch (Exception e){
-
+                    e.printStackTrace();
                 }
             }
         }

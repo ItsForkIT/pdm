@@ -142,7 +142,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
         from = getIntent().getExtras().getString("from","normal");
         String receiversName = ContactUtil.getContactName(getApplicationContext(),number);
         if(number.contains("user") || number.contains("volunteer")){
-            if(Params.WHO.equalsIgnoreCase("volunteer")){
+            if(Params.WHO.equalsIgnoreCase("volunteer") && from.equalsIgnoreCase("volunteer")){
                 source_number = "v"+Params.SOURCE_PHONE_NO;
                 me = new Author(source_number,"Me");
             }
@@ -151,7 +151,14 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                 me = new Author(source_number,"Me");
             }
         }
-
+        else{
+            source_number = Params.SOURCE_PHONE_NO;
+            me = new Author(source_number,"Me");
+        }
+        boolean reply = getIntent().getBooleanExtra("reply",true);
+        if(!reply){
+            messageInput.setVisibility(View.GONE);
+        }
         other = new Author(number,receiversName);
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -172,24 +179,24 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                     List<Receiver> receivers;
                     final Box<Sender> senderBox = ((App)getApplication()).getBoxStore().boxFor(Sender.class);
                     List<Sender> senders;
-                    if(from.equals("volunteer")){
-                        receivers = receiverBox.query().equal(Receiver_.number,number).equal(Receiver_.isVolunteer,true).build().find();
-                        senders = senderBox.query().equal(Sender_.number,number).equal(Sender_.isVolunteer,true).build().find();
-                    }
-                    else if(from.equals("user")){
-                        receivers = receiverBox.query().equal(Receiver_.number,number).equal(Receiver_.isUser,true).build().find();
-                        senders = senderBox.query().equal(Sender_.number,number).equal(Sender_.isUser,true).build().find();
-                    }
-                    else{
-                        receivers = receiverBox.query().equal(Receiver_.number,number).build().find();
-                        senders = senderBox.query().equal(Sender_.number,number).build().find();
-                    }
+                switch (from) {
+                    case "volunteer":
+                        receivers = receiverBox.query().equal(Receiver_.number, number).equal(Receiver_.forVolunteer, true).build().find();
+                        senders = senderBox.query().equal(Sender_.number, number).equal(Sender_.forVolunteer, true).build().find();
+                        break;
+                    case "user":
+                        Log.d("DATABASE","Searching for User having number "+number);
+                        receivers = receiverBox.query().equal(Receiver_.number, number).equal(Receiver_.forUser, true).build().find();
+                        senders = senderBox.query().equal(Sender_.number, number).equal(Sender_.forUser, true).build().find();
+                        break;
+                    default:
+                        receivers = receiverBox.query().equal(Receiver_.number, number).build().find();
+                        senders = senderBox.query().equal(Sender_.number, number).build().find();
+                        break;
+                }
                     if(receivers.size()!=0 || senders.size()!=0){
                         populateChat();
-
-                    h.postDelayed(this,1500);
-                }
-
+                    }
             }
         });
 
@@ -212,18 +219,19 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
         List<Receiver> receivers;
         final Box<Sender> senderBox = ((App)getApplication()).getBoxStore().boxFor(Sender.class);
         List<Sender> senders;
-        if(from.equals("volunteer")){
+        if(from.equalsIgnoreCase("volunteer")){
             Log.d("CHAT","Volunteer Populate Chat");
-            receivers = receiverBox.query().equal(Receiver_.number,number).equal(Receiver_.isVolunteer,true).build().find();
-            senders = senderBox.query().equal(Sender_.number,number).equal(Sender_.isVolunteer,true).build().find();
+            receivers = receiverBox.query().equal(Receiver_.number,number).equal(Receiver_.forVolunteer,true).build().find();
+            senders = senderBox.query().equal(Sender_.number,number).equal(Sender_.forVolunteer,true).build().find();
         }
-        else if(from.equals("user")){
-            receivers = receiverBox.query().equal(Receiver_.number,number).equal(Receiver_.isUser,true).build().find();
-            senders = senderBox.query().equal(Sender_.number,number).equal(Sender_.isUser,true).build().find();
+        else if(from.equalsIgnoreCase("user")){
+            Log.d("DATABASE","User Populate Chat");
+            receivers = receiverBox.query().equal(Receiver_.number,number).equal(Receiver_.forUser,true).build().find();
+            senders = senderBox.query().equal(Sender_.number,number).equal(Sender_.forUser,true).build().find();
         }
         else{
-            receivers = receiverBox.query().equal(Receiver_.number,number).equal(Receiver_.isVolunteer,false).equal(Receiver_.isUser,false).build().find();
-            senders = senderBox.query().equal(Sender_.number,number).equal(Sender_.isVolunteer,false).equal(Sender_.isUser,false).build().find();
+            receivers = receiverBox.query().equal(Receiver_.number,number).equal(Receiver_.forVolunteer,false).equal(Receiver_.forUser,false).build().find();
+            senders = senderBox.query().equal(Sender_.number,number).equal(Sender_.forVolunteer,false).equal(Sender_.forUser,false).build().find();
         }
         KmlDocument senderKml = new KmlDocument();
         KmlDocument receiversKml = new KmlDocument();
@@ -453,17 +461,17 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                 List<Receiver> receivers;
                 final Box<Sender> senderBox = ((App)getApplication()).getBoxStore().boxFor(Sender.class);
                 List<Sender> senders;
-                if(from.equals("volunteer")){
-                    receivers = receiverBox.query().equal(Receiver_.number,number).equal(Receiver_.isVolunteer,true).build().find();
-                    senders = senderBox.query().equal(Sender_.number,number).equal(Sender_.isVolunteer,true).build().find();
+                if(from.equalsIgnoreCase("volunteer")){
+                    receivers = receiverBox.query().equal(Receiver_.number,number).equal(Receiver_.forVolunteer,true).build().find();
+                    senders = senderBox.query().equal(Sender_.number,number).equal(Sender_.forVolunteer,true).build().find();
                 }
-                else if(from.equals("user")){
-                    receivers = receiverBox.query().equal(Receiver_.number,number).equal(Receiver_.isUser,true).build().find();
-                    senders = senderBox.query().equal(Sender_.number,number).equal(Sender_.isUser,true).build().find();
+                else if(from.equalsIgnoreCase("user")){
+                    receivers = receiverBox.query().equal(Receiver_.number,number).equal(Receiver_.forUser,true).build().find();
+                    senders = senderBox.query().equal(Sender_.number,number).equal(Sender_.forUser,true).build().find();
                 }
                 else{
-                    receivers = receiverBox.query().equal(Receiver_.number,number).equal(Receiver_.isVolunteer,false).equal(Receiver_.isUser,false).build().find();
-                    senders = senderBox.query().equal(Sender_.number,number).equal(Sender_.isVolunteer,false).equal(Sender_.isUser,false).build().find();
+                    receivers = receiverBox.query().equal(Receiver_.number,number).equal(Receiver_.forVolunteer,false).equal(Receiver_.forUser,false).build().find();
+                    senders = senderBox.query().equal(Sender_.number,number).equal(Sender_.forVolunteer,false).equal(Sender_.forUser,false).build().find();
                 }
                 if(messagesListAdapter.getItemCount() == 0 || senders.size() == 0) {
                     KmlDocument kml = new KmlDocument();
@@ -473,7 +481,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                     File file = getNewFileObject(sourcePath);
                     kml.saveAsKML(file);
                     if(isKey) {
-                        File dest = Environment.getExternalStoragePublicDirectory(destinationPath + FilenameUtils.getBaseName(file.getName()) + ".kml");
+                        File dest = Environment.getExternalStoragePublicDirectory(destinationPath + FilenameUtils.getBaseName(file.getName()) + "_0.kml");
                         try {
                             FileUtils.copyFile(file, dest);
                         } catch (IOException e) {
@@ -484,20 +492,22 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                     sender.setNumber(number);
                     sender.setLastMessage(extendedDataFormat);
                     sender.setLastUpdated(true);
-                    switch (from) {
+                    switch (number) {
                         case "user":
-                            sender.setUser(true);
-                            sender.setVolunteer(false);
+                            Log.d("DATABASE","Setting database value for user");
+                            sender.setForUser(true);
+                            sender.setForVolunteer(false);
                             break;
                         case "volunteer":
-                            sender.setVolunteer(true);
-                            sender.setUser(false);
+                            sender.setForVolunteer(true);
+                            sender.setForUser(false);
                             break;
                         default:
-                            sender.setUser(false);
-                            sender.setVolunteer(false);
+                            sender.setForUser(false);
+                            sender.setForVolunteer(false);
                             break;
                     }
+                    Log.d("DATABASE","Entering value for "+number);
                     String kmlString = "";
                     try {
                         kmlString = FileUtils.readFileToString(file);
@@ -552,21 +562,22 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                     Sender sender = senders.get(0);
                     sender.setLastUpdated(true);
                     sender.setLastMessage(extendedDataFormat);
-                    switch (from) {
+                    switch (number) {
                         case "user":
-                            sender.setUser(true);
-                            sender.setVolunteer(false);
+                            Log.d("DATABASE","Setting database value for user");
+                            sender.setForUser(true);
+                            sender.setForVolunteer(false);
                             break;
                         case "volunteer":
-                            sender.setVolunteer(true);
-                            sender.setUser(false);
+                            sender.setForVolunteer(true);
+                            sender.setForUser(false);
                             break;
                         default:
-                            sender.setUser(false);
-                            sender.setVolunteer(false);
+                            sender.setForUser(false);
+                            sender.setForVolunteer(false);
                             break;
                     }
-
+                    Log.d("DATABASE","Entering value for "+number);
                     String kmlString = "";
                     try {
                         assert kmlFile != null;
@@ -627,7 +638,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
         String inputPath = file.getAbsolutePath();
         String secretKeyPath;
         String outputPath = Environment.getExternalStoragePublicDirectory("DMS/temp/"+FilenameUtils.getBaseName(file.getName())+".asc").getAbsolutePath();
-        if(broadcastTo.equals("user") || broadcastTo.equals("volunteer")){
+        if(broadcastTo.equalsIgnoreCase("user") || broadcastTo.equalsIgnoreCase("volunteer")){
             secretKeyPath = Environment.getExternalStoragePublicDirectory("DMS/Working/pgpKey/pri_"+broadcastTo+".bgp").getAbsolutePath();
         }
         else{
@@ -635,7 +646,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
         }
         SignedFileProcessor signedFileProcessor = new SignedFileProcessor();
         String pass;
-        if(broadcastTo.equals("volunteer")){
+        if(broadcastTo.equalsIgnoreCase("volunteer")){
             pass = "volunteer@disarm321";
         }
         else{
@@ -690,7 +701,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
     private void startCamera(Boolean isKey){
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         cameraIntent.putExtra(MediaStore.EXTRA_SIZE_LIMIT,"262144");
-        if(unique.equals("")){
+        if(unique.equalsIgnoreCase("")){
             File sourceDir = Environment.getExternalStoragePublicDirectory("DMS/KML/Source/SourceKml");
             for(File file : sourceDir.listFiles()){
                 if(file.getName().contains(number)){
@@ -709,7 +720,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
             }
         }
 
-        if(unique.equals("")){
+        if(unique.equalsIgnoreCase("")){
             unique = generateRandomString();
         }
         String fileName = unique + "_" + source_number + "_" + number + "_50_" + generateRandomString(8)+".jpeg";
@@ -731,7 +742,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
 
     private void startVideo(Boolean isKey){
         Intent cameraIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-        if(unique.equals("")){
+        if(unique.equalsIgnoreCase("")){
             File sourceDir = Environment.getExternalStoragePublicDirectory("DMS/KML/Source/SourceKml");
             for(File file : sourceDir.listFiles()){
                 if(file.getName().contains(number)){
@@ -749,7 +760,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                 }
             }
         }
-        if(unique.equals("")){
+        if(unique.equalsIgnoreCase("")){
             unique = generateRandomString();
         }
         String fileName = unique + "_" + source_number + "_" + number + "_50_" + generateRandomString(8)+".mp4";
@@ -776,17 +787,17 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
             List<Receiver> receivers;
             final Box<Sender> senderBox = ((App)getApplication()).getBoxStore().boxFor(Sender.class);
             List<Sender> senders;
-            if(from.equals("volunteer")){
-                receivers = receiverBox.query().equal(Receiver_.number,number).equal(Receiver_.isVolunteer,true).build().find();
-                senders = senderBox.query().equal(Sender_.number,number).equal(Sender_.isVolunteer,true).build().find();
+            if(from.equalsIgnoreCase("volunteer")){
+                receivers = receiverBox.query().equal(Receiver_.number,number).equal(Receiver_.forVolunteer,true).build().find();
+                senders = senderBox.query().equal(Sender_.number,number).equal(Sender_.forVolunteer,true).build().find();
             }
-            else if(from.equals("user")){
-                receivers = receiverBox.query().equal(Receiver_.number,number).equal(Receiver_.isUser,true).build().find();
-                senders = senderBox.query().equal(Sender_.number,number).equal(Sender_.isUser,true).build().find();
+            else if(from.equalsIgnoreCase("user")){
+                receivers = receiverBox.query().equal(Receiver_.number,number).equal(Receiver_.forUser,true).build().find();
+                senders = senderBox.query().equal(Sender_.number,number).equal(Sender_.forUser,true).build().find();
             }
             else{
-                receivers = receiverBox.query().equal(Receiver_.number,number).equal(Receiver_.isVolunteer,false).equal(Receiver_.isUser,false).build().find();
-                senders = senderBox.query().equal(Sender_.number,number).equal(Sender_.isVolunteer,false).equal(Sender_.isUser,false).build().find();
+                receivers = receiverBox.query().equal(Receiver_.number,number).equal(Receiver_.forVolunteer,false).equal(Receiver_.forUser,false).build().find();
+                senders = senderBox.query().equal(Sender_.number,number).equal(Sender_.forVolunteer,false).equal(Sender_.forUser,false).build().find();
             }
             String type = "";
                 if(requestCode == 1000){
@@ -852,7 +863,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                         file =Environment.getExternalStoragePublicDirectory(destinationPath+fileName);
                     kml.saveAsKML(file);
                     if(isKey) {
-                        File dest = Environment.getExternalStoragePublicDirectory(destinationPath + FilenameUtils.getBaseName(file.getName()) + ".kml");
+                        File dest = Environment.getExternalStoragePublicDirectory(destinationPath + FilenameUtils.getBaseName(file.getName()) + "_0.kml");
                         try {
                             FileUtils.copyFile(file, dest);
                         } catch (IOException e) {
@@ -863,18 +874,18 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                     sender.setNumber(number);
                     sender.setLastMessage(extendedDataFormat);
                     sender.setLastUpdated(true);
-                    switch (from) {
+                    switch (number) {
                         case "user":
-                            sender.setUser(true);
-                            sender.setVolunteer(false);
+                            sender.setForUser(true);
+                            sender.setForVolunteer(false);
                             break;
                         case "volunteer":
-                            sender.setVolunteer(true);
-                            sender.setUser(false);
+                            sender.setForVolunteer(true);
+                            sender.setForUser(false);
                             break;
                         default:
-                            sender.setUser(false);
-                            sender.setVolunteer(false);
+                            sender.setForUser(false);
+                            sender.setForVolunteer(false);
                             break;
                     }
 
@@ -933,18 +944,18 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                     Sender s = senders.get(0);
                     s.setLastUpdated(true);
                     s.setLastMessage(extendedDataFormat);
-                    switch (from) {
+                    switch (number) {
                         case "user":
-                            s.setUser(true);
-                            s.setVolunteer(false);
+                            s.setForUser(true);
+                            s.setForVolunteer(false);
                             break;
                         case "volunteer":
-                            s.setVolunteer(true);
-                            s.setUser(false);
+                            s.setForVolunteer(true);
+                            s.setForUser(false);
                             break;
                         default:
-                            s.setUser(false);
-                            s.setVolunteer(false);
+                            s.setForUser(false);
+                            s.setForVolunteer(false);
                             break;
                     }
 

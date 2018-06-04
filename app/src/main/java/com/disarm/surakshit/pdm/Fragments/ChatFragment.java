@@ -25,7 +25,9 @@ import com.disarm.surakshit.pdm.Chat.Message;
 import com.disarm.surakshit.pdm.Chat.Utils.ChatUtils;
 import com.disarm.surakshit.pdm.DB.DBEntities.App;
 import com.disarm.surakshit.pdm.DB.DBEntities.Receiver;
+import com.disarm.surakshit.pdm.DB.DBEntities.Receiver_;
 import com.disarm.surakshit.pdm.DB.DBEntities.Sender;
+import com.disarm.surakshit.pdm.DB.DBEntities.Sender_;
 import com.disarm.surakshit.pdm.R;
 import com.disarm.surakshit.pdm.Util.ContactUtil;
 import com.disarm.surakshit.pdm.Util.Params;
@@ -127,8 +129,8 @@ public class ChatFragment extends Fragment {
         Message message = new Message("Volunteer",author,"text");
         message.setText(" ");
         addDialog(message,author,0);
-        Author author1 = new Author("Users","Users");
-        Message message1 = new Message("Users",author1,"text");
+        Author author1 = new Author("User","User");
+        Message message1 = new Message("User",author1,"text");
         message1.setText(" ");
         addDialog(message1,author1,0);
         ht = new HandlerThread("Dialog");
@@ -151,18 +153,14 @@ public class ChatFragment extends Fragment {
     public void startVolunteer(){
         Intent i = new Intent(getActivity(),ChatActivity.class);
         i.putExtra("number","volunteer");
-        if(Params.WHO.equalsIgnoreCase("volunteer")){
-            i.putExtra("from","volunteer");
-        }
+        i.putExtra("from","volunteer");
         startActivity(i);
     }
 
     public void startUser(){
         Intent i = new Intent(getActivity(),ChatActivity.class);
         i.putExtra("number","user");
-        if(Params.WHO.equalsIgnoreCase("volunteer")){
-            i.putExtra("from","volunteer");
-        }
+        i.putExtra("from","user");
         startActivity(i);
     }
 
@@ -193,6 +191,8 @@ public class ChatFragment extends Fragment {
                 }
                 else {
                     intent.putExtra("number", ph.toString());
+                    intent.putExtra("reply",true);
+                    intent.putExtra("from","normal");
                     startActivity(intent);
                 }
             }
@@ -285,8 +285,10 @@ public class ChatFragment extends Fragment {
         final Box<Sender> senderBox = ((App)getActivity().getApplication()).getBoxStore().boxFor(Sender.class);
         final Box<Receiver> receiverBox = ((App)getActivity().getApplication()).getBoxStore().boxFor(Receiver.class);
 
-        final List<Sender> senders = senderBox.getAll();
-        final List<Receiver> receivers = receiverBox.getAll();
+        final List<Sender> senders = senderBox.query().equal(Sender_.forVolunteer,false)
+                .equal(Sender_.forUser,false).build().find();
+        final List<Receiver> receivers = receiverBox.query().equal(Receiver_.forVolunteer,false)
+                .equal(Receiver_.forUser,false).build().find();
 
         HashMap<String,Receiver> receiverHashMap = new HashMap<>();
 

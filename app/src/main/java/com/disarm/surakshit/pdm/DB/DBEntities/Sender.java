@@ -14,7 +14,7 @@ public class Sender {
     String number;
     String kml;
     String lastMessage;
-    Boolean lastUpdated, isUser, isVolunteer;
+    boolean lastUpdated, forUser, forVolunteer;
     public Sender(){
 
     }
@@ -24,6 +24,26 @@ public class Sender {
     }
     public String getNumber() {
         return number;
+    }
+
+    public boolean isLastUpdated() {
+        return lastUpdated;
+    }
+
+    public boolean isForUser() {
+        return forUser;
+    }
+
+    public void setForUser(boolean forUser) {
+        this.forUser = forUser;
+    }
+
+    public boolean isForVolunteer() {
+        return forVolunteer;
+    }
+
+    public void setForVolunteer(boolean forVolunteer) {
+        this.forVolunteer = forVolunteer;
     }
 
     public void setNumber(String number) {
@@ -46,27 +66,12 @@ public class Sender {
         this.lastMessage = lastMessage;
     }
 
-    public Boolean getLastUpdated() {
+    public boolean getLastUpdated() {
         return lastUpdated;
     }
 
-    public Boolean getUser() {
-        return isUser;
-    }
 
-    public void setUser(Boolean user) {
-        isUser = user;
-    }
-
-    public Boolean getVolunteer() {
-        return isVolunteer;
-    }
-
-    public void setVolunteer(Boolean volunteer) {
-        isVolunteer = volunteer;
-    }
-
-    public void setLastUpdated(Boolean lastUpdated) {
+    public void setLastUpdated(boolean lastUpdated) {
         this.lastUpdated = lastUpdated;
     }
 }

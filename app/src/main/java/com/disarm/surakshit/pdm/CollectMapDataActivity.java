@@ -200,16 +200,16 @@ public class CollectMapDataActivity extends AppCompatActivity {
                 final Box<Sender> senderBox = ((App)getApplication()).getBoxStore().boxFor(Sender.class);
                 List<Sender> senders;
                 if(from.equals("volunteer")){
-                    receivers = receiverBox.query().equal(Receiver_.number,number).equal(Receiver_.isVolunteer,true).build().find();
-                    senders = senderBox.query().equal(Sender_.number,number).equal(Sender_.isVolunteer,true).build().find();
+                    receivers = receiverBox.query().equal(Receiver_.number,number).equal(Receiver_.forVolunteer,true).build().find();
+                    senders = senderBox.query().equal(Sender_.number,number).equal(Sender_.forVolunteer,true).build().find();
                 }
                 else if(from.equals("user")){
-                    receivers = receiverBox.query().equal(Receiver_.number,number).equal(Receiver_.isUser,true).build().find();
-                    senders = senderBox.query().equal(Sender_.number,number).equal(Sender_.isUser,true).build().find();
+                    receivers = receiverBox.query().equal(Receiver_.number,number).equal(Receiver_.forUser,true).build().find();
+                    senders = senderBox.query().equal(Sender_.number,number).equal(Sender_.forUser,true).build().find();
                 }
                 else{
-                    receivers = receiverBox.query().equal(Receiver_.number,number).equal(Receiver_.isVolunteer,false).equal(Receiver_.isUser,false).build().find();
-                    senders = senderBox.query().equal(Sender_.number,number).equal(Sender_.isVolunteer,false).equal(Sender_.isUser,false).build().find();
+                    receivers = receiverBox.query().equal(Receiver_.number,number).equal(Receiver_.forVolunteer,false).equal(Receiver_.forUser,false).build().find();
+                    senders = senderBox.query().equal(Sender_.number,number).equal(Sender_.forVolunteer,false).equal(Sender_.forUser,false).build().find();
                 }
                 Sender s;
                 if(senders.size()==0){
@@ -222,18 +222,18 @@ public class CollectMapDataActivity extends AppCompatActivity {
                 }
                 s.setLastUpdated(true);
                 s.setLastMessage(message);
-                switch (from) {
+                switch (number) {
                     case "user":
-                        s.setUser(true);
-                        s.setVolunteer(false);
+                        s.setForUser(true);
+                        s.setForVolunteer(false);
                         break;
                     case "volunteer":
-                        s.setVolunteer(true);
-                        s.setUser(false);
+                        s.setForVolunteer(true);
+                        s.setForUser(false);
                         break;
                     default:
-                        s.setUser(false);
-                        s.setVolunteer(false);
+                        s.setForUser(false);
+                        s.setForVolunteer(false);
                         break;
                 }
 
@@ -497,16 +497,16 @@ public class CollectMapDataActivity extends AppCompatActivity {
                     final Box<Sender> senderBox = ((App)getApplication()).getBoxStore().boxFor(Sender.class);
                     List<Sender> senders;
                     if(from.equals("volunteer")){
-                        receivers = receiverBox.query().equal(Receiver_.number,number).equal(Receiver_.isVolunteer,true).build().find();
-                        senders = senderBox.query().equal(Sender_.number,number).equal(Sender_.isVolunteer,true).build().find();
+                        receivers = receiverBox.query().equal(Receiver_.number,number).equal(Receiver_.forVolunteer,true).build().find();
+                        senders = senderBox.query().equal(Sender_.number,number).equal(Sender_.forVolunteer,true).build().find();
                     }
                     else if(from.equals("user")){
-                        receivers = receiverBox.query().equal(Receiver_.number,number).equal(Receiver_.isUser,true).build().find();
-                        senders = senderBox.query().equal(Sender_.number,number).equal(Sender_.isUser,true).build().find();
+                        receivers = receiverBox.query().equal(Receiver_.number,number).equal(Receiver_.forUser,true).build().find();
+                        senders = senderBox.query().equal(Sender_.number,number).equal(Sender_.forUser,true).build().find();
                     }
                     else{
-                        receivers = receiverBox.query().equal(Receiver_.number,number).equal(Receiver_.isVolunteer,false).equal(Receiver_.isUser,false).build().find();
-                        senders = senderBox.query().equal(Sender_.number,number).equal(Sender_.isVolunteer,false).equal(Sender_.isUser,false).build().find();
+                        receivers = receiverBox.query().equal(Receiver_.number,number).equal(Receiver_.forVolunteer,false).equal(Receiver_.forUser,false).build().find();
+                        senders = senderBox.query().equal(Sender_.number,number).equal(Sender_.forVolunteer,false).equal(Sender_.forUser,false).build().find();
                     }
                     Sender s;
                         if(senders.size()==0){
@@ -519,18 +519,18 @@ public class CollectMapDataActivity extends AppCompatActivity {
                         }
                         s.setLastUpdated(true);
                         s.setLastMessage(message);
-                    switch (from) {
+                    switch (number) {
                         case "user":
-                            s.setUser(true);
-                            s.setVolunteer(false);
+                            s.setForUser(true);
+                            s.setForVolunteer(false);
                             break;
                         case "volunteer":
-                            s.setVolunteer(true);
-                            s.setUser(false);
+                            s.setForVolunteer(true);
+                            s.setForUser(false);
                             break;
                         default:
-                            s.setUser(false);
-                            s.setVolunteer(false);
+                            s.setForUser(false);
+                            s.setForVolunteer(false);
                             break;
                     }
 

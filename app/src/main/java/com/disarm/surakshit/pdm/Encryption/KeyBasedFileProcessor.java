@@ -5,6 +5,7 @@ package com.disarm.surakshit.pdm.Encryption;
  */
 
 import android.os.Environment;
+import android.util.Log;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -87,7 +88,6 @@ public class KeyBasedFileProcessor
             throws IOException, NoSuchProviderException
     {
         in = PGPUtil.getDecoderStream(in);
-
         try
         {
             JcaPGPObjectFactory pgpF = new JcaPGPObjectFactory(in);
@@ -109,22 +109,28 @@ public class KeyBasedFileProcessor
             //
             // find the secret key
             //
+            Log.d("SIGNED","Finding the secret key");
             Iterator it = enc.getEncryptedDataObjects();
+            Log.d("SIGNED","After IT");
             PGPPrivateKey               sKey = null;
             PGPPublicKeyEncryptedData   pbe = null;
             PGPSecretKeyRingCollection  pgpSec = new PGPSecretKeyRingCollection(
                     PGPUtil.getDecoderStream(keyIn), new JcaKeyFingerprintCalculator());
-
+            Log.d("SIGNED","After pgpSec");
             while (sKey == null && it.hasNext())
             {
+                Log.d("SIGNED","In While");
                 pbe = (PGPPublicKeyEncryptedData)it.next();
-
                 sKey = PGPExampleUtil.findSecretKey(pgpSec, pbe.getKeyID(), passwd);
             }
 
             if (sKey == null)
             {
+                Log.d("SIGNED","Key not found");
                 throw new IllegalArgumentException("secret key for message not found.");
+            }
+            else{
+                Log.d("SIGNED","Secret key found");
             }
 
             InputStream clear = pbe.getDataStream(new JcePublicKeyDataDecryptorFactoryBuilder().setProvider(new BouncyCastleProvider()).build(sKey));
@@ -137,7 +143,6 @@ public class KeyBasedFileProcessor
             {
                 PGPCompressedData   cData = (PGPCompressedData)message;
                 JcaPGPObjectFactory    pgpFact = new JcaPGPObjectFactory(cData.getDataStream());
-
                 message = pgpFact.nextObject();
             }
 
@@ -161,22 +166,43 @@ public class KeyBasedFileProcessor
 //                File latestKml = Environment.getExternalStoragePublicDirectory("DMS/KML/Dest/LatestKml/"+FilenameUtils.getBaseName(outFileName)+"_0.kml");
 //                FileUtils.copyFile(file,latestKml);
 //                fOut.close();
+                Log.d("SIGNED","After Decrypt");
                 File file = Environment.getExternalStoragePublicDirectory("DMS/tempDecrypt/"+outFileName);
                 OutputStream fOut = new BufferedOutputStream(new FileOutputStream(file.getAbsolutePath()));
                 Streams.pipeAll(unc, fOut);
                 fOut.close();
+                Log.d("SIGNED","Output"+file.getAbsolutePath());
                 String source = file.getName().split("_")[1];
-                String pubKey = Environment.getExternalStoragePublicDirectory("DMS/Working/pgpKey/pub_"+source+".bgp").getAbsolutePath();
+                String pubKey;
+                if(file.getName().contains("volunteer")){
+                    Log.d("SIGNED","Using volunteers pub key");
+                    pubKey = Environment.getExternalStoragePublicDirectory("DMS/Working/pgpKey/pub_volunteer.bgp").getAbsolutePath();
+                }
+                else if(file.getName().contains("user")){
+                    Log.d("SIGNED","Using users pub key");
+                    pubKey = Environment.getExternalStoragePublicDirectory("DMS/Working/pgpKey/pub_user.bgp").getAbsolutePath();
+                }
+                else {
+                    Log.d("SIGNED","Using normal pub key");
+                    pubKey = Environment.getExternalStoragePublicDirectory("DMS/Working/pgpKey/pub_" + source + ".bgp").getAbsolutePath();
+                }
                 if(file.getName().contains("asc")){
                     SignedFileProcessor sfg = new SignedFileProcessor();
-                    sfg.verifyFile(file.getAbsolutePath(),pubKey,defaultFileName+".kml");
+                    Log.d("SIGNED","Inside unsigning process");
+                    File f = Environment.getExternalStoragePublicDirectory("DMS/KML/Dest/SourceKml/"+FilenameUtils.getBaseName(outFileName)+".kml");
+                    if(sfg.verifyFile(file.getAbsolutePath(),pubKey,f.getAbsolutePath())){
+                        Log.d("SIGNED","Verified");
+                    }
+                    else{
+                        Log.d("SIGNED","Not Verified");
+                    }
                     File latestKml = Environment.getExternalStoragePublicDirectory("DMS/KML/Dest/LatestKml/"+FilenameUtils.getBaseName(outFileName)+"_0.kml");
-                    File s = Environment.getExternalStoragePublicDirectory(defaultFileName+".kml");
+                    File s = Environment.getExternalStoragePublicDirectory("DMS/KML/Dest/SourceKml/"+FilenameUtils.getBaseName(outFileName)+".kml");
                     FileUtils.copyFile(s,latestKml);
                     FileUtils.forceDelete(file);
                 }
                 else{
-                    File s = Environment.getExternalStoragePublicDirectory("DMS/KML/Source/SourceKml/"+file.getName());
+                    File s = Environment.getExternalStoragePublicDirectory("DMS/KML/Dest/SourceKml/"+file.getName());
                     FileUtils.moveFile(file,s);
                     File latestKml = Environment.getExternalStoragePublicDirectory("DMS/KML/Dest/LatestKml/"+FilenameUtils.getBaseName(outFileName)+"_0.kml");
                     FileUtils.copyFile(s,latestKml);
@@ -184,10 +210,12 @@ public class KeyBasedFileProcessor
             }
             else if (message instanceof PGPOnePassSignatureList)
             {
+                Log.d("SIGNED","encrypted message contains a signed message - not literal data.");
                 throw new PGPException("encrypted message contains a signed message - not literal data.");
             }
             else
             {
+                Log.d("SIGNED","message is not a simple encrypted file - type unknown.");
                 throw new PGPException("message is not a simple encrypted file - type unknown.");
             }
 
