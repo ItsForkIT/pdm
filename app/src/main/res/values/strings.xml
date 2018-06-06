@@ -89,5 +89,6 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="broadcast_volunteers">Broadcast to Volunteers</string>
     <string name="broadcast_users">Broadcast to Common users</string>
+    <string name="recording">Recording...</string>
 
 </resources>
