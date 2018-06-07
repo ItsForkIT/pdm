@@ -25,7 +25,7 @@ public class DiffUtils {
 
 
     public static void createDiff(File source, File destination, Application app, Context context) throws IOException {
-        File delta = Environment.getExternalStoragePublicDirectory("/DMS/Working/SurakshitDiff/"+getDeltaName(destination));
+        File delta = Environment.getExternalStoragePublicDirectory("/DMS/Working/SurakshitDiff/"+getDeltaName(destination,FilenameUtils.getBaseName(source.getName())));
         try {
             JBDiff.bsdiff(source, destination, delta);
             MapFragment.parseKml(app,context);
@@ -41,7 +41,7 @@ public class DiffUtils {
             File destination = getDestinationFile(delta);
             try {
                 JBPatch.bspatch(source, destination, delta);
-                FileUtils.forceDelete(delta);
+                //FileUtils.forceDelete(delta);
                 MapFragment.parseKml(app,context);
                 return true;
             }
@@ -53,9 +53,8 @@ public class DiffUtils {
         return false;
     }
 
-    private static String getDeltaName(File source) throws IOException {
+    private static String getDeltaName(File source,String name) throws IOException {
         File diffDir = Environment.getExternalStoragePublicDirectory("DMS/Working/SurakshitDiff");
-        String name = FilenameUtils.getBaseName(source.getName());
         KmlDocument kml = new KmlDocument();
         kml.parseKMLFile(source);
         int version = Integer.parseInt(kml.mKmlRoot.getExtendedData("total"))-1;
