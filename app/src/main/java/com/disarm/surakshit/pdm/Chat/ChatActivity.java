@@ -479,7 +479,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                     File file = getNewFileObject(sourcePath);
                     kml.saveAsKML(file);
                     if (isKey) {
-                        File dest = Environment.getExternalStoragePublicDirectory(destinationPath + FilenameUtils.getBaseName(file.getName()) + "_0.kml");
+                        File dest = Environment.getExternalStoragePublicDirectory(destinationPath + FilenameUtils.getBaseName(file.getName()) + ".kml");
                         try {
                             FileUtils.copyFile(file, dest);
                         } catch (IOException e) {
@@ -850,7 +850,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                     file = Environment.getExternalStoragePublicDirectory(destinationPath + fileName);
                 kml.saveAsKML(file);
                 if (isKey) {
-                    File dest = Environment.getExternalStoragePublicDirectory(destinationPath + FilenameUtils.getBaseName(file.getName()) + "_0.kml");
+                    File dest = Environment.getExternalStoragePublicDirectory(destinationPath + FilenameUtils.getBaseName(file.getName()) + ".kml");
                     try {
                         FileUtils.copyFile(file, dest);
                     } catch (IOException e) {
@@ -1196,7 +1196,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
             //save file in SourceKml Directory or in Temps Folder
             kml.saveAsKML(file);
             if (isKey) {
-                File dest = Environment.getExternalStoragePublicDirectory(destinationPath + FilenameUtils.getBaseName(file.getName()) + "_0.kml");
+                File dest = Environment.getExternalStoragePublicDirectory(destinationPath + FilenameUtils.getBaseName(file.getName()) + ".kml");
                 try {
                     //save the same file in LatestKml directory
                     FileUtils.copyFile(file, dest);
