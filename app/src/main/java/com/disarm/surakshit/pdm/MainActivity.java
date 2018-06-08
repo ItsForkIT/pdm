@@ -426,6 +426,9 @@
                                             case "png":
                                                 type = "Map";
                                                 break;
+                                            case "3gp":
+                                                type = "Audio";
+                                                break;
                                         }
                                         String outputFolder = "DMS/Working/Surakshit"+type+"/";
                                         File outputFile = Environment.getExternalStoragePublicDirectory(outputFolder+f.getName());
