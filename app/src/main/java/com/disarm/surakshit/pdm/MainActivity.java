@@ -133,6 +133,9 @@
                     if(kmlfiles.length > total_kml){
                         for(File file : kmlfiles) {
                             String name = FilenameUtils.getBaseName(file.getName());
+                            String source = name.split("_")[1];
+                            if(source.contains(Params.SOURCE_PHONE_NO))
+                                continue;
                             try {
                                 if (!(name.contains(Params.SOURCE_PHONE_NO) || (name.contains("user")&&!name.contains(Params.SOURCE_PHONE_NO)) || (Params.WHO.equalsIgnoreCase("volunteer") && name.contains("volunteer") && !name.contains(Params.SOURCE_PHONE_NO)))) {
                                     Log.d("SIGNED","Skipping "+name);
