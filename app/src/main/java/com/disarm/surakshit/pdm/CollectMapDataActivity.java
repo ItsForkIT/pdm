@@ -199,6 +199,9 @@ public class CollectMapDataActivity extends AppCompatActivity {
                 List<Receiver> receivers;
                 final Box<Sender> senderBox = ((App)getApplication()).getBoxStore().boxFor(Sender.class);
                 List<Sender> senders;
+                //there will be three kml for a sender number
+                //1. Number(to be sent) 2. broad to user 3. broad to volunteer
+                //next step is used to determine which kml to be used.
                 if(from.equals("volunteer")){
                     receivers = receiverBox.query().equal(Receiver_.number,number).equal(Receiver_.forVolunteer,true).build().find();
                     senders = senderBox.query().equal(Sender_.number,number).equal(Sender_.forVolunteer,true).build().find();

@@ -90,5 +90,9 @@
     <string name="broadcast_volunteers">Broadcast to Volunteers</string>
     <string name="broadcast_users">Broadcast to Common users</string>
     <string name="recording">Recording...</string>
+    <string name="dialog_rating_question">How accurate is the reading?</string>
+    <string name="comment">Comments...</string>
+    <string name="show_files">Show files attached</string>
+    <string name="review_the_place">Review the place</string>
 
 </resources>

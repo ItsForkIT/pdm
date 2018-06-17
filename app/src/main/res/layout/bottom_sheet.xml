@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/linear_bottom_sheet"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/gray"
+    android:orientation="vertical"
+    app:behavior_hideable="true"
+    app:behavior_peekHeight="56dp"
+    app:layout_behavior="android.support.design.widget.BottomSheetBehavior">
+
+    <TextView
+        android:id="@+id/bottom_overlay_name"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="@color/white"
+        android:drawableEnd="@drawable/ic_rate_review_black_30dp"
+        android:gravity="center_vertical"
+        android:padding="5dp"
+        android:paddingStart="10dp"
+        android:text="White House"
+        android:textColor="@color/gray_darkest"
+        android:textSize="18sp" />
+
+    <ListView
+        android:id="@+id/bottom_list_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="10dp"
+        android:dividerHeight="2dp" />
+</LinearLayout>
