@@ -6,115 +6,30 @@
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.disarm.surakshit.pdm.UI_Map"
-    tools:showIn="@layout/app_bar_ui__map"
+    tools:layout_editor_absoluteX="0dp"
     tools:layout_editor_absoluteY="81dp"
-    tools:layout_editor_absoluteX="0dp">
+    tools:showIn="@layout/app_bar_ui__map">
 
     <android.support.design.widget.CoordinatorLayout
         android:layout_width="0dp"
         android:layout_height="0dp"
-        tools:layout_constraintTop_creator="1"
-        tools:layout_constraintRight_creator="1"
-        tools:layout_constraintBottom_creator="1"
-        android:layout_marginStart="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginEnd="0dp"
-        app:layout_constraintRight_toRightOf="parent"
-        android:layout_marginTop="0dp"
-        tools:layout_constraintLeft_creator="1"
         android:layout_marginBottom="0dp"
+        android:layout_marginEnd="0dp"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_constraintBottom_creator="1"
+        tools:layout_constraintLeft_creator="1"
+        tools:layout_constraintRight_creator="1"
+        tools:layout_constraintTop_creator="1">
 
-        <org.osmdroid.views.MapView android:id="@+id/ui_map"
+        <org.osmdroid.views.MapView
+            android:id="@+id/ui_map"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
-
-        <LinearLayout
-            android:id="@+id/map_bottomsheet"
-            android:layout_width="match_parent"
-            android:layout_height="500dp"
-            android:orientation="vertical"
-            app:behavior_hideable="true"
-            app:behavior_peekHeight="50dp"
-            app:elevation="4dp"
-            app:layout_behavior="@string/bottom_sheet_behavior">
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:background="@color/colorPrimary">
-                <Button
-                    android:layout_width="60dp"
-                    android:layout_height="60dp"
-                    android:layout_marginLeft="5dp"
-                    android:layout_marginBottom="5dp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginRight="18dp"
-                    android:textAllCaps="true"
-                    android:textStyle="bold"
-                    android:textColor="@color/white"
-                    android:background="@drawable/round_icon"
-                    android:text="Image"/>
-                <Button
-                    android:layout_width="60dp"
-                    android:layout_height="60dp"
-                    android:layout_marginLeft="5dp"
-                    android:layout_marginBottom="5dp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginRight="18dp"
-                    android:textAllCaps="true"
-                    android:textStyle="bold"
-                    android:textColor="@color/white"
-                    android:background="@drawable/round_icon"
-                    android:text="Audio"/>
-                <Button
-                    android:layout_width="60dp"
-                    android:layout_height="60dp"
-                    android:layout_marginLeft="5dp"
-                    android:layout_marginBottom="5dp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginRight="18dp"
-                    android:textColor="@color/white"
-                    android:background="@drawable/round_icon"
-                    android:textAllCaps="true"
-                    android:textStyle="bold"
-                    android:text="Video"/>
-                <Button
-                    android:layout_width="60dp"
-                    android:layout_height="60dp"
-                    android:layout_marginLeft="5dp"
-                    android:layout_marginBottom="5dp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginRight="18dp"
-                    android:textColor="@color/white"
-                    android:background="@drawable/round_icon"
-                    android:text="Text"
-                    android:textAllCaps="true"
-                    android:textStyle="bold"/>
-                <Button
-                    android:layout_width="60dp"
-                    android:layout_height="60dp"
-                    android:layout_marginLeft="5dp"
-                    android:layout_marginBottom="5dp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginRight="18dp"
-                    android:textAllCaps="true"
-                    android:textStyle="bold"
-                    android:textColor="@color/white"
-                    android:background="@drawable/round_icon"
-                    android:text="Coming Soon"
-                    android:singleLine="true"/>
-            </LinearLayout>
-
-            <ListView
-                android:id="@+id/map_list_view"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"></ListView>
-
-        </LinearLayout>
-
-
 
     </android.support.design.widget.CoordinatorLayout>
 

@@ -45,18 +45,19 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
     public File workingFolder = Environment.getExternalStoragePublicDirectory("DMS/Working");
     public File tmpFolder = Environment.getExternalStoragePublicDirectory("DMS/tmp");
     public File mapFolder = Environment.getExternalStoragePublicDirectory("DMS/Map");
+    public File tempKmlFolder = Environment.getExternalStoragePublicDirectory("DMS/tmpKML/");
     public static String PHONE_NO = "phone_no";
     private EditText phoneText1;
     private Button submitButton;
     private Spinner spinner2;
     public Locale myLocale;
-    private String definedlanguage ;
+    private String definedlanguage;
     public static final String Lang = "language";
 
     //Adding new param
-    public static String ROOT                             = Environment.getExternalStorageDirectory().getAbsolutePath();
-    public static String DMS_PATH                         = ROOT + "/DMS/";
-    public static String WORKING_DIR                      = DMS_PATH + "Working/";
+    public static String ROOT = Environment.getExternalStorageDirectory().getAbsolutePath();
+    public static String DMS_PATH = ROOT + "/DMS/";
+    public static String WORKING_DIR = DMS_PATH + "Working/";
 
 
     String[] PERMISSIONS = {Manifest.permission.ACCESS_FINE_LOCATION,
@@ -72,27 +73,27 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (!checkPermissions(this, PERMISSIONS)) {
-                Log.i("permission","request permissions");
+                Log.i("permission", "request permissions");
                 ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
             }
-        }else{
+        } else {
             creatingFolders();
         }
-        if (checkPhoneNo()){
+        if (checkPhoneNo()) {
             callWriteSettingActivity();
-        }else {
+        } else {
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                     WindowManager.LayoutParams.FLAG_FULLSCREEN);
             setContentView(R.layout.activity_splash);
 
             submitButton = (Button) findViewById(R.id.submitButton);
             phoneText1 = (EditText) findViewById(R.id.phoneText);
-            spinner2 = (Spinner)findViewById(R.id.language);
+            spinner2 = (Spinner) findViewById(R.id.language);
 
-            definedlanguage = PrefUtils.getFromPrefs(this,Lang,"en");
+            definedlanguage = PrefUtils.getFromPrefs(this, Lang, "en");
             setLocale(definedlanguage);
 
-            submitButton.setOnClickListener( this);
+            submitButton.setOnClickListener(this);
 
             String[] langArray = getResources().getStringArray(R.array.lang_list);
             List<String> lang = new ArrayList<String>(Arrays.asList(langArray));
@@ -107,15 +108,16 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
                 public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
                     if (pos == 0) {
                         setLocale("en");
-                        PrefUtils.saveToPrefs(getApplicationContext(),Lang,"en");
+                        PrefUtils.saveToPrefs(getApplicationContext(), Lang, "en");
                     } else if (pos == 1) {
                         setLocale("bn");
-                        PrefUtils.saveToPrefs(getApplicationContext(),Lang,"bn");
+                        PrefUtils.saveToPrefs(getApplicationContext(), Lang, "bn");
                     } else if (pos == 2) {
                         setLocale("hi");
-                        PrefUtils.saveToPrefs(getApplicationContext(),Lang,"hi");
+                        PrefUtils.saveToPrefs(getApplicationContext(), Lang, "hi");
                     }
                 }
+
                 @Override
                 public void onNothingSelected(AdapterView<?> parent) {
 
@@ -125,15 +127,21 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
 
     }
 
-    private void creatingFolders(){
-        if (!dmsFolder.exists()){
+    private void creatingFolders() {
+        if (!dmsFolder.exists()) {
             dmsFolder.mkdir();
-        }if (!workingFolder.exists()){
+        }
+        if (!workingFolder.exists()) {
             workingFolder.mkdir();
-        }if (!tmpFolder.exists()){
+        }
+        if (!tmpFolder.exists()) {
             tmpFolder.mkdir();
-        }if (!mapFolder.exists()){
+        }
+        if (!mapFolder.exists()) {
             mapFolder.mkdir();
+        }
+        if (!tempKmlFolder.exists()) {
+            tempKmlFolder.mkdir();
         }
         run1stTimeOnly();
 
@@ -147,27 +155,26 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
         return isSourceExit;
     }
 
-    private void callWriteSettingActivity(){
-        Intent intent = new Intent(this,WriteSettingActivity.class);
+    private void callWriteSettingActivity() {
+        Intent intent = new Intent(this, WriteSettingActivity.class);
         startActivity(intent);
         finish();
     }
 
     @Override
     public void onClick(View view) {
-        if (view.getId() == R.id.submitButton){
+        if (view.getId() == R.id.submitButton) {
             final String phoneTextVal = phoneText1.getText().toString();
 
-            if(phoneTextVal.length() == 10 && phoneTextVal.matches("^[789]\\d{9}$")) {
+            if (phoneTextVal.length() == 10 && phoneTextVal.matches("^[789]\\d{9}$")) {
                 PrefUtils.saveToPrefs(this, this.PHONE_NO, phoneTextVal);
                 callWriteSettingActivity();
-            }
-            else
-            {
+            } else {
                 phoneText1.setError("Enter Valid Number");
             }
         }
     }
+
     private boolean checkPermissions(Context context, String[] permissions) {
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && context != null && permissions != null) {
             for (String permission : permissions) {
@@ -200,7 +207,7 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
         }
     }
 
-    private void run1stTimeOnly(){
+    private void run1stTimeOnly() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         if (!prefs.getBoolean("firstTime", false)) {
             // <---- run your one time code here
@@ -218,26 +225,26 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
         }
     }
 
-    public void extractZip(){
+    public void extractZip() {
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
                 String root = Environment.getExternalStorageDirectory().toString();
-                String path = root+"/DMS/Map/tiles/";
-                UnZip unzip = new UnZip(path,path+"/tiles.zip");
+                String path = root + "/DMS/Map/tiles/";
+                UnZip unzip = new UnZip(path, path + "/tiles.zip");
             }
         });
         t.start();
     }
 
-    public void moveZip(){
+    public void moveZip() {
         String root = Environment.getExternalStoragePublicDirectory("DMS/Map/tiles/tiles.zip").getPath();
         Storage storage = new Storage(getApplicationContext());
         File osm = Environment.getExternalStoragePublicDirectory("osmdroid");
-        if(!osm.exists())
+        if (!osm.exists())
             osm.mkdir();
 
-        storage.move(root,osm.getPath()+"/tiles.zip");
+        storage.move(root, osm.getPath() + "/tiles.zip");
     }
 
     public void setLocale(String lang) {

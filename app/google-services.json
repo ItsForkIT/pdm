@@ -1,0 +1,59 @@
+{
+  "project_info": {
+    "project_number": "95265741581",
+    "firebase_url": "https://pdmfirebaseproject.firebaseio.com",
+    "project_id": "pdmfirebaseproject",
+    "storage_bucket": "pdmfirebaseproject.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:95265741581:android:f236e02b93002e39",
+        "android_client_info": {
+          "package_name": "com.disarm.surakshit.pdm"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "95265741581-t2sij4nobnqk6gns1td17oq7r5reagrk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.disarm.surakshit.pdm",
+            "certificate_hash": "c413bb86a82c938d0006bb4142a40bf3929e8f6b"
+          }
+        },
+        {
+          "client_id": "95265741581-bq0pvpo0n47hkgid40s6em08v25prjp8.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "95265741581-bq0pvpo0n47hkgid40s6em08v25prjp8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCOt_3kVtg3OzVCTplDM_04AGTVt1THwFw"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "95265741581-bq0pvpo0n47hkgid40s6em08v25prjp8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

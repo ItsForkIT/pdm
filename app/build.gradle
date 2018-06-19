@@ -26,6 +26,8 @@ android {
     }
 }
 dependencies {
+    implementation 'com.google.firebase:firebase-storage:11.0.4'
+    implementation 'com.google.firebase:firebase-auth:11.0.4'
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile files('libs/psync-pc-jar-with-dependencies.jar')
     compile(name: 'osmbonuspack_6.4', ext: 'aar')
@@ -41,4 +43,9 @@ dependencies {
     compile 'org.osmdroid:osmdroid-android:5.6.2'
     compile 'com.snatik:storage:2.1.0'
     testCompile 'junit:junit:4.12'
+    //firebase job dispatcher
+    implementation 'com.firebase:firebase-jobdispatcher:0.8.5'
 }
+
+apply plugin: 'com.google.gms.google-services'
+apply plugin: 'io.objectbox'
