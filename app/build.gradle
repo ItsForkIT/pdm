@@ -128,6 +128,9 @@ dependencies {
     //SeekBar
     implementation 'com.annimon:paperstyle:1.1.0'
 
+    //storage
+    implementation 'com.snatik:storage:2.1.0'
+
     //IO
     // https://mvnrepository.com/artifact/commons-io/commons-io
     implementation group: 'commons-io', name: 'commons-io', version: '2.4'

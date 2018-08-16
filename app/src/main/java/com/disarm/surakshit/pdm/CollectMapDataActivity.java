@@ -468,12 +468,14 @@ public class CollectMapDataActivity extends AppCompatActivity {
                         Marker marker = new Marker(map);
                         marker.setPosition(polygon_points.get(0));
                         marker.setTitle(uniqueId);
+//                        marker.setSnippet("Hello");
                         KmlPlacemark kmlPlacemark = new KmlPlacemark(marker);
                         kml.mKmlRoot.add(kmlPlacemark);
                     }
                     else{
                         polygon.setPoints(polygon_points);
                         polygon.setTitle(uniqueId);
+//                        polygon.setSnippet("Hello");
                         kml.mKmlRoot.addOverlay(polygon,kml);
                     }
                         String lastKey = getLatestKey();
