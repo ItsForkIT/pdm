@@ -94,5 +94,6 @@
     <string name="comment">Comments...</string>
     <string name="show_files">Show files attached</string>
     <string name="review_the_place">Review the place</string>
+    <string name="tab_text_3">Merged Map</string>
 
 </resources>

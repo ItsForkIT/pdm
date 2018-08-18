@@ -109,6 +109,8 @@ public class GISMerger {
 //                    String[] message = X.getMessage().split(",");
 //                    totalMergedFiles += message.length;
                 }
+                //add to merged bucket even if not merged
+                mergedBucket.add(X);
                 //repeat the process of merging for objects that haven't merged
                 ListCopy(bucket, newBucket);
             }

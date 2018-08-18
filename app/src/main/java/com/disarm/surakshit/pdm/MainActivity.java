@@ -42,7 +42,10 @@ import com.disarm.surakshit.pdm.DB.DBEntities.Sender;
 import com.disarm.surakshit.pdm.DB.DBEntities.Sender_;
 import com.disarm.surakshit.pdm.DisarmConnect.DCService;
 import com.disarm.surakshit.pdm.Encryption.KeyBasedFileProcessor;
+import com.disarm.surakshit.pdm.Fragments.ChatFragment;
 import com.disarm.surakshit.pdm.Fragments.FragmentAdapter;
+import com.disarm.surakshit.pdm.Fragments.MapFragment;
+import com.disarm.surakshit.pdm.Fragments.MergedMapFragment;
 import com.disarm.surakshit.pdm.Merging.GISMerger;
 import com.disarm.surakshit.pdm.Merging.MergeUtil.MergeDecisionPolicy;
 import com.disarm.surakshit.pdm.Merging.MergeUtil.MergePolicy;
@@ -97,27 +100,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        if (getSupportFragmentManager().getFragments().size() == 2) {
-            for (Fragment fragment : getSupportFragmentManager().getFragments()) {
-                getSupportFragmentManager().beginTransaction().remove(fragment).commit();
-                Log.d("Fragment", "remove");
-            }
-        }
-        FragmentAdapter fragmentAdapter = new FragmentAdapter(getSupportFragmentManager());
+        FragmentAdapter adapter = new FragmentAdapter(getSupportFragmentManager());
+        adapter.addFragment(new ChatFragment(), "Chat");
+        adapter.addFragment(new MapFragment(), "Map");
+        adapter.addFragment(new MergedMapFragment(), "Merged Map");
         ViewPager mViewPager = (ViewPager) findViewById(R.id.container);
-        mViewPager.setAdapter(fragmentAdapter);
+        mViewPager.setAdapter(adapter);
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
-        mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
-        tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
-        View root = tabLayout.getChildAt(0);
-        if (root instanceof LinearLayout) {
-            ((LinearLayout) root).setShowDividers(LinearLayout.SHOW_DIVIDER_MIDDLE);
-            GradientDrawable drawable = new GradientDrawable();
-            drawable.setColor(getResources().getColor(R.color.white));
-            drawable.setSize(2, 1);
-            ((LinearLayout) root).setDividerPadding(10);
-            ((LinearLayout) root).setDividerDrawable(drawable);
-        }
+        tabLayout.setupWithViewPager(mViewPager);
         crashLog();
         startService();
         kmlFilesList = new HashSet<>();
@@ -439,7 +429,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         //call get kml objects
-        MergeDecisionPolicy decisionPolicy = new MergeDecisionPolicy(MergeDecisionPolicy.DISTANCE_THRESHOLD_POLICY, 30, 0);
+        MergeDecisionPolicy decisionPolicy = new MergeDecisionPolicy(MergeDecisionPolicy.DISTANCE_THRESHOLD_POLICY, 40, 0);
         GISMerger.mergeGIS(getApplication(), new MapView(this), decisionPolicy);
     }
 

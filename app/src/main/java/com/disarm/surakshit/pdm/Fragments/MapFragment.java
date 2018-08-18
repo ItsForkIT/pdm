@@ -2,10 +2,12 @@ package com.disarm.surakshit.pdm.Fragments;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.preference.PreferenceManager;
@@ -23,6 +25,7 @@ import android.widget.LinearLayout;
 import com.disarm.surakshit.pdm.DB.DBEntities.App;
 import com.disarm.surakshit.pdm.DB.DBEntities.Receiver;
 import com.disarm.surakshit.pdm.DB.DBEntities.Sender;
+import com.disarm.surakshit.pdm.Merging.MergeConstants;
 import com.disarm.surakshit.pdm.R;
 import com.disarm.surakshit.pdm.Util.BottomCustomWindow;
 import com.disarm.surakshit.pdm.Util.LatLonUtil;
@@ -45,6 +48,7 @@ import org.osmdroid.views.overlay.compass.CompassOverlay;
 import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -74,9 +78,9 @@ public class MapFragment extends Fragment {
         bottomSheetBehavior = BottomSheetBehavior.from(layoutBottomSheet);
         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
         setMapData();
-        HandlerThread ht = new HandlerThread("Map");
-        ht.start();
         parseKml(getActivity().getApplication(), getContext());
+//        HandlerThread ht = new HandlerThread("Map");
+//        ht.start();
 //        final Handler locHandler = new Handler(ht.getLooper());
 //        locHandler.post(new Runnable() {
 //            @Override
@@ -118,7 +122,7 @@ public class MapFragment extends Fragment {
         map.setBuiltInZoomControls(false);
         map.setMultiTouchControls(true);
         final IMapController mapController = map.getController();
-        mapController.setZoom(15.0);
+        mapController.setZoom(16.0);
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -343,4 +347,28 @@ public class MapFragment extends Fragment {
             }
         }
     }
+
+    private static void showMergedFiles(Context context) {
+        File mergedFile = Environment.getExternalStoragePublicDirectory(MergeConstants.DMS_MERGED_KML);
+        File allFiles[] = mergedFile.listFiles();
+        for (File file : allFiles) {
+            KmlDocument kml = new KmlDocument();
+            kml.parseKMLFile(file);
+            FolderOverlay kmlOverlay = (FolderOverlay) kml.mKmlRoot.buildOverlay(map, null, null, kml);
+            for (Overlay overlay : kmlOverlay.getItems()){
+                if (overlay instanceof Polygon){
+                    ((Polygon) overlay).setStrokeColor(R.color.green);
+                    map.getOverlays().add(overlay);
+                    allPlotted.add(overlay);
+                }
+                else if (overlay instanceof Marker){
+                    Drawable d = context.getDrawable(R.drawable.marker_blue);
+                    ((Marker) overlay).setImage(d);
+                    map.getOverlays().add(overlay);
+                    allPlotted.add(overlay);
+                }
+            }
+        }
+    }
+
 }
