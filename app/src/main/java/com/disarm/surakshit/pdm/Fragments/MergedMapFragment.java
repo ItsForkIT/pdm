@@ -1,27 +1,41 @@
 package com.disarm.surakshit.pdm.Fragments;
 
 
+import android.app.Application;
 import android.content.Context;
 import android.graphics.Point;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.disarm.surakshit.pdm.DB.DBEntities.App;
+import com.disarm.surakshit.pdm.DB.DBEntities.MergedKMLEntity;
+import com.disarm.surakshit.pdm.Merging.GISMerger;
+import com.disarm.surakshit.pdm.Merging.MergeConstants;
+import com.disarm.surakshit.pdm.Merging.MergeUtil.KmlObject;
+import com.disarm.surakshit.pdm.Merging.MergeUtil.MergeDecisionPolicy;
 import com.disarm.surakshit.pdm.R;
 import com.disarm.surakshit.pdm.Util.LatLonUtil;
+import com.getbase.floatingactionbutton.FloatingActionButton;
 
 import org.osmdroid.api.IMapController;
+import org.osmdroid.bonuspack.kml.KmlDocument;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.tileprovider.tilesource.ITileSource;
 import org.osmdroid.tileprovider.tilesource.XYTileSource;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.FolderOverlay;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Overlay;
@@ -30,8 +44,12 @@ import org.osmdroid.views.overlay.ScaleBarOverlay;
 import org.osmdroid.views.overlay.compass.CompassOverlay;
 import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
+import io.objectbox.Box;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -40,14 +58,90 @@ public class MergedMapFragment extends Fragment {
     public MapView map;
     final int MIN_ZOOM = 14, MAX_ZOOM = 19, PIXEL = 256;
     public static List<Overlay> allPlotted = new ArrayList<>();
+    public FloatingActionButton mergeButton;
+    Application app;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_merged_map, container, false);
         map = view.findViewById(R.id.fragment_merged_mapView);
+        mergeButton = view.findViewById(R.id.fragment_merged_fab);
         setMapData();
+        setFab();
+//        showMergedFiles(getContext());
+        app = getActivity().getApplication();
+        showMergedFilesDB(app);
         return view;
+    }
+
+    private void showMergedFilesDB(Application app) {
+        Box<MergedKMLEntity> mergedKMLEntityBox = ((App) app).getBoxStore().boxFor(MergedKMLEntity.class);
+        for (MergedKMLEntity entity : mergedKMLEntityBox.getAll()) {
+            Log.d("MergedEntity", "Info:" + entity.getId() + " " + entity.getTileName());
+            String kmlString = entity.getKml();
+            ByteArrayInputStream is = new ByteArrayInputStream(kmlString.getBytes());
+            KmlDocument kml = new KmlDocument();
+            kml.parseKMLStream(is, null);
+            FolderOverlay folderOverlay = (FolderOverlay) kml.mKmlRoot.buildOverlay(map, null, null, kml);
+            for (Overlay overlay : folderOverlay.getItems()) {
+                if (overlay instanceof Polygon) {
+                    ((Polygon) overlay).setStrokeColor(R.color.green);
+                    map.getOverlays().add(overlay);
+                    allPlotted.add(overlay);
+                }
+            }
+        }
+    }
+
+    private void showMergedFiles(Context context) {
+        File mergedFile = Environment.getExternalStoragePublicDirectory(MergeConstants.DMS_MERGED_KML);
+        File allFiles[] = mergedFile.listFiles();
+        for (File file : allFiles) {
+            KmlDocument kml = new KmlDocument();
+            kml.parseKMLFile(file);
+            FolderOverlay kmlOverlay = (FolderOverlay) kml.mKmlRoot.buildOverlay(map, null, null, kml);
+            for (Overlay overlay : kmlOverlay.getItems()) {
+                if (overlay instanceof Polygon) {
+                    ((Polygon) overlay).setStrokeColor(R.color.green);
+                    map.getOverlays().add(overlay);
+                    allPlotted.add(overlay);
+                } else if (overlay instanceof Marker) {
+                    Drawable d = context.getDrawable(R.drawable.marker_blue);
+                    ((Marker) overlay).setImage(d);
+                    map.getOverlays().add(overlay);
+                    allPlotted.add(overlay);
+                }
+            }
+        }
+    }
+
+    private void setFab() {
+        mergeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+//                call get kml objects
+                MergeDecisionPolicy decisionPolicy = new MergeDecisionPolicy(MergeDecisionPolicy.DISTANCE_THRESHOLD_POLICY, 40, 0);
+                GISMerger.mergeGIS(getActivity().getApplication(), map, decisionPolicy, true);
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        removeOverlay();
+                        allPlotted.clear();
+                        showMergedFilesDB(app);
+                    }
+                }, 2000);
+            }
+        });
+    }
+
+    private void removeOverlay() {
+        for (Overlay overlay : map.getOverlays()) {
+            if (!(overlay instanceof MapEventsOverlay)) {
+                map.getOverlays().remove(overlay);
+            }
+        }
     }
 
     public void setMapData() {

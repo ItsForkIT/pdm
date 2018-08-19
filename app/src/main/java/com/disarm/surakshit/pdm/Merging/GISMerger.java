@@ -5,6 +5,7 @@ import android.os.Environment;
 import android.util.Log;
 
 import com.disarm.surakshit.pdm.DB.DBEntities.App;
+import com.disarm.surakshit.pdm.DB.DBEntities.MergedKMLEntity;
 import com.disarm.surakshit.pdm.DB.DBEntities.Receiver;
 import com.disarm.surakshit.pdm.DB.DBEntities.Sender;
 import com.disarm.surakshit.pdm.Merging.MergeUtil.KmlObject;
@@ -13,6 +14,7 @@ import com.disarm.surakshit.pdm.Merging.MergeUtil.MergePolicy;
 import com.disarm.surakshit.pdm.Merging.SoftTfidf.JaroWinklerTFIDF;
 import com.snatik.storage.Storage;
 
+import org.apache.commons.io.FileUtils;
 import org.osmdroid.bonuspack.kml.KmlDocument;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
@@ -23,6 +25,7 @@ import org.osmdroid.views.overlay.Polygon;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,12 +40,14 @@ import io.objectbox.Box;
 public class GISMerger {
 
     //return number of not merged files
-    public static void mergeGIS(Application app, MapView mapView, MergeDecisionPolicy mergeDecisionPolicy) {
+    public static void mergeGIS(Application app, MapView mapView, MergeDecisionPolicy mergeDecisionPolicy, Boolean manual) {
 
         int totalNotMergedFiles = 0;
         int totalMergedFiles = 0;
         Storage storage = new Storage(mapView.getContext());
         List<KmlObject> kmlObjects = getKMLObjectsFromDB(app, mapView);
+        if (kmlObjects.size() <= 1)
+            return;
         Map<String, List<KmlObject>> sameTileObjects = new HashMap<>();
 
         //dividing kmlObjects into buckets of same tile name
@@ -59,7 +64,13 @@ public class GISMerger {
 
         //delete previous merged files
         File mergeDirectory = Environment.getExternalStoragePublicDirectory(MergeConstants.DMS_MERGED_KML);
-        storage.deleteDirectory(mergeDirectory.getAbsolutePath());
+        if (mergeDirectory.exists())
+            storage.deleteDirectory(mergeDirectory.getAbsolutePath());
+
+        //delete merged database
+        Box<MergedKMLEntity> mergedKMLEntityBox = ((App) app).getBoxStore().boxFor(MergedKMLEntity.class);
+        mergedKMLEntityBox.removeAll();
+        mergedKMLEntityBox.closeThreadResources();
 
         //recording time just before merging
         long tStart = System.currentTimeMillis();
@@ -102,20 +113,20 @@ public class GISMerger {
                     else
                         newBucket.add(bucket.get(i));
                 }
-                if (merged) {
-                    //keep the merged 'X' object in a new bucket that will be saved in file
-                    mergedBucket.add(X);
-                    //count the number of messages in 'X' to calculate number of objects merged
+//                if (merged) {
+                //keep the merged 'X' object in a new bucket that will be saved in file
+//                    mergedBucket.add(X);
+                //count the number of messages in 'X' to calculate number of objects merged
 //                    String[] message = X.getMessage().split(",");
 //                    totalMergedFiles += message.length;
-                }
+//                }
                 //add to merged bucket even if not merged
                 mergedBucket.add(X);
                 //repeat the process of merging for objects that haven't merged
                 ListCopy(bucket, newBucket);
             }
             //save to file merged objects
-            saveKmlObjectInFile(mergedBucket);
+            saveKMLObjectInDB(mergedBucket, manual, app);
         }
         //recording time after merging
         long tEnd = System.currentTimeMillis();
@@ -134,12 +145,35 @@ public class GISMerger {
         dest.addAll(source);
     }
 
-    //save List of KmlObjects in file
-    private static void saveKmlObjectInFile(List<KmlObject> newBucket) {
+
+    private static void saveKMLObjectInDB(List<KmlObject> newBucket, Boolean manual, Application app) {
+        Log.d("Merging", "SaveInDB called:" + newBucket.size());
+        Box<MergedKMLEntity> mergedKMLEntityBox = ((App) app).getBoxStore().boxFor(MergedKMLEntity.class);
         for (KmlObject object : newBucket) {
-            saveKMlInFile(object);
+            File file = saveKMlInFile(object);
+            MergedKMLEntity kmlEntity = new MergedKMLEntity();
+            kmlEntity.setTileName(object.getTileName());
+            KmlDocument kml = new KmlDocument();
+            Polygon polygon = new Polygon();
+            polygon.setPoints(object.getPoints());
+            polygon.setSnippet(object.getMessage());
+            kml.mKmlRoot.addOverlay(polygon, kml);
+            String kmlString = "";
+            try {
+                kmlString = FileUtils.readFileToString(file);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            kmlEntity.setKml(kmlString);
+            kmlEntity.setType(object.getType());
+            kmlEntity.setZoom(object.getZoom());
+            kmlEntity.setManual(manual);
+            mergedKMLEntityBox.put(kmlEntity);
         }
+        Log.d("Merging", "KMLEntity size:" + mergedKMLEntityBox.getAll().size());
+        mergedKMLEntityBox.closeThreadResources();
     }
+
 
     //Method to calculate Hausdorff Distance between two Polygons
     public static double housedorffDistance(KmlObject object1, KmlObject object2) {
@@ -299,7 +333,7 @@ public class GISMerger {
 
     private static File saveKMlInFile(KmlObject kmlObject) {
         String file_name = "TXT_50_data_" +
-                kmlObject.getSource() +
+                kmlObject.getMessage()+
                 "_" + kmlObject.hashCode() + "_"
                 + ".kml";
         KmlDocument kml = new KmlDocument();
@@ -329,7 +363,7 @@ public class GISMerger {
             kml.parseKMLStream(is, null);
             FolderOverlay folderOverlay = (FolderOverlay) kml.mKmlRoot.buildOverlay(mapView, null, null, kml);
             for (Overlay overlay : folderOverlay.getItems()) {
-                Log.d("Merging", "Receiver"+receiver.getNumber());
+                Log.d("Merging", "Receiver" + receiver.getNumber());
                 if (overlay instanceof Polygon) {
                     String id = ((Polygon) overlay).getTitle();
 //                    String snippet = ((Polygon) overlay).getSnippet();
@@ -349,7 +383,7 @@ public class GISMerger {
             }
         }
         for (Sender sender : senders) {
-            Log.d("Merging", "Sender"+sender.getNumber());
+            Log.d("Merging", "Sender" + sender.getNumber());
             String kmlString = sender.getKml();
             ByteArrayInputStream is = new ByteArrayInputStream(kmlString.getBytes());
             KmlDocument kml = new KmlDocument();

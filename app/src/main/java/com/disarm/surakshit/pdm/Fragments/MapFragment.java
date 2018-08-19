@@ -348,27 +348,4 @@ public class MapFragment extends Fragment {
         }
     }
 
-    private static void showMergedFiles(Context context) {
-        File mergedFile = Environment.getExternalStoragePublicDirectory(MergeConstants.DMS_MERGED_KML);
-        File allFiles[] = mergedFile.listFiles();
-        for (File file : allFiles) {
-            KmlDocument kml = new KmlDocument();
-            kml.parseKMLFile(file);
-            FolderOverlay kmlOverlay = (FolderOverlay) kml.mKmlRoot.buildOverlay(map, null, null, kml);
-            for (Overlay overlay : kmlOverlay.getItems()){
-                if (overlay instanceof Polygon){
-                    ((Polygon) overlay).setStrokeColor(R.color.green);
-                    map.getOverlays().add(overlay);
-                    allPlotted.add(overlay);
-                }
-                else if (overlay instanceof Marker){
-                    Drawable d = context.getDrawable(R.drawable.marker_blue);
-                    ((Marker) overlay).setImage(d);
-                    map.getOverlays().add(overlay);
-                    allPlotted.add(overlay);
-                }
-            }
-        }
-    }
-
 }

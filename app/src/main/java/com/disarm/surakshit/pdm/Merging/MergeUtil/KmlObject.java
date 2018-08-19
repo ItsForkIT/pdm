@@ -2,7 +2,6 @@ package com.disarm.surakshit.pdm.Merging.MergeUtil;
 
 import org.osmdroid.util.GeoPoint;
 
-import java.io.File;
 import java.util.List;
 
 public class KmlObject {

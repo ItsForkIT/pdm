@@ -428,9 +428,6 @@ public class MainActivity extends AppCompatActivity {
                 h_tempKey.postDelayed(this, 1000);
             }
         });
-        //call get kml objects
-        MergeDecisionPolicy decisionPolicy = new MergeDecisionPolicy(MergeDecisionPolicy.DISTANCE_THRESHOLD_POLICY, 40, 0);
-        GISMerger.mergeGIS(getApplication(), new MapView(this), decisionPolicy);
     }
 
     @Override

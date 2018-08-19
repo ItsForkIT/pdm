@@ -17,19 +17,20 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
         android:layout_margin="10dp"
-        app:fab_addButtonSize="mini"
+        app:fab_addButtonSize="normal"
         app:fab_labelStyle="@style/menu_labels_style"
-        app:fab_addButtonColorNormal="@color/fbutton_color_turquoise"
-        android:backgroundTint="@color/fbutton_color_turquoise"
-        app:srcCompat="@drawable/new_message">
+        app:fab_addButtonColorNormal="@color/colorAccent"
+        android:backgroundTint="@color/colorAccent"
+        app:srcCompat="@drawable/ic_message_white_24dp">
 
         <com.getbase.floatingactionbutton.FloatingActionButton
             android:id="@+id/btn_new_user"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:fab_icon="@drawable/broadcast"
+            app:fab_icon="@drawable/ic_broadcast_white_24dp"
             app:fab_size="mini"
-            app:fab_colorNormal="@color/fbutton_color_turquoise"
+            app:fab_colorNormal="@color/colorAccent"
+            app:fab_labelStyle="@style/menu_labels_style"
             app:fab_title="@string/broadcast_users"/>
 
 
@@ -37,8 +38,8 @@
             android:id="@+id/btn_new_mcs"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:fab_icon="@drawable/broadcast"
-            app:fab_colorNormal="@color/fbutton_color_turquoise"
+            app:fab_icon="@drawable/ic_broadcast_white_24dp"
+            app:fab_colorNormal="@color/colorAccent"
             app:fab_size="mini"
             app:fab_title="@string/broadcast_volunteers"/>
 
@@ -47,9 +48,9 @@
             android:id="@+id/btn_new_message"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:srcCompat="@drawable/new_message"
-            app:fab_colorNormal="@color/fbutton_color_turquoise"
-            app:fab_icon="@drawable/new_message"
+            app:srcCompat="@drawable/ic_message_white_24dp"
+            app:fab_colorNormal="@color/colorAccent"
+            app:fab_icon="@drawable/ic_message_white_24dp"
             app:fab_size="mini"
             app:fab_title="@string/cp_contact_tab_title"/>
     </com.getbase.floatingactionbutton.FloatingActionsMenu>

@@ -82,9 +82,37 @@
         }
       ],
       "relations": []
+    },
+    {
+      "id": "7:5911682555481464699",
+      "lastPropertyId": "5:4671457718460466401",
+      "name": "MergedKMLEntity",
+      "properties": [
+        {
+          "id": "1:6705398117662382936",
+          "name": "id"
+        },
+        {
+          "id": "2:3020886333969033012",
+          "name": "zoom"
+        },
+        {
+          "id": "3:8739599444023864988",
+          "name": "tileName"
+        },
+        {
+          "id": "4:2201169927974939403",
+          "name": "type"
+        },
+        {
+          "id": "5:4671457718460466401",
+          "name": "kml"
+        }
+      ],
+      "relations": []
     }
   ],
-  "lastEntityId": "6:2613192916433329767",
+  "lastEntityId": "7:5911682555481464699",
   "lastIndexId": "0:0",
   "lastRelationId": "0:0",
   "lastSequenceId": "0:0",
