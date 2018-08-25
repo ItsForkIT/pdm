@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.graphics.drawable.Drawable;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -39,6 +40,8 @@ public class GetLocationActivity extends AppCompatActivity {
         map = (MapView) findViewById(R.id.GetLocationMap);
         setMapData();
         final Marker m = new Marker(map);
+        Drawable iconDrawable = getResources().getDrawable(R.drawable.ic_place_green);
+        m.setIcon(iconDrawable);
         try {
             Thread thread = new Thread(new Runnable() {
                 @Override

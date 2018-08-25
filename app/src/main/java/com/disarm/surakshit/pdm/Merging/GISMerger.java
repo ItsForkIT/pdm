@@ -39,6 +39,8 @@ import io.objectbox.Box;
 
 public class GISMerger {
 
+    static int currentDBVersion;
+
     //return number of not merged files
     public static void mergeGIS(Application app, MapView mapView, MergeDecisionPolicy mergeDecisionPolicy, Boolean manual) {
 
@@ -64,12 +66,19 @@ public class GISMerger {
 
         //delete previous merged files
         File mergeDirectory = Environment.getExternalStoragePublicDirectory(MergeConstants.DMS_MERGED_KML);
-        if (mergeDirectory.exists())
+        if (mergeDirectory.exists()) {
             storage.deleteDirectory(mergeDirectory.getAbsolutePath());
+        }
 
-        //delete merged database
+        //change merged database
         Box<MergedKMLEntity> mergedKMLEntityBox = ((App) app).getBoxStore().boxFor(MergedKMLEntity.class);
-        mergedKMLEntityBox.removeAll();
+        if (mergedKMLEntityBox.count() == 0) {
+            currentDBVersion = MergedKMLEntity.INITIAL_VERSION;
+        } else {
+            MergedKMLEntity entity = mergedKMLEntityBox.get(mergedKMLEntityBox.count());
+            currentDBVersion = entity.getMergedVersion() + 1;
+        }
+
         mergedKMLEntityBox.closeThreadResources();
 
         //recording time just before merging
@@ -151,6 +160,7 @@ public class GISMerger {
         Box<MergedKMLEntity> mergedKMLEntityBox = ((App) app).getBoxStore().boxFor(MergedKMLEntity.class);
         for (KmlObject object : newBucket) {
             File file = saveKMlInFile(object);
+            Log.d("MergedFile",object.getMessage());
             MergedKMLEntity kmlEntity = new MergedKMLEntity();
             kmlEntity.setTileName(object.getTileName());
             KmlDocument kml = new KmlDocument();
@@ -168,6 +178,7 @@ public class GISMerger {
             kmlEntity.setType(object.getType());
             kmlEntity.setZoom(object.getZoom());
             kmlEntity.setManual(manual);
+            kmlEntity.setMergedVersion(currentDBVersion);
             mergedKMLEntityBox.put(kmlEntity);
         }
         Log.d("Merging", "KMLEntity size:" + mergedKMLEntityBox.getAll().size());
@@ -333,7 +344,7 @@ public class GISMerger {
 
     private static File saveKMlInFile(KmlObject kmlObject) {
         String file_name = "TXT_50_data_" +
-                kmlObject.getMessage()+
+                kmlObject.getMessage() +
                 "_" + kmlObject.hashCode() + "_"
                 + ".kml";
         KmlDocument kml = new KmlDocument();

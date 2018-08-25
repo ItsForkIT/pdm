@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3f51b5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorPrimary">#1abc9c</color>
+    <color name="colorPrimaryDark">#16a085</color>
     <color name="colorAccent">#e74c3c</color>
 
     <color name="white">#ffffff</color>
@@ -30,6 +30,7 @@
     <color name="fbutton_color_concrete">#95a5a6</color>
     <color name="fbutton_color_asbestos">#7f8c8d</color>
     <color name="cornflower_blue">#6274e2</color>
+    <color name="indigo_blue">#3F51B5</color>
     <color name="cornflower_blue_dark">#303F9F</color>
     <color name="cornflower_blue_darkest">#2d3a93</color>
     <color name="gray">#ebebeb</color>

@@ -3,8 +3,10 @@ package com.disarm.surakshit.pdm.Fragments;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
+import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -28,7 +30,9 @@ import com.disarm.surakshit.pdm.DB.DBEntities.Sender;
 import com.disarm.surakshit.pdm.Merging.MergeConstants;
 import com.disarm.surakshit.pdm.R;
 import com.disarm.surakshit.pdm.Util.BottomCustomWindow;
+import com.disarm.surakshit.pdm.Util.CustomInfoWindow;
 import com.disarm.surakshit.pdm.Util.LatLonUtil;
+import com.disarm.surakshit.pdm.location.MLocation;
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.bonuspack.kml.KmlDocument;
@@ -64,48 +68,42 @@ public class MapFragment extends Fragment {
     final int MIN_ZOOM = 14, MAX_ZOOM = 19, PIXEL = 256;
     public static List<Overlay> allPlotted = new ArrayList<>();
     public static Marker marker;
-    //bottom Sheet
-    public static BottomSheetBehavior bottomSheetBehavior;
-    public static LinearLayout layoutBottomSheet;
+    Drawable iconDrawable;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_map, container, false);
         map = (MapView) view.findViewById(R.id.fragment_mapView);
-        //bottomSheet changes
-        layoutBottomSheet = view.findViewById(R.id.linear_bottom_sheet);
-        bottomSheetBehavior = BottomSheetBehavior.from(layoutBottomSheet);
-        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+        iconDrawable = getResources().getDrawable(R.drawable.ic_place_green);
         setMapData();
+        HandlerThread ht = new HandlerThread("Map");
+        ht.start();
         parseKml(getActivity().getApplication(), getContext());
-//        HandlerThread ht = new HandlerThread("Map");
-//        ht.start();
-//        final Handler locHandler = new Handler(ht.getLooper());
-//        locHandler.post(new Runnable() {
-//            @Override
-//            public void run() {
-//                Location l = MLocation.getLocation(getContext().getApplicationContext());
-//                if (l == null) {
-//                    locHandler.postDelayed(this, 1000);
-//                } else {
-//                    GeoPoint g = new GeoPoint(l.getLatitude(), l.getLongitude());
-//                    if (marker == null) {
-//                        marker = new Marker(map);
-//                        marker.setPosition(g);
-//                        marker.setIcon(getContext().getDrawable(R.drawable.marker_google));
-//                        marker.setSnippet("You are here");
-//                        BottomCustomWindow ciw = new BottomCustomWindow(R.layout.blank_layout, map, marker, getContext(), bottomSheetBehavior, layoutBottomSheet);
-//                        marker.setInfoWindow(ciw);
-//                        map.getOverlays().add(marker);
-//                    } else {
-//                        map.getOverlays().remove(marker);
-//                        marker.setPosition(g);
-//                        map.getOverlays().add(marker);
-//                    }
-//                }
-//            }
-//        });
+        final Handler locHandler = new Handler(ht.getLooper());
+        locHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                Location l = MLocation.getLocation(getContext().getApplicationContext());
+                if (l == null) {
+                    locHandler.postDelayed(this, 1000);
+                } else {
+                    GeoPoint g = new GeoPoint(l.getLatitude(), l.getLongitude());
+                    if (marker == null) {
+                        marker = new Marker(map);
+                        marker.setIcon(iconDrawable);
+                        marker.setPosition(g);
+                        marker.setSnippet("You are here");
+                        map.getOverlays().add(marker);
+                    } else {
+                        map.getOverlays().remove(marker);
+                        marker.setIcon(iconDrawable);
+                        marker.setPosition(g);
+                        map.getOverlays().add(marker);
+                    }
+                }
+            }
+        });
         return view;
     }
 
@@ -155,16 +153,10 @@ public class MapFragment extends Fragment {
             public boolean singleTapConfirmedHelper(GeoPoint p) {
                 for (Overlay overlay : allPlotted) {
                     if (overlay instanceof Polygon) {
-                        if (((Polygon) overlay).isInfoWindowOpen())
-                            ((Polygon) overlay).closeInfoWindow();
+                        ((Polygon) overlay).getInfoWindow().close();
                     } else if (overlay instanceof Marker) {
-                        if (((Marker) overlay).isInfoWindowOpen())
-                            ((Marker) overlay).closeInfoWindow();
+                        ((Marker) overlay).getInfoWindow().close();
                     }
-                }
-                //changes
-                if (bottomSheetBehavior.getState() != BottomSheetBehavior.STATE_HIDDEN) {
-                    bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
                 }
                 return false;
             }
@@ -197,7 +189,8 @@ public class MapFragment extends Fragment {
                                 if (overlay != marker) {
                                     map.getOverlays().remove(overlay);
                                 }
-                            }
+                            } else if (overlay instanceof Polygon)
+                                map.getOverlays().remove(overlay);
                         }
                     }
                     allPlotted.clear();
@@ -286,16 +279,15 @@ public class MapFragment extends Fragment {
                 if (minDisPoint == null) {
                     Marker m = new Marker(map);
                     m.setPosition(g);
-                    m.setSnippet(msg[3] + "-" + msg[0]);
-//                    CustomInfoWindow ciw = new CustomInfoWindow(R.layout.custom_info_window,map,m,context);
-                    BottomCustomWindow ciw = new BottomCustomWindow(R.layout.blank_layout, map, m, context, bottomSheetBehavior, layoutBottomSheet);
+                    m.setSnippet(msg[3]);
+                    CustomInfoWindow ciw = new CustomInfoWindow(R.layout.custom_info_window, map, m, context);
                     m.setInfoWindow(ciw);
                     if (color) {
-                        Drawable d = context.getDrawable(R.drawable.marker_red);
-                        m.setIcon(d);
+                        Drawable iconDrawable = context.getResources().getDrawable(R.drawable.ic_location_blue);
+                        m.setIcon(iconDrawable);
                     } else {
-                        Drawable d = context.getDrawable(R.drawable.marker_blue);
-                        m.setIcon(d);
+                        Drawable iconDrawable = context.getResources().getDrawable(R.drawable.ic_place_accent);
+                        m.setIcon(iconDrawable);
                     }
                     map.getOverlays().add(m);
                     Log.d("Snippet", "No minimum distance point");
@@ -304,11 +296,11 @@ public class MapFragment extends Fragment {
                     String id = pointsToId.get(minDisPoint.toDoubleString());
                     if (idToSnippet.containsKey(id)) {
                         String f = idToSnippet.get(id);
-                        f = f + ";" + msg[3] + "-" + msg[0];
+                        f = f + ";" + msg[3];
                         Log.d("Snippet", f);
                         idToSnippet.put(id, f);
                     } else {
-                        idToSnippet.put(id, msg[3] + "-" + msg[0]);
+                        idToSnippet.put(id, msg[3]);
                     }
                 }
             }
@@ -318,12 +310,11 @@ public class MapFragment extends Fragment {
                 String id = ((Polygon) overlay).getTitle();
                 String snippet = idToSnippet.get(id);
                 ((Polygon) overlay).setSnippet(snippet);
-//                CustomInfoWindow ciw = new CustomInfoWindow(R.layout.custom_info_window,map,(Polygon)overlay,context);
-                BottomCustomWindow ciw = new BottomCustomWindow(R.layout.blank_layout, map, (Polygon) overlay, context, bottomSheetBehavior, layoutBottomSheet);
+                CustomInfoWindow ciw = new CustomInfoWindow(R.layout.custom_info_window, map, (Polygon) overlay, context);
                 if (color) {
-                    ((Polygon) overlay).setStrokeColor(R.color.blue);
+                    ((Polygon) overlay).setStrokeColor(Color.parseColor("#CE6274E2"));
                 } else {
-                    ((Polygon) overlay).setStrokeColor(R.color.red);
+                    ((Polygon) overlay).setStrokeColor(Color.parseColor("#CDE74C3C"));
                 }
                 ((Polygon) overlay).setInfoWindow(ciw);
                 map.getOverlays().add(overlay);
@@ -333,19 +324,17 @@ public class MapFragment extends Fragment {
                 String snippet = idToSnippet.get(id);
                 ((Marker) overlay).setSnippet(snippet);
                 if (color) {
-                    Drawable d = context.getDrawable(R.drawable.marker_blue);
-                    ((Marker) overlay).setImage(d);
+                    Drawable iconDrawable = context.getResources().getDrawable(R.drawable.ic_location_blue);
+                    ((Marker) overlay).setIcon(iconDrawable);
                 } else {
-                    Drawable d = context.getDrawable(R.drawable.marker_red);
-                    ((Marker) overlay).setImage(d);
+                    Drawable iconDrawable = context.getResources().getDrawable(R.drawable.ic_place_accent);
+                    ((Marker) overlay).setIcon(iconDrawable);
                 }
-//                CustomInfoWindow ciw = new CustomInfoWindow(R.layout.custom_info_window,map,(Marker) overlay,context);
-                BottomCustomWindow ciw = new BottomCustomWindow(R.layout.blank_layout, map, (Marker) overlay, context, bottomSheetBehavior, layoutBottomSheet);
+                CustomInfoWindow ciw = new CustomInfoWindow(R.layout.custom_info_window, map, (Marker) overlay, context);
                 ((Marker) overlay).setInfoWindow(ciw);
                 map.getOverlays().add(overlay);
                 allPlotted.add(overlay);
             }
         }
     }
-
 }

@@ -3,11 +3,14 @@ package com.disarm.surakshit.pdm.Fragments;
 
 import android.app.Application;
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.preference.PreferenceManager;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.v4.app.Fragment;
@@ -19,12 +22,14 @@ import android.view.ViewGroup;
 
 import com.disarm.surakshit.pdm.DB.DBEntities.App;
 import com.disarm.surakshit.pdm.DB.DBEntities.MergedKMLEntity;
+import com.disarm.surakshit.pdm.DB.DBEntities.MergedKMLEntity_;
 import com.disarm.surakshit.pdm.Merging.GISMerger;
 import com.disarm.surakshit.pdm.Merging.MergeConstants;
 import com.disarm.surakshit.pdm.Merging.MergeUtil.KmlObject;
 import com.disarm.surakshit.pdm.Merging.MergeUtil.MergeDecisionPolicy;
 import com.disarm.surakshit.pdm.R;
 import com.disarm.surakshit.pdm.Util.LatLonUtil;
+import com.disarm.surakshit.pdm.location.MLocation;
 import com.getbase.floatingactionbutton.FloatingActionButton;
 
 import org.osmdroid.api.IMapController;
@@ -56,10 +61,13 @@ import io.objectbox.Box;
  */
 public class MergedMapFragment extends Fragment {
     public MapView map;
+    public static Marker marker;
     final int MIN_ZOOM = 14, MAX_ZOOM = 19, PIXEL = 256;
     public static List<Overlay> allPlotted = new ArrayList<>();
     public FloatingActionButton mergeButton;
     Application app;
+    int currentDBVersion;
+    private Drawable iconDrawable;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -67,7 +75,34 @@ public class MergedMapFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_merged_map, container, false);
         map = view.findViewById(R.id.fragment_merged_mapView);
         mergeButton = view.findViewById(R.id.fragment_merged_fab);
+        iconDrawable = getResources().getDrawable(R.drawable.ic_place_green);
         setMapData();
+        HandlerThread ht = new HandlerThread("Map");
+        ht.start();
+        final Handler locHandler = new Handler(ht.getLooper());
+        locHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                Location l = MLocation.getLocation(getContext().getApplicationContext());
+                if (l == null) {
+                    locHandler.postDelayed(this, 1000);
+                } else {
+                    GeoPoint g = new GeoPoint(l.getLatitude(), l.getLongitude());
+                    if (marker == null) {
+                        marker = new Marker(map);
+                        marker.setIcon(iconDrawable);
+                        marker.setPosition(g);
+                        marker.setSnippet("You are here");
+                        map.getOverlays().add(marker);
+                    } else {
+                        map.getOverlays().remove(marker);
+                        marker.setIcon(iconDrawable);
+                        marker.setPosition(g);
+                        map.getOverlays().add(marker);
+                    }
+                }
+            }
+        });
         setFab();
 //        showMergedFiles(getContext());
         app = getActivity().getApplication();
@@ -77,7 +112,15 @@ public class MergedMapFragment extends Fragment {
 
     private void showMergedFilesDB(Application app) {
         Box<MergedKMLEntity> mergedKMLEntityBox = ((App) app).getBoxStore().boxFor(MergedKMLEntity.class);
-        for (MergedKMLEntity entity : mergedKMLEntityBox.getAll()) {
+        long count = mergedKMLEntityBox.count();
+        if (count == 0)
+            return;
+        MergedKMLEntity kmlEntity = mergedKMLEntityBox.get(count);
+        currentDBVersion = kmlEntity.getMergedVersion();
+        List<MergedKMLEntity> kmlEntities = mergedKMLEntityBox.query().equal(MergedKMLEntity_.mergedVersion, currentDBVersion).build().find();
+        for (MergedKMLEntity entity :kmlEntities)
+            Log.d("MergedFiles", entity.toString());
+        for (MergedKMLEntity entity : kmlEntities) {
             Log.d("MergedEntity", "Info:" + entity.getId() + " " + entity.getTileName());
             String kmlString = entity.getKml();
             ByteArrayInputStream is = new ByteArrayInputStream(kmlString.getBytes());
@@ -86,12 +129,13 @@ public class MergedMapFragment extends Fragment {
             FolderOverlay folderOverlay = (FolderOverlay) kml.mKmlRoot.buildOverlay(map, null, null, kml);
             for (Overlay overlay : folderOverlay.getItems()) {
                 if (overlay instanceof Polygon) {
-                    ((Polygon) overlay).setStrokeColor(R.color.green);
+                    ((Polygon) overlay).setStrokeColor(Color.parseColor("#CDE74C3C"));
                     map.getOverlays().add(overlay);
                     allPlotted.add(overlay);
                 }
             }
         }
+        mergedKMLEntityBox.closeThreadResources();
     }
 
     private void showMergedFiles(Context context) {
@@ -121,7 +165,7 @@ public class MergedMapFragment extends Fragment {
             @Override
             public void onClick(View view) {
 //                call get kml objects
-                MergeDecisionPolicy decisionPolicy = new MergeDecisionPolicy(MergeDecisionPolicy.DISTANCE_THRESHOLD_POLICY, 40, 0);
+                MergeDecisionPolicy decisionPolicy = new MergeDecisionPolicy(MergeDecisionPolicy.DISTANCE_THRESHOLD_POLICY, 50, 0);
                 GISMerger.mergeGIS(getActivity().getApplication(), map, decisionPolicy, true);
                 Handler handler = new Handler();
                 handler.postDelayed(new Runnable() {

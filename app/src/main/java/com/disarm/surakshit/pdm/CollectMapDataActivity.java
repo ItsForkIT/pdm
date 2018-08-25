@@ -3,6 +3,7 @@ package com.disarm.surakshit.pdm;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Point;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Environment;
 import android.os.Handler;
@@ -259,9 +260,11 @@ public class CollectMapDataActivity extends AppCompatActivity {
             }
         });
         l = MLocation.getLocation(getApplicationContext());
+        Drawable iconDrawable = getResources().getDrawable(R.drawable.ic_place_green);
         if(l == null){
             //Code to get user's location
             currentPosition = new Marker(map);
+            currentPosition.setIcon(iconDrawable);
             currentPosition.setPosition(ChatActivity.currLoc);
             currentPosition.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
                 @Override
@@ -273,6 +276,7 @@ public class CollectMapDataActivity extends AppCompatActivity {
         }
         else{
             currentPosition = new Marker(map);
+            currentPosition.setIcon(iconDrawable);
             currentPosition.setPosition(new GeoPoint(l.getLatitude(),l.getLongitude()));
             currentPosition.setOnMarkerClickListener(new Marker.OnMarkerClickListener() {
                 @Override
@@ -296,10 +300,10 @@ public class CollectMapDataActivity extends AppCompatActivity {
         int width = size.x;
         Context ctx = getApplicationContext();
         Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx));
-        map.setBuiltInZoomControls(true);
+        map.setBuiltInZoomControls(false);
         map.setMultiTouchControls(true);
         final IMapController mapController = map.getController();
-        mapController.setZoom(15.0);
+        mapController.setZoom(16.0);
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -334,6 +338,8 @@ public class CollectMapDataActivity extends AppCompatActivity {
                 if(draw_save.getVisibility()==View.VISIBLE && undo_back.getText().toString().equals(getString(R.string.undo))){
                     polygon_points.add(p);
                     final Marker marker = new Marker(map);
+                    Drawable iconDrawable = CollectMapDataActivity.this.getResources().getDrawable(R.drawable.ic_place_accent);
+                    marker.setIcon(iconDrawable);
                     markerpoints.add(marker);
                     marker.setPosition(p);
                     marker.setDraggable(true);
