@@ -604,9 +604,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-//            final Intent dcServiceIntent = new Intent(getApplicationContext(),DCService.class);
-//            bindService(dcServiceIntent,myServiceConnection,Context.BIND_AUTO_CREATE);
-//            startService(dcServiceIntent);
+            final Intent dcServiceIntent = new Intent(getApplicationContext(),DCService.class);
+            bindService(dcServiceIntent,myServiceConnection,Context.BIND_AUTO_CREATE);
+            startService(dcServiceIntent);
 
 
         if (!LocationState.with(MainActivity.this).locationServicesEnabled()) {

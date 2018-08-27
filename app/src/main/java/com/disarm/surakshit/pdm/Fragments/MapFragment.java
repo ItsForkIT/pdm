@@ -120,7 +120,7 @@ public class MapFragment extends Fragment {
         map.setBuiltInZoomControls(false);
         map.setMultiTouchControls(true);
         final IMapController mapController = map.getController();
-        mapController.setZoom(16.0);
+        mapController.setZoom(17.0);
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {

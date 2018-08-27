@@ -79,7 +79,7 @@ public class DCService extends Service {
         registerReceiver(wifiReciever, filter);
 
         // Start scan for Wifi List
-        wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+        wifi = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         wifi.startScan();
 
         // Logger Initiated

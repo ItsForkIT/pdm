@@ -41,7 +41,7 @@ public class DiffUtils {
             File destination = getDestinationFile(delta);
             try {
                 JBPatch.bspatch(source, destination, delta);
-                //FileUtils.forceDelete(delta);
+//                FileUtils.forceDelete(delta);
                 MapFragment.parseKml(app,context);
                 return true;
             }
