@@ -6,8 +6,11 @@ import android.util.Log;
 
 import com.disarm.surakshit.pdm.DB.DBEntities.App;
 import com.disarm.surakshit.pdm.DB.DBEntities.MergedKMLEntity;
+import com.disarm.surakshit.pdm.DB.DBEntities.MergedKMLEntity_;
 import com.disarm.surakshit.pdm.DB.DBEntities.Receiver;
 import com.disarm.surakshit.pdm.DB.DBEntities.Sender;
+import com.disarm.surakshit.pdm.DB.DBEntities.VersionEntity;
+import com.disarm.surakshit.pdm.DB.DBEntities.VersionEntity_;
 import com.disarm.surakshit.pdm.Merging.MergeUtil.KmlObject;
 import com.disarm.surakshit.pdm.Merging.MergeUtil.MergeDecisionPolicy;
 import com.disarm.surakshit.pdm.Merging.MergeUtil.MergePolicy;
@@ -27,6 +30,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +42,12 @@ import io.objectbox.Box;
  */
 
 public class GISMerger {
-
+    static HashMap<String, String> pointsToId = new HashMap<>();
+    static ArrayList<GeoPoint> points = new ArrayList<>();
+    static List<Overlay> overlayList = new ArrayList<>();
+    static HashMap<String, Integer> imageCount = new HashMap<>();
+    static HashMap<String, Integer> videoCount = new HashMap<>();
+    static HashMap<String, Integer> audioCount = new HashMap<>();
     static int currentDBVersion;
 
     //return number of not merged files
@@ -69,15 +78,24 @@ public class GISMerger {
         if (mergeDirectory.exists()) {
             storage.deleteDirectory(mergeDirectory.getAbsolutePath());
         }
+        pointsToId.clear();
+        points.clear();
+        overlayList.clear();
+        imageCount.clear();
+        videoCount.clear();
+        audioCount.clear();
 
         //change merged database
         Box<MergedKMLEntity> mergedKMLEntityBox = ((App) app).getBoxStore().boxFor(MergedKMLEntity.class);
-        if (mergedKMLEntityBox.count() == 0) {
+        Box<VersionEntity> versionEntityBox = ((App) app).getBoxStore().boxFor(VersionEntity.class);
+        if (versionEntityBox.count() == 0) {
             currentDBVersion = MergedKMLEntity.INITIAL_VERSION;
         } else {
-            MergedKMLEntity entity = mergedKMLEntityBox.get(mergedKMLEntityBox.count());
-            currentDBVersion = entity.getMergedVersion() + 1;
+            long version = versionEntityBox.query().build().property(VersionEntity_.version).max();
+            currentDBVersion = (int) (version + 1);
         }
+
+        Log.d("obdb", "version:" + currentDBVersion);
 
         mergedKMLEntityBox.closeThreadResources();
 
@@ -135,7 +153,7 @@ public class GISMerger {
                 ListCopy(bucket, newBucket);
             }
             //save to file merged objects
-            saveKMLObjectInDB(mergedBucket, manual, app);
+            saveKMLObjectInDB(mergedBucket, app);
         }
         //recording time after merging
         long tEnd = System.currentTimeMillis();
@@ -146,6 +164,136 @@ public class GISMerger {
 //        Log.d("Total Merged Files", "" + totalMergedFiles);
 //        Log.d("Total Not Merged Files", "" + totalNotMergedFiles);
 //        return totalNotMergedFiles;
+
+        //update version of db
+        VersionEntity versionEntity = new VersionEntity();
+        versionEntity.setTimeStamp(new Date().getTime());
+        versionEntity.setVersion(currentDBVersion);
+        versionEntity.setManual(manual);
+        versionEntityBox.put(versionEntity);
+        versionEntityBox.closeThreadResources();
+        assignMediaCountToMergedGis(app, mapView);
+    }
+
+    private static void assignMediaCountToMergedGis(Application app, MapView mapView) {
+        Box<MergedKMLEntity> mergedKMLEntityBox = ((App) app).getBoxStore().boxFor(MergedKMLEntity.class);
+        Box<VersionEntity> versionEntityBox = ((App) app).getBoxStore().boxFor(VersionEntity.class);
+        long version = versionEntityBox.query().build().property(VersionEntity_.version).max();
+        Log.d("obdb", "version in assign:" + currentDBVersion);
+        List<MergedKMLEntity> kmlEntities = mergedKMLEntityBox.query().equal(MergedKMLEntity_.mergedVersion, version).build().find();
+        for (MergedKMLEntity entity : kmlEntities) {
+            Log.d("MergedEntity", "Info:" + entity.getId() + " " + entity.getTileName());
+            String id = entity.getTitle();
+            String kmlString = entity.getKml();
+            ByteArrayInputStream is = new ByteArrayInputStream(kmlString.getBytes());
+            KmlDocument kml = new KmlDocument();
+            kml.parseKMLStream(is, null);
+            FolderOverlay folderOverlay = (FolderOverlay) kml.mKmlRoot.buildOverlay(mapView, null, null, kml);
+            for (Overlay overlay : folderOverlay.getItems()) {
+                if (overlay instanceof Polygon) {
+                    for (GeoPoint point : ((Polygon) overlay).getPoints()) {
+                        pointsToId.put(point.toDoubleString(), id);
+                        points.add(point);
+                    }
+                    overlayList.add(overlay);
+                } else if (overlay instanceof Marker) {
+                    pointsToId.put(((Marker) overlay).getPosition().toDoubleString(), id);
+                    points.add(((Marker) overlay).getPosition());
+                    overlayList.add(overlay);
+                }
+            }
+        }
+        Box<Receiver> receiverBox = ((App) app).getBoxStore().boxFor(Receiver.class);
+        Box<Sender> senderBox = ((App) app).getBoxStore().boxFor(Sender.class);
+        for (Receiver receiver : receiverBox.getAll()) {
+            String kmlString = receiver.getKml();
+            ByteArrayInputStream is = new ByteArrayInputStream(kmlString.getBytes());
+            KmlDocument kml = new KmlDocument();
+            kml.parseKMLStream(is, null);
+            updateCount(kml);
+        }
+        for (Sender sender : senderBox.getAll()) {
+            String kmlString = sender.getKml();
+            ByteArrayInputStream is = new ByteArrayInputStream(kmlString.getBytes());
+            KmlDocument kml = new KmlDocument();
+            kml.parseKMLStream(is, null);
+            updateCount(kml);
+        }
+        for (MergedKMLEntity entity : kmlEntities) {
+            String kmlString = entity.getKml();
+            String id = entity.getTitle();
+            ByteArrayInputStream is = new ByteArrayInputStream(kmlString.getBytes());
+            KmlDocument kml = new KmlDocument();
+            kml.parseKMLStream(is, null);
+            FolderOverlay folderOverlay = (FolderOverlay) kml.mKmlRoot.buildOverlay(mapView, null, null, kml);
+            for (Overlay overlay : folderOverlay.getItems()) {
+                if (overlay instanceof Polygon) {
+                    if (imageCount.containsKey(id))
+                        entity.setImageCount(imageCount.get(id));
+                    else
+                        entity.setImageCount(0);
+                    if (audioCount.containsKey(id))
+                        entity.setAudioCount(audioCount.get(id));
+                    else
+                        entity.setAudioCount(0);
+                    if (videoCount.containsKey(id))
+                        entity.setVideoCount(videoCount.get(id));
+                    else
+                        entity.setVideoCount(0);
+                }
+            }
+            mergedKMLEntityBox.put(entity);
+        }
+        kmlEntities = mergedKMLEntityBox.query().equal(MergedKMLEntity_.mergedVersion, version).build().find();
+        for (MergedKMLEntity entity : kmlEntities) {
+            Log.d("obdb", entity.toString() + ":" + entity.getAudioCount() + ":" + entity.getImageCount() + ":" + entity.getVideoCount());
+        }
+    }
+
+    private static void updateCount(KmlDocument kml) {
+        String key = "source";
+        while (kml.mKmlRoot.mExtendedData.containsKey(key)) {
+            String msg[] = kml.mKmlRoot.getExtendedData(key).split("-");
+            key = msg[0];
+            String type = msg[1];
+            if (type.contains("image") || type.contains("video") || type.contains("audio")) {
+                String latlon[] = msg[4].split("_");
+                Double lat = Double.parseDouble(latlon[0]);
+                Double lon = Double.parseDouble(latlon[1]);
+                GeoPoint g = new GeoPoint(lat, lon);
+                GeoPoint minDisPoint = null;
+                Double minDis = 9999999999.0;
+                for (GeoPoint geoPoint : points) {
+                    Double distance = g.distanceToAsDouble(geoPoint);
+                    if (distance < 100) {
+                        Log.d("Snippet", "Minimum distance found");
+                        if (minDisPoint == null) {
+                            minDisPoint = geoPoint;
+                            minDis = distance;
+                        } else if (minDis > distance) {
+                            minDis = distance;
+                            minDisPoint = geoPoint;
+                        }
+                    }
+                }
+                if (minDisPoint != null) {
+                    String id = pointsToId.get(minDisPoint.toDoubleString());
+                    if (type.contains("image")) {
+                        if (!imageCount.containsKey(id))
+                            imageCount.put(id, 0);
+                        imageCount.put(id, imageCount.get(id) + 1);
+                    } else if (type.contains("video")) {
+                        if (!videoCount.containsKey(id))
+                            videoCount.put(id, 0);
+                        videoCount.put(id, videoCount.get(id) + 1);
+                    } else if (type.contains("audio")) {
+                        if (!audioCount.containsKey(id))
+                            audioCount.put(id, 0);
+                        audioCount.put(id, audioCount.get(id) + 1);
+                    }
+                }
+            }
+        }
     }
 
     //helper method to copy elements between objects
@@ -155,12 +303,12 @@ public class GISMerger {
     }
 
 
-    private static void saveKMLObjectInDB(List<KmlObject> newBucket, Boolean manual, Application app) {
+    private static void saveKMLObjectInDB(List<KmlObject> newBucket, Application app) {
         Log.d("Merging", "SaveInDB called:" + newBucket.size());
         Box<MergedKMLEntity> mergedKMLEntityBox = ((App) app).getBoxStore().boxFor(MergedKMLEntity.class);
         for (KmlObject object : newBucket) {
             File file = saveKMlInFile(object);
-            Log.d("MergedFile",object.getMessage());
+            Log.d("MergedFile", object.getMessage());
             MergedKMLEntity kmlEntity = new MergedKMLEntity();
             kmlEntity.setTileName(object.getTileName());
             KmlDocument kml = new KmlDocument();
@@ -175,9 +323,9 @@ public class GISMerger {
                 e.printStackTrace();
             }
             kmlEntity.setKml(kmlString);
+            kmlEntity.setTitle(object.getMessage());
             kmlEntity.setType(object.getType());
             kmlEntity.setZoom(object.getZoom());
-            kmlEntity.setManual(manual);
             kmlEntity.setMergedVersion(currentDBVersion);
             mergedKMLEntityBox.put(kmlEntity);
         }

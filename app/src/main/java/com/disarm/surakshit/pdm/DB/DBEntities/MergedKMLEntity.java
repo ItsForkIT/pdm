@@ -12,13 +12,16 @@ public class MergedKMLEntity {
     @Id
     private long id;
     private int zoom;
+    private String title;
     private String tileName;
     private int mergedVersion;
     private int type; // point / polygon
     private String kml;
-    private boolean manual;
+    private int audioCount;
+    private int videoCount;
+    private int imageCount;
 
-    public static final int INITIAL_VERSION = 0;
+    public static final int INITIAL_VERSION = 1;
 
     public int getMergedVersion() {
         return mergedVersion;
@@ -34,14 +37,6 @@ public class MergedKMLEntity {
 
     public void setId(long id) {
         this.id = id;
-    }
-
-    public boolean isManual() {
-        return manual;
-    }
-
-    public void setManual(boolean manual) {
-        this.manual = manual;
     }
 
     public static final int KMLOBJECT_TYPE_POLYGON = 0;
@@ -77,6 +72,38 @@ public class MergedKMLEntity {
 
     public void setKml(String kml) {
         this.kml = kml;
+    }
+
+    public int getAudioCount() {
+        return audioCount;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setAudioCount(int audioCount) {
+        this.audioCount = audioCount;
+    }
+
+    public int getVideoCount() {
+        return videoCount;
+    }
+
+    public void setVideoCount(int videoCount) {
+        this.videoCount = videoCount;
+    }
+
+    public int getImageCount() {
+        return imageCount;
+    }
+
+    public void setImageCount(int imageCount) {
+        this.imageCount = imageCount;
     }
 
     @Override
