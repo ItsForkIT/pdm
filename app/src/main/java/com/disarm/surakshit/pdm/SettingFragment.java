@@ -37,7 +37,7 @@ public class SettingFragment extends PreferenceFragmentCompat implements SharedP
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
         Context c = getContext();
 
-        if(s.equals("mule_switch")){
+        if(s.equals("mule_switch")||s.equals("disarmConnect")){
             try {
                 Intent i = new Intent(c, MainActivity.class);
                 i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);

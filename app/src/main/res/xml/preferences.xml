@@ -7,4 +7,10 @@
         android:key="mule_switch"
         android:title="@string/data_mule"
         android:summary="@string/mule"/>
+
+    <android.support.v7.preference.SwitchPreferenceCompat
+        android:defaultValue="true"
+        android:key="disarmConnect"
+        android:title="Disarm Connect"
+        android:summary="Toggle to turn on and off Disarm Connect"/>
 </PreferenceScreen>
