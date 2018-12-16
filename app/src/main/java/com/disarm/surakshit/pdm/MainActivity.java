@@ -113,8 +113,10 @@ public class MainActivity extends AppCompatActivity {
         kmlFilesList = new HashSet<>();
         File kmlDir = Environment.getExternalStoragePublicDirectory("DMS/KML/Dest/SourceKml");
         for (File file : kmlDir.listFiles()) {
-            kmlFilesList.add(FilenameUtils.getBaseName(file.getName()));
-            total_kml++;
+            if (FilenameUtils.getExtension(file.getName()).equals("kml")) {
+                kmlFilesList.add(FilenameUtils.getBaseName(file.getName()));
+                total_kml++;
+            }
         }
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
         ht = new HandlerThread("FileWatcher");
@@ -204,80 +206,86 @@ public class MainActivity extends AppCompatActivity {
 
                 HashMap<String, File> sourceFiles = new HashMap<>();
                 for (File file : sourceDestDir.listFiles()) {
-                    String[] name = file.getName().split("_");
-                    sourceFiles.put(name[0], file);
+                    if (FilenameUtils.getExtension(file.getName()).equals("kml")) {
+                        String[] name = file.getName().split("_");
+                        sourceFiles.put(name[0], file);
+                    }
                 }
                 if (latestDestDir.listFiles().length > 0) {
                     Log.d("DIFF TEST", "Inside more than 0 files");
                     for (File file : latestDestDir.listFiles()) {
-                        String fileName = FilenameUtils.getBaseName(file.getName());
-                        String split[] = fileName.split("_");
-                        if (myDiffFiles.containsKey(split[0])) {
-                            Log.d("DIFF TEST", "Found Diff Files");
-                            File diff = myDiffFiles.get(split[0]);
-                            int version = Integer.parseInt(FilenameUtils.getBaseName(diff.getName()).split("_")[4]);
-                            int curr_version = Integer.parseInt(split[4]);
-                            if (curr_version < version) {
-                                Log.d("DIFF TEST", "Found Latest version Diff Files");
-                                File source = sourceFiles.get(split[0]);
-                                if (DiffUtils.applyPatch(source, diff, getApplication(), MainActivity.this)) {
-                                    Log.d("DIFF TEST", "DIFF APPLIED");
-                                    try {
-                                        FileUtils.forceDelete(file);
-                                        final Box<Receiver> receiverBox = ((App) getApplication()).getBoxStore().boxFor(Receiver.class);
-                                        final Box<Sender> senderBox = ((App) getApplication()).getBoxStore().boxFor(Sender.class);
-                                        String number = split[1];
-                                        boolean isVolunteer = false, isUser = false;
-                                        if (fileName.contains("volunteer")) {
-                                            isVolunteer = true;
-                                        } else if (fileName.contains("user")) {
-                                            isUser = true;
-                                        }
-                                        List<Receiver> receivers = receiverBox.query().equal(Receiver_.number, number)
-                                                .equal(Receiver_.forVolunteer, isVolunteer)
-                                                .equal(Receiver_.forUser, isUser).build().find();
-                                        List<Sender> senders = senderBox.query().equal(Sender_.number, number)
-                                                .equal(Sender_.forVolunteer, isVolunteer)
-                                                .equal(Sender_.forUser, isUser).build().find();
-
-                                        Receiver receiver = receivers.get(0);
-                                        File latestkml = Environment.getExternalStoragePublicDirectory("DMS/KML/Dest/LatestKml");
-                                        for (File kml : latestkml.listFiles()) {
-                                            if (kml.getName().contains(split[0])) {
-                                                KmlDocument latestkmldocument = new KmlDocument();
-                                                latestkmldocument.parseKMLFile(kml);
-                                                int total = Integer.parseInt(latestkmldocument.mKmlRoot.getExtendedData("total"));
-                                                receiver.setUnread(total - receiver.getTotalMsg());
-                                                receiver.setTotalMsg(total);
-                                                String lastMsgReceiver = getLastMessage(latestkmldocument);
-                                                receiver.setLastMessage(lastMsgReceiver);
-                                                receiver.setKml(FileUtils.readFileToString(kml));
-                                                if (senders.size() != 0) {
-                                                    Sender sender = senders.get(0);
-                                                    String lastMsg = sender.getLastMessage();
-                                                    String sender_time = lastMsg.split("-")[0];
-                                                    DateFormat df = new SimpleDateFormat("yyyyMMddHHmmss", Locale.ENGLISH);
-                                                    Date sender_d = df.parse(sender_time);
-                                                    Date receiver_d = df.parse(lastMsgReceiver.split("-")[0]);
-                                                    if (sender_d.before(receiver_d)) {
-                                                        receiver.setLastUpdated(true);
-                                                        sender.setLastUpdated(false);
-                                                    } else {
-                                                        receiver.setLastUpdated(false);
-                                                        sender.setLastUpdated(true);
-                                                    }
-                                                    senderBox.put(sender);
-                                                } else {
-                                                    receiver.setLastUpdated(true);
-                                                }
-                                                receiverBox.put(receiver);
+                        if (FilenameUtils.getExtension(file.getName()).equals("kml")) {
+                            String fileName = FilenameUtils.getBaseName(file.getName());
+                            String split[] = fileName.split("_");
+                            if (myDiffFiles.containsKey(split[0])) {
+                                Log.d("DIFF TEST", "Found Diff Files");
+                                File diff = myDiffFiles.get(split[0]);
+                                int version = Integer.parseInt(FilenameUtils.getBaseName(diff.getName()).split("_")[4]);
+                                int curr_version = Integer.parseInt(split[4]);
+                                if (curr_version < version) {
+                                    Log.d("DIFF TEST", "Found Latest version Diff Files");
+                                    File source = sourceFiles.get(split[0]);
+                                    if (DiffUtils.applyPatch(source, diff, getApplication(), MainActivity.this)) {
+                                        Log.d("DIFF TEST", "DIFF APPLIED");
+                                        try {
+                                            FileUtils.forceDelete(file);
+                                            final Box<Receiver> receiverBox = ((App) getApplication()).getBoxStore().boxFor(Receiver.class);
+                                            final Box<Sender> senderBox = ((App) getApplication()).getBoxStore().boxFor(Sender.class);
+                                            String number = split[1];
+                                            boolean isVolunteer = false, isUser = false;
+                                            if (fileName.contains("volunteer")) {
+                                                isVolunteer = true;
+                                            } else if (fileName.contains("user")) {
+                                                isUser = true;
                                             }
+                                            List<Receiver> receivers = receiverBox.query().equal(Receiver_.number, number)
+                                                    .equal(Receiver_.forVolunteer, isVolunteer)
+                                                    .equal(Receiver_.forUser, isUser).build().find();
+                                            List<Sender> senders = senderBox.query().equal(Sender_.number, number)
+                                                    .equal(Sender_.forVolunteer, isVolunteer)
+                                                    .equal(Sender_.forUser, isUser).build().find();
+
+                                            Receiver receiver = receivers.get(0);
+                                            File latestkml = Environment.getExternalStoragePublicDirectory("DMS/KML/Dest/LatestKml");
+                                            for (File kml : latestkml.listFiles()) {
+                                                if (FilenameUtils.getExtension(file.getName()).equals("kml")) {
+                                                    if (kml.getName().contains(split[0])) {
+                                                        KmlDocument latestkmldocument = new KmlDocument();
+                                                        latestkmldocument.parseKMLFile(kml);
+                                                        int total = Integer.parseInt(latestkmldocument.mKmlRoot.getExtendedData("total"));
+                                                        receiver.setUnread(total - receiver.getTotalMsg());
+                                                        receiver.setTotalMsg(total);
+                                                        String lastMsgReceiver = getLastMessage(latestkmldocument);
+                                                        receiver.setLastMessage(lastMsgReceiver);
+                                                        receiver.setKml(FileUtils.readFileToString(kml));
+                                                        if (senders.size() != 0) {
+                                                            Sender sender = senders.get(0);
+                                                            String lastMsg = sender.getLastMessage();
+                                                            String sender_time = lastMsg.split("-")[0];
+                                                            DateFormat df = new SimpleDateFormat("yyyyMMddHHmmss", Locale.ENGLISH);
+                                                            Date sender_d = df.parse(sender_time);
+                                                            Date receiver_d = df.parse(lastMsgReceiver.split("-")[0]);
+                                                            if (sender_d.before(receiver_d)) {
+                                                                receiver.setLastUpdated(true);
+                                                                sender.setLastUpdated(false);
+                                                            } else {
+                                                                receiver.setLastUpdated(false);
+                                                                sender.setLastUpdated(true);
+                                                            }
+                                                            senderBox.put(sender);
+                                                        } else {
+                                                            receiver.setLastUpdated(true);
+                                                        }
+                                                        receiverBox.put(receiver);
+                                                    }
+                                                }
+                                            }
+                                            senderBox.closeThreadResources();
+                                            receiverBox.closeThreadResources();
+                                        } catch (IOException | ParseException e) {
+                                            Log.d("DIFF TEST", "Diff Failed");
+                                            e.printStackTrace();
                                         }
-                                        senderBox.closeThreadResources();
-                                        receiverBox.closeThreadResources();
-                                    } catch (IOException | ParseException e) {
-                                        Log.d("DIFF TEST", "Diff Failed");
-                                        e.printStackTrace();
                                     }
                                 }
                             }
@@ -311,49 +319,51 @@ public class MainActivity extends AppCompatActivity {
                             Receiver receiver = receivers.get(0);
                             File latestkml = Environment.getExternalStoragePublicDirectory("DMS/KML/Dest/LatestKml");
                             for (File kml : latestkml.listFiles()) {
-                                if (kml.getName().contains(identifier)) {
-                                    KmlDocument latestkmldocument = new KmlDocument();
-                                    latestkmldocument.parseKMLFile(kml);
-                                    int total = Integer.parseInt(latestkmldocument.mKmlRoot.getExtendedData("total"));
-                                    receiver.setUnread(total - receiver.getTotalMsg());
-                                    receiver.setTotalMsg(total);
-                                    String lastMsgReceiver = getLastMessage(latestkmldocument);
-                                    receiver.setLastMessage(lastMsgReceiver);
-                                    try {
-                                        receiver.setKml(FileUtils.readFileToString(kml));
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
-                                    if (senders.size() != 0) {
-                                        Sender sender = senders.get(0);
-                                        String lastMsg = sender.getLastMessage();
-                                        String sender_time = lastMsg.split("-")[0];
-                                        DateFormat df = new SimpleDateFormat("yyyyMMddHHmmss", Locale.ENGLISH);
-                                        Date sender_d = null;
+                                if (FilenameUtils.getExtension(kml.getName()).equals("kml")) {
+                                    if (kml.getName().contains(identifier)) {
+                                        KmlDocument latestkmldocument = new KmlDocument();
+                                        latestkmldocument.parseKMLFile(kml);
+                                        int total = Integer.parseInt(latestkmldocument.mKmlRoot.getExtendedData("total"));
+                                        receiver.setUnread(total - receiver.getTotalMsg());
+                                        receiver.setTotalMsg(total);
+                                        String lastMsgReceiver = getLastMessage(latestkmldocument);
+                                        receiver.setLastMessage(lastMsgReceiver);
                                         try {
-                                            sender_d = df.parse(sender_time);
-                                        } catch (ParseException e) {
+                                            receiver.setKml(FileUtils.readFileToString(kml));
+                                        } catch (IOException e) {
                                             e.printStackTrace();
                                         }
-                                        Date receiver_d = null;
-                                        try {
-                                            receiver_d = df.parse(lastMsgReceiver.split("-")[0]);
-                                        } catch (ParseException e) {
-                                            e.printStackTrace();
-                                        }
-                                        assert sender_d != null;
-                                        if (sender_d.before(receiver_d)) {
-                                            receiver.setLastUpdated(true);
-                                            sender.setLastUpdated(false);
+                                        if (senders.size() != 0) {
+                                            Sender sender = senders.get(0);
+                                            String lastMsg = sender.getLastMessage();
+                                            String sender_time = lastMsg.split("-")[0];
+                                            DateFormat df = new SimpleDateFormat("yyyyMMddHHmmss", Locale.ENGLISH);
+                                            Date sender_d = null;
+                                            try {
+                                                sender_d = df.parse(sender_time);
+                                            } catch (ParseException e) {
+                                                e.printStackTrace();
+                                            }
+                                            Date receiver_d = null;
+                                            try {
+                                                receiver_d = df.parse(lastMsgReceiver.split("-")[0]);
+                                            } catch (ParseException e) {
+                                                e.printStackTrace();
+                                            }
+                                            assert sender_d != null;
+                                            if (sender_d.before(receiver_d)) {
+                                                receiver.setLastUpdated(true);
+                                                sender.setLastUpdated(false);
+                                            } else {
+                                                receiver.setLastUpdated(false);
+                                                sender.setLastUpdated(true);
+                                            }
+                                            senderBox.put(sender);
                                         } else {
-                                            receiver.setLastUpdated(false);
-                                            sender.setLastUpdated(true);
+                                            receiver.setLastUpdated(true);
                                         }
-                                        senderBox.put(sender);
-                                    } else {
-                                        receiver.setLastUpdated(true);
+                                        receiverBox.put(receiver);
                                     }
-                                    receiverBox.put(receiver);
                                 }
                             }
                             senderBox.closeThreadResources();
@@ -373,8 +383,10 @@ public class MainActivity extends AppCompatActivity {
                 File pgpKeyDir = Environment.getExternalStoragePublicDirectory("DMS/Working/pgpKey");
                 HashMap<String, File> keyFile = new HashMap<>();
                 for (File file : pgpKeyDir.listFiles()) {
-                    String number = FilenameUtils.getBaseName(file.getName()).split("_")[1];
-                    keyFile.put(number, file);
+                    if (FilenameUtils.getBaseName(file.getName()).contains("_") && FilenameUtils.getExtension(file.getName()).equals("bgp")) {
+                        String number = FilenameUtils.getBaseName(file.getName()).split("_")[1];
+                        keyFile.put(number, file);
+                    }
                 }
 
                 for (File file : tempDir.listFiles()) {
@@ -481,7 +493,7 @@ public class MainActivity extends AppCompatActivity {
     private void updateDB(String fileName) throws IOException, ParseException {
         File destKmlDir = Environment.getExternalStoragePublicDirectory("DMS/KML/Dest/SourceKml");
         for (File file : destKmlDir.listFiles()) {
-            if (file.getName().contains(FilenameUtils.getBaseName(fileName))) {
+            if (file.getName().contains(FilenameUtils.getBaseName(fileName)) && FilenameUtils.getExtension(file.getName()).equals("kml")) {
                 final Box<Receiver> receiverBox = ((App) getApplication()).getBoxStore().boxFor(Receiver.class);
                 final Box<Sender> senderBox = ((App) getApplication()).getBoxStore().boxFor(Sender.class);
                 Receiver receiver = new Receiver();
@@ -604,8 +616,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        //default disarmConnect is on
-        boolean startConnect = preferences.getBoolean("disarmConnect", true);
+        //default disarmConnect is off
+        boolean startConnect = preferences.getBoolean("disarmConnect", false);
         if (startConnect) {
             final Intent dcServiceIntent = new Intent(getApplicationContext(), DCService.class);
             bindService(dcServiceIntent, myServiceConnection, Context.BIND_AUTO_CREATE);

@@ -3,6 +3,7 @@ package com.disarm.surakshit.pdm.Util;
 import android.app.Application;
 import android.content.Context;
 import android.os.Environment;
+import android.util.Log;
 
 
 import com.disarm.surakshit.pdm.Fragments.MapFragment;
@@ -41,7 +42,7 @@ public class DiffUtils {
             File destination = getDestinationFile(delta);
             try {
                 JBPatch.bspatch(source, destination, delta);
-//                FileUtils.forceDelete(delta);
+                Log.d("DIffUtils",delta.getAbsolutePath());
                 MapFragment.parseKml(app,context);
                 return true;
             }

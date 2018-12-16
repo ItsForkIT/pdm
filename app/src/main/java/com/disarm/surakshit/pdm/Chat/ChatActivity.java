@@ -471,9 +471,10 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                     receivers = receiverBox.query().equal(Receiver_.number, number).equal(Receiver_.forVolunteer, false).equal(Receiver_.forUser, false).build().find();
                     senders = senderBox.query().equal(Sender_.number, number).equal(Sender_.forVolunteer, false).equal(Sender_.forUser, false).build().find();
                 }
+                String transformedInput = input.toString().replaceAll("[^a-zA-Z0-9\\s]"," ");
                 if (messagesListAdapter.getItemCount() == 0 || senders.size() == 0) {
                     KmlDocument kml = new KmlDocument();
-                    String extendedDataFormat = ChatUtils.getExtendedDataFormatName(input.toString(), "text", "none");
+                    String extendedDataFormat = ChatUtils.getExtendedDataFormatName(transformedInput, "text", "none");
                     kml.mKmlRoot.setExtendedData("source", extendedDataFormat);
                     kml.mKmlRoot.setExtendedData("total", "1");
                     File file = getNewFileObject(sourcePath);
@@ -549,7 +550,7 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                         msg = kml.mKmlRoot.getExtendedData(nextKey);
                         nextKey = getTimeStampFromMsg(msg);
                     }
-                    String extendedDataFormat = ChatUtils.getExtendedDataFormatName(input.toString(), "text", "none");
+                    String extendedDataFormat = ChatUtils.getExtendedDataFormatName(transformedInput, "text", "none");
                     kml.mKmlRoot.setExtendedData(nextKey, extendedDataFormat);
                     int total = Integer.parseInt(kml.mKmlRoot.getExtendedData("total"));
                     total++;
