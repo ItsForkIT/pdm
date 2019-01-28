@@ -77,7 +77,7 @@ public class MapFragment extends Fragment {
         locHandler.post(new Runnable() {
             @Override
             public void run() {
-                Location l = MLocation.getLocation(getContext().getApplicationContext());
+                Location l = MLocation.getLocation(getContext());
                 if (l == null) {
                     locHandler.postDelayed(this, 1000);
                 } else {

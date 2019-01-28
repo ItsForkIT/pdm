@@ -66,7 +66,6 @@ public class Logger {
                     Log.d("File created ", "File created ");
                     logFile.createNewFile();
                 } catch (IOException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
             }
@@ -103,7 +102,6 @@ public class Logger {
 
                 Log.v("Success:",String.valueOf(success));
             } catch (IOException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }*/
         }

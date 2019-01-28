@@ -140,8 +140,9 @@ public class ChatActivity extends AppCompatActivity implements MessageHolders.Co
                 if (l == null) {
                     locHandler.postDelayed(this, 1000);
                 } else {
-                    currLoc.setLatitude(l.getLatitude());
-                    currLoc.setLongitude(l.getLongitude());
+                    currLoc = new GeoPoint(l.getLatitude(), l.getLongitude());
+//                    currLoc.setLatitude(l.getLatitude());
+//                    currLoc.setLongitude(l.getLongitude());
                 }
             }
         });

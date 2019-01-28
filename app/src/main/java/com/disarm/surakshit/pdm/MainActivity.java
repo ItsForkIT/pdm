@@ -9,9 +9,9 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.drawable.GradientDrawable;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -19,19 +19,14 @@ import android.os.IBinder;
 import android.provider.Settings;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.Toolbar;
-
-import android.support.v4.view.ViewPager;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.disarm.surakshit.pdm.Chat.ChatActivity;
@@ -46,9 +41,6 @@ import com.disarm.surakshit.pdm.Fragments.ChatFragment;
 import com.disarm.surakshit.pdm.Fragments.FragmentAdapter;
 import com.disarm.surakshit.pdm.Fragments.MapFragment;
 import com.disarm.surakshit.pdm.Fragments.MergedMapFragment;
-import com.disarm.surakshit.pdm.Merging.GISMerger;
-import com.disarm.surakshit.pdm.Merging.MergeUtil.MergeDecisionPolicy;
-import com.disarm.surakshit.pdm.Merging.MergeUtil.MergePolicy;
 import com.disarm.surakshit.pdm.Service.SyncService;
 import com.disarm.surakshit.pdm.Util.DiffUtils;
 import com.disarm.surakshit.pdm.Util.Params;
@@ -60,7 +52,6 @@ import com.onegravity.contactpicker.core.ContactPickerActivity;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.osmdroid.bonuspack.kml.KmlDocument;
-import org.osmdroid.views.MapView;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -93,6 +84,8 @@ public class MainActivity extends AppCompatActivity {
     public static boolean myServiceBound = false;
     LocationManager lm;
     LocationListener locationListener;
+    //TODO: unable to start BroadcastListActivity
+    //TODO: unable to start ChatActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -127,6 +120,10 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 File kmlDir = Environment.getExternalStoragePublicDirectory("DMS/Working/SurakshitKml");
                 File[] kmlfiles = kmlDir.listFiles();
+                if(kmlfiles==null){
+                    Log.d("Main_Activity","S_KML skipping... ");
+                    return;
+                }
                 if (kmlfiles.length > total_kml) {
                     for (File file : kmlfiles) {
                         String name = FilenameUtils.getBaseName(file.getName());
@@ -191,7 +188,10 @@ public class MainActivity extends AppCompatActivity {
                 File[] diffFiles = diffDir.listFiles();
                 HashMap<String, File> myDiffFiles = new HashMap<>();
                 HashMap<String, Integer> latestVersion = new HashMap<>();
-
+                if(diffFiles==null){
+                    Log.d("Main_Activity","Diff Dir Files skipping... ");
+                    return;
+                }
                 for (File file : diffFiles) {
                     String[] name = FilenameUtils.getBaseName(file.getName()).split("_");
                     if (!latestVersion.containsKey(name[0])) {
@@ -203,17 +203,26 @@ public class MainActivity extends AppCompatActivity {
                         latestVersion.put(name[0], Integer.parseInt(name[4]));
                     }
                 }
-
+                File[] sourceDestDirFiles = sourceDestDir.listFiles();
+                File[] latestDestDirFiles = latestDestDir.listFiles();
+                if (sourceDestDirFiles==null){
+                    Log.d("Main_Activity","Dest Source Files skipping... ");
+                    return;
+                }
+                if (latestDestDirFiles==null){
+                    Log.d("Main_Activity","Dest Latest Files skipping... ");
+                    return;
+                }
                 HashMap<String, File> sourceFiles = new HashMap<>();
-                for (File file : sourceDestDir.listFiles()) {
+                for (File file : sourceDestDirFiles) {
                     if (FilenameUtils.getExtension(file.getName()).equals("kml")) {
                         String[] name = file.getName().split("_");
                         sourceFiles.put(name[0], file);
                     }
                 }
-                if (latestDestDir.listFiles().length > 0) {
+                if (latestDestDirFiles.length > 0) {
                     Log.d("DIFF TEST", "Inside more than 0 files");
-                    for (File file : latestDestDir.listFiles()) {
+                    for (File file : latestDestDirFiles) {
                         if (FilenameUtils.getExtension(file.getName()).equals("kml")) {
                             String fileName = FilenameUtils.getBaseName(file.getName());
                             String split[] = fileName.split("_");
@@ -247,6 +256,10 @@ public class MainActivity extends AppCompatActivity {
 
                                             Receiver receiver = receivers.get(0);
                                             File latestkml = Environment.getExternalStoragePublicDirectory("DMS/KML/Dest/LatestKml");
+                                            if (latestkml.listFiles()==null){
+                                                Log.d("Main_Activity","Latest KML Files skipping... ");
+                                                return;
+                                            }
                                             for (File kml : latestkml.listFiles()) {
                                                 if (FilenameUtils.getExtension(file.getName()).equals("kml")) {
                                                     if (kml.getName().contains(split[0])) {
@@ -318,6 +331,10 @@ public class MainActivity extends AppCompatActivity {
 
                             Receiver receiver = receivers.get(0);
                             File latestkml = Environment.getExternalStoragePublicDirectory("DMS/KML/Dest/LatestKml");
+                            if (latestkml.listFiles()==null){
+                                Log.d("Main_Activity","Latest KML Files skipping... ");
+                                return;
+                            }
                             for (File kml : latestkml.listFiles()) {
                                 if (FilenameUtils.getExtension(kml.getName()).equals("kml")) {
                                     if (kml.getName().contains(identifier)) {
@@ -382,14 +399,24 @@ public class MainActivity extends AppCompatActivity {
                 File tempDir = Environment.getExternalStoragePublicDirectory("DMS/temp");
                 File pgpKeyDir = Environment.getExternalStoragePublicDirectory("DMS/Working/pgpKey");
                 HashMap<String, File> keyFile = new HashMap<>();
-                for (File file : pgpKeyDir.listFiles()) {
+                File[] pgpKeyDirFiles = pgpKeyDir.listFiles();
+                File[] tempDirFiles = tempDir.listFiles();
+                if(pgpKeyDirFiles==null){
+                    Log.d("Main_Activity","PGP Files skipping... ");
+                    return;
+                }
+                if (tempDirFiles==null){
+                    Log.d("Main_Activity","temp Files skipping... ");
+                    return;
+                }
+                for (File file : pgpKeyDirFiles) {
                     if (FilenameUtils.getBaseName(file.getName()).contains("_") && FilenameUtils.getExtension(file.getName()).equals("bgp")) {
                         String number = FilenameUtils.getBaseName(file.getName()).split("_")[1];
                         keyFile.put(number, file);
                     }
                 }
 
-                for (File file : tempDir.listFiles()) {
+                for (File file : tempDirFiles) {
                     String fileName[] = FilenameUtils.getBaseName(file.getName()).split("_");
                     String fileNumber = fileName[2];
                     String unique = fileName[0];
@@ -492,6 +519,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateDB(String fileName) throws IOException, ParseException {
         File destKmlDir = Environment.getExternalStoragePublicDirectory("DMS/KML/Dest/SourceKml");
+        if (destKmlDir.listFiles()==null){
+            Log.d("Main_Activity","Source KML Files skipping... ");
+            return;
+        }
         for (File file : destKmlDir.listFiles()) {
             if (file.getName().contains(FilenameUtils.getBaseName(fileName)) && FilenameUtils.getExtension(file.getName()).equals("kml")) {
                 final Box<Receiver> receiverBox = ((App) getApplication()).getBoxStore().boxFor(Receiver.class);
