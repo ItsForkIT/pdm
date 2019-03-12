@@ -11,6 +11,8 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.wifi.WifiConfiguration;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -35,6 +37,7 @@ import com.disarm.surakshit.pdm.DB.DBEntities.Receiver;
 import com.disarm.surakshit.pdm.DB.DBEntities.Receiver_;
 import com.disarm.surakshit.pdm.DB.DBEntities.Sender;
 import com.disarm.surakshit.pdm.DB.DBEntities.Sender_;
+import com.disarm.surakshit.pdm.DisarmConnect.ApManager;
 import com.disarm.surakshit.pdm.DisarmConnect.DCService;
 import com.disarm.surakshit.pdm.Encryption.KeyBasedFileProcessor;
 import com.disarm.surakshit.pdm.Fragments.ChatFragment;
@@ -58,6 +61,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Method;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -84,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
     public static boolean myServiceBound = false;
     LocationManager lm;
     LocationListener locationListener;
+    WifiManager wifimanager;
     //TODO: unable to start BroadcastListActivity
     //TODO: unable to start ChatActivity
 
@@ -102,6 +107,7 @@ public class MainActivity extends AppCompatActivity {
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
         crashLog();
+        wifimanager = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
         startService();
         kmlFilesList = new HashSet<>();
         File kmlDir = Environment.getExternalStoragePublicDirectory("DMS/KML/Dest/SourceKml");
@@ -120,8 +126,8 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 File kmlDir = Environment.getExternalStoragePublicDirectory("DMS/Working/SurakshitKml");
                 File[] kmlfiles = kmlDir.listFiles();
-                if(kmlfiles==null){
-                    Log.d("Main_Activity","S_KML skipping... ");
+                if (kmlfiles == null) {
+                    Log.d("Main_Activity", "S_KML skipping... ");
                     return;
                 }
                 if (kmlfiles.length > total_kml) {
@@ -188,8 +194,8 @@ public class MainActivity extends AppCompatActivity {
                 File[] diffFiles = diffDir.listFiles();
                 HashMap<String, File> myDiffFiles = new HashMap<>();
                 HashMap<String, Integer> latestVersion = new HashMap<>();
-                if(diffFiles==null){
-                    Log.d("Main_Activity","Diff Dir Files skipping... ");
+                if (diffFiles == null) {
+                    Log.d("Main_Activity", "Diff Dir Files skipping... ");
                     return;
                 }
                 for (File file : diffFiles) {
@@ -205,12 +211,12 @@ public class MainActivity extends AppCompatActivity {
                 }
                 File[] sourceDestDirFiles = sourceDestDir.listFiles();
                 File[] latestDestDirFiles = latestDestDir.listFiles();
-                if (sourceDestDirFiles==null){
-                    Log.d("Main_Activity","Dest Source Files skipping... ");
+                if (sourceDestDirFiles == null) {
+                    Log.d("Main_Activity", "Dest Source Files skipping... ");
                     return;
                 }
-                if (latestDestDirFiles==null){
-                    Log.d("Main_Activity","Dest Latest Files skipping... ");
+                if (latestDestDirFiles == null) {
+                    Log.d("Main_Activity", "Dest Latest Files skipping... ");
                     return;
                 }
                 HashMap<String, File> sourceFiles = new HashMap<>();
@@ -256,8 +262,8 @@ public class MainActivity extends AppCompatActivity {
 
                                             Receiver receiver = receivers.get(0);
                                             File latestkml = Environment.getExternalStoragePublicDirectory("DMS/KML/Dest/LatestKml");
-                                            if (latestkml.listFiles()==null){
-                                                Log.d("Main_Activity","Latest KML Files skipping... ");
+                                            if (latestkml.listFiles() == null) {
+                                                Log.d("Main_Activity", "Latest KML Files skipping... ");
                                                 return;
                                             }
                                             for (File kml : latestkml.listFiles()) {
@@ -331,8 +337,8 @@ public class MainActivity extends AppCompatActivity {
 
                             Receiver receiver = receivers.get(0);
                             File latestkml = Environment.getExternalStoragePublicDirectory("DMS/KML/Dest/LatestKml");
-                            if (latestkml.listFiles()==null){
-                                Log.d("Main_Activity","Latest KML Files skipping... ");
+                            if (latestkml.listFiles() == null) {
+                                Log.d("Main_Activity", "Latest KML Files skipping... ");
                                 return;
                             }
                             for (File kml : latestkml.listFiles()) {
@@ -401,12 +407,12 @@ public class MainActivity extends AppCompatActivity {
                 HashMap<String, File> keyFile = new HashMap<>();
                 File[] pgpKeyDirFiles = pgpKeyDir.listFiles();
                 File[] tempDirFiles = tempDir.listFiles();
-                if(pgpKeyDirFiles==null){
-                    Log.d("Main_Activity","PGP Files skipping... ");
+                if (pgpKeyDirFiles == null) {
+                    Log.d("Main_Activity", "PGP Files skipping... ");
                     return;
                 }
-                if (tempDirFiles==null){
-                    Log.d("Main_Activity","temp Files skipping... ");
+                if (tempDirFiles == null) {
+                    Log.d("Main_Activity", "temp Files skipping... ");
                     return;
                 }
                 for (File file : pgpKeyDirFiles) {
@@ -494,6 +500,7 @@ public class MainActivity extends AppCompatActivity {
                             Intent ii = new Intent(MainActivity.this, SettingActivity.class);
                             startActivity(ii);
                             dialogInterface.dismiss();
+                            finish();
                         }
                     })
                     .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -515,12 +522,18 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         ht.quit();
         unbindAllService();
+        boolean isHotspotOn = ApManager.isApOn(this);
+        if(isHotspotOn){
+            ApManager.configApState(this);
+            wifimanager.setWifiEnabled(true);
+            Log.d("XOB","Stopping XOB");
+        }
     }
 
     private void updateDB(String fileName) throws IOException, ParseException {
         File destKmlDir = Environment.getExternalStoragePublicDirectory("DMS/KML/Dest/SourceKml");
-        if (destKmlDir.listFiles()==null){
-            Log.d("Main_Activity","Source KML Files skipping... ");
+        if (destKmlDir.listFiles() == null) {
+            Log.d("Main_Activity", "Source KML Files skipping... ");
             return;
         }
         for (File file : destKmlDir.listFiles()) {
@@ -649,16 +662,62 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         //default disarmConnect is off
         boolean startConnect = preferences.getBoolean("disarmConnect", false);
-        if (startConnect) {
-            final Intent dcServiceIntent = new Intent(getApplicationContext(), DCService.class);
-            bindService(dcServiceIntent, myServiceConnection, Context.BIND_AUTO_CREATE);
-            startService(dcServiceIntent);
+        boolean isXOB = preferences.getBoolean("xob_switch", false);
+        if (!isXOB) {
+            if (startConnect) {
+                final Intent dcServiceIntent = new Intent(getApplicationContext(), DCService.class);
+                bindService(dcServiceIntent, myServiceConnection, Context.BIND_AUTO_CREATE);
+                startService(dcServiceIntent);
 
+            }
+        } else {
+            if (toggleXOB())
+                Log.d("XOB","xob started");
         }
         if (!LocationState.with(MainActivity.this).locationServicesEnabled()) {
             enableGPS();
         }
         MLocation.subscribe(MainActivity.this);
+    }
+
+    private boolean toggleXOB() {
+        WifiConfiguration wificonfiguration = null;
+        try {
+            //Change Name of the Created Hotspot
+            try {
+                Method getConfigMethod = wifimanager.getClass().getMethod("getWifiApConfiguration");
+
+                WifiConfiguration wifiConfig = (WifiConfiguration) getConfigMethod.invoke(wifimanager);
+//                wifiConfig.getClass().getField("apChannel").setInt(wifiConfig, 6);
+
+
+                wifiConfig.allowedAuthAlgorithms.clear();
+                wifiConfig.allowedGroupCiphers.clear();
+                wifiConfig.allowedKeyManagement.clear();
+                wifiConfig.allowedPairwiseCiphers.clear();
+                wifiConfig.allowedProtocols.clear();
+                wifiConfig.SSID = "DisarmHotspotDB";
+                wifiConfig.preSharedKey = "password123";
+
+                wifiConfig.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.SHARED);
+                wifiConfig.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
+                wifiConfig.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
+                wifiConfig.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
+
+                Method setWifiApMethod = wifimanager.getClass().getMethod("setWifiApEnabled", WifiConfiguration.class, boolean.class);
+                boolean apstatus = (Boolean) setWifiApMethod.invoke(wifimanager, wifiConfig, true);
+                //Log.v("GetAPCOnfig:" + getConfigMethod.toString() + ",setWifiApMethod : " + setWifiApMethod.toString());
+                Log.v("WifiConfig: ", wifiConfig.toString());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            Method method = wifimanager.getClass().getMethod("setWifiApEnabled", WifiConfiguration.class, boolean.class);
+            method.invoke(wifimanager, wificonfiguration, !ApManager.isApOn(this));
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     public void unbindSyncService() {

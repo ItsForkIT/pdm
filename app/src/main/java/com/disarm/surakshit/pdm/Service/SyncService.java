@@ -53,7 +53,10 @@ public class SyncService extends Service {
     public void onCreate() {
         source = "";
         sp = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        if(sp.getBoolean("mule_switch",false)){
+        if (sp.getBoolean("xob_switch",false)){
+            source= "DB-";
+        }
+        else if(sp.getBoolean("mule_switch",false)){
             source = "mule-";
         }
         source = source + Params.SOURCE_PHONE_NO;

@@ -72,12 +72,12 @@ public class MapFragment extends Fragment {
         setMapData();
         HandlerThread ht = new HandlerThread("Map");
         ht.start();
-        parseKml(getActivity().getApplication(), getContext());
+        parseKml(App.getApplication(), App.getContext());
         final Handler locHandler = new Handler(ht.getLooper());
         locHandler.post(new Runnable() {
             @Override
             public void run() {
-                Location l = MLocation.getLocation(getContext());
+                Location l = MLocation.getLocation(App.getContext());
                 if (l == null) {
                     locHandler.postDelayed(this, 1000);
                 } else {

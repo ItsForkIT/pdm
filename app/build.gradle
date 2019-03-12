@@ -5,7 +5,6 @@ android {
 
 
     compileSdkVersion 27
-    buildToolsVersion '27.0.3'
     def BUILD_DATE = new Date().format('yyyy_MM_dd_HHmm')
     def versionPropsFile = file('version.properties')
     def versionBuild

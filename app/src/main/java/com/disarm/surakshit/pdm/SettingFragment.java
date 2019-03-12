@@ -34,25 +34,21 @@ public class SettingFragment extends PreferenceFragmentCompat implements SharedP
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-        Context c = getContext();
-
-        if (s.equals("mule_switch") || s.equals("disarmConnect")) {
-            try {
-                Intent i = new Intent(c, MainActivity.class);
-                i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                if (getActivity().getSupportFragmentManager().getFragments().size() != 0) {
-                    for (Fragment fragment : getActivity().getSupportFragmentManager().getFragments()) {
-                        if (fragment != null) {
-                            getActivity().getSupportFragmentManager().beginTransaction().remove(fragment).commit();
-                        }
-                    }
-                }
-                c.startActivity(i);
-            } catch (Exception e) {
-
-            }
-        }
-
-
+//        Context c = getContext();
+//
+//        if (s.equals("mule_switch") || s.equals("disarmConnect")||s.equals("xob_switch")) {
+//            try {
+//                Intent i = new Intent(c, MainActivity.class);
+//                i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+//                if (getActivity().getSupportFragmentManager().getFragments().size() != 0) {
+//                    for (Fragment fragment : getActivity().getSupportFragmentManager().getFragments()) {
+//                        if (fragment != null) {
+//                            getActivity().getSupportFragmentManager().beginTransaction().remove(fragment).commit();
+//                        }
+//                    }
+//                }
+//                c.startActivity(i);
+//            } catch (Exception ignored) {}
+//        }
     }
 }

@@ -20,7 +20,7 @@ public class ApManager {
     private static final String TAG = "AP Creation";
     //check whether wifi hotspot on or off
     public static boolean isApOn(Context context) {
-        WifiManager wifimanager = (WifiManager) context.getSystemService(context.WIFI_SERVICE);
+        WifiManager wifimanager = (WifiManager) context.getApplicationContext().getSystemService(context.WIFI_SERVICE);
         try {
             Method method = wifimanager.getClass().getDeclaredMethod("isWifiApEnabled");
             method.setAccessible(true);
