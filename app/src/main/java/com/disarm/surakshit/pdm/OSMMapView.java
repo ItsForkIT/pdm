@@ -28,6 +28,7 @@ import org.osmdroid.views.overlay.Polygon;
 import org.osmdroid.views.overlay.ScaleBarOverlay;
 import org.osmdroid.views.overlay.compass.CompassOverlay;
 import org.osmdroid.views.overlay.compass.InternalCompassOrientationProvider;
+
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -40,8 +41,9 @@ import java.util.regex.Pattern;
 public class OSMMapView extends AppCompatActivity {
     View bottomsheet;
     ListView maplv;
+
     @Override
-    protected void onCreate(Bundle savedInstanceState){
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map_view);
         bottomsheet = findViewById(R.id.rlbottomsheet);
@@ -94,8 +96,7 @@ public class OSMMapView extends AppCompatActivity {
     }
 
 
-
-    public class GetLatLongAsync extends AsyncTask{
+    public class GetLatLongAsync extends AsyncTask {
 
         URL url;
         HttpURLConnection httpCon;
@@ -106,45 +107,44 @@ public class OSMMapView extends AppCompatActivity {
         GeoPoint startPoint;
         InputStream is;
         MyMarkerCluster rmc;
+
         @Override
         protected Object doInBackground(Object[] params) {
-            try{
+            try {
                 BufferedReader reader = getReader("http://127.0.0.1:8080/getGIS/allLogs.txt");
-                String data="";
-                while((data = reader.readLine())!=null){
+                String data = "";
+                while ((data = reader.readLine()) != null) {
                     Pattern p = Pattern.compile(",");
                     String[] array = p.split(data);
-                    if(array.length>2){
-                        GeoPoint g = new GeoPoint(Double.parseDouble(array[0]),Double.parseDouble(array[1]));
+                    if (array.length > 2) {
+                        GeoPoint g = new GeoPoint(Double.parseDouble(array[0]), Double.parseDouble(array[1]));
                         Marker m = new Marker(map);
                         m.setPosition(g);
                     }
                 }
                 is.close();
-            }
-            catch (Exception ex){
-                Log.e("--I/O Exception--",ex.toString());
+            } catch (Exception ex) {
+                Log.e("--I/O Exception--", ex.toString());
             }
             httpCon.disconnect();
 
 
-            try{
+            try {
                 BufferedReader reader = getReader("http://127.0.0.1:8080/getGIS/allGIS.txt");
-                String data="";
-                while((data = reader.readLine())!=null){
+                String data = "";
+                while ((data = reader.readLine()) != null) {
                     Pattern p = Pattern.compile("_");
                     String[] array = p.split(data);
-                    if(array.length>2){
-                        GeoPoint g = new GeoPoint(Double.parseDouble(array[5]),Double.parseDouble(array[6]));
+                    if (array.length > 2) {
+                        GeoPoint g = new GeoPoint(Double.parseDouble(array[5]), Double.parseDouble(array[6]));
                         Marker m = new Marker(map);
                         m.setPosition(g);
-                        rmc.addMarker(m,data);
+                        rmc.addMarker(m, data);
                     }
                 }
                 is.close();
-            }
-            catch (Exception ex){
-                Log.e("--I/O Exception--",ex.toString());
+            } catch (Exception ex) {
+                Log.e("--I/O Exception--", ex.toString());
             }
             httpCon.disconnect();
             return null;
@@ -171,7 +171,7 @@ public class OSMMapView extends AppCompatActivity {
             MapEventsReceiver mReceive = new MapEventsReceiver() {
                 @Override
                 public boolean singleTapConfirmedHelper(GeoPoint p) {
-                    Toast.makeText(getBaseContext(),p.getLatitude() + " - "+p.getLongitude(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(getBaseContext(), p.getLatitude() + " - " + p.getLongitude(), Toast.LENGTH_LONG).show();
 
                     return false;
                 }
@@ -187,7 +187,7 @@ public class OSMMapView extends AppCompatActivity {
             map.getOverlays().add(OverlayEvents);
             mapController.setZoom(15);
 
-            startPoint = new GeoPoint(23.5497305,87.2886851 );
+            startPoint = new GeoPoint(23.5497305, 87.2886851);
             mapController.setCenter(startPoint);
 
             mCompassOverlay = new CompassOverlay(ctx, new InternalCompassOrientationProvider(ctx), map);
@@ -195,7 +195,7 @@ public class OSMMapView extends AppCompatActivity {
             map.getOverlays().add(mCompassOverlay);
             mScaleBarOverlay = new ScaleBarOverlay(map);
             mScaleBarOverlay.setCentred(true);
-            mScaleBarOverlay.setScaleBarOffset(width/2, 10);
+            mScaleBarOverlay.setScaleBarOffset(width / 2, 10);
             map.getOverlays().add(mScaleBarOverlay);
 
         }
@@ -206,10 +206,10 @@ public class OSMMapView extends AppCompatActivity {
 
         }
 
-        public Polygon pointsAsCircle(GeoPoint center, double radiusInMeters){
-            Polygon polygon = new Polygon(getBaseContext());
-            ArrayList<GeoPoint> circlePoints = new ArrayList<GeoPoint>(360/6);
-            for (int f = 0; f < 360; f += 6){
+        public Polygon pointsAsCircle(GeoPoint center, double radiusInMeters) {
+            Polygon polygon = new Polygon();
+            ArrayList<GeoPoint> circlePoints = new ArrayList<GeoPoint>(360 / 6);
+            for (int f = 0; f < 360; f += 6) {
                 GeoPoint onCircle = center.destinationPoint(radiusInMeters, f);
                 circlePoints.add(onCircle);
             }
@@ -219,31 +219,28 @@ public class OSMMapView extends AppCompatActivity {
             polygon.setStrokeWidth(2);
             return polygon;
         }
-        private BufferedReader getReader(String urlString){
+
+        private BufferedReader getReader(String urlString) {
             BufferedReader reader = null;
             try {
                 url = new URL(urlString);
-            }
-            catch (Exception ex){
-                Log.e("-- URL Exception --",ex.toString());
+            } catch (Exception ex) {
+                Log.e("-- URL Exception --", ex.toString());
             }
             try {
                 httpCon = (HttpURLConnection) url.openConnection();
+            } catch (Exception ex) {
+                Log.e("-- HTTP Exception --", ex.toString());
             }
-            catch (Exception ex) {
-                Log.e("-- HTTP Exception --",ex.toString());
-            }
-            try{
+            try {
                 is = httpCon.getInputStream();
                 reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
-            }
-            catch (Exception ex){
-                Log.e("--IO Exception--",ex.toString());
+            } catch (Exception ex) {
+                Log.e("--IO Exception--", ex.toString());
             }
             return reader;
         }
     }
-
 
 
 }

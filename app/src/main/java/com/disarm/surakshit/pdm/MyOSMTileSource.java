@@ -1,6 +1,5 @@
 package com.disarm.surakshit.pdm;
 
-import org.osmdroid.tileprovider.MapTile;
 import org.osmdroid.tileprovider.tilesource.OnlineTileSourceBase;
 
 /**
@@ -17,8 +16,7 @@ public class MyOSMTileSource extends OnlineTileSourceBase {
     }
 
     @Override
-    public String getTileURLString(final MapTile aTile) {
-        return getBaseUrl() + aTile.getZoomLevel() + "-" + aTile.getX() + "-" + aTile.getY()
-                + mImageFilenameEnding;
+    public String getTileURLString(long pMapTileIndex) {
+        return null;
     }
 }

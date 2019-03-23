@@ -141,7 +141,7 @@ public class UI_Map extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                fab.setVisibility(View.INVISIBLE);
+                fab.hide();
                 draw_save.setVisibility(View.VISIBLE);
                 cancel.setVisibility(View.VISIBLE);
                 undo_back.setVisibility(View.VISIBLE);
@@ -370,9 +370,9 @@ public class UI_Map extends AppCompatActivity
         syncServiceHandle.postDelayed(run, 1000);
 
 //          Disabled DisarmConnect
-//        final Intent myServiceIntent = new Intent(getBaseContext(), DCService.class);
-//        bindService(myServiceIntent, myServiceConnection, Context.BIND_AUTO_CREATE);
-//        startService(myServiceIntent);
+        final Intent myServiceIntent = new Intent(getBaseContext(), DCService.class);
+        bindService(myServiceIntent, myServiceConnection, Context.BIND_AUTO_CREATE);
+        startService(myServiceIntent);
 
         if (!LocationState.with(UI_Map.this).locationServicesEnabled()) {
             enableGPS();
@@ -624,7 +624,7 @@ public class UI_Map extends AppCompatActivity
                     draw_save.setVisibility(View.GONE);
                     cancel.setVisibility(View.GONE);
                     undo_back.setVisibility(View.GONE);
-                    fab.setVisibility(View.VISIBLE);
+                    fab.show();
 
                 }
             }
@@ -640,7 +640,7 @@ public class UI_Map extends AppCompatActivity
                 flag = 0;
                 total_file = 0;
                 draw_save.setText("Draw");
-                fab.setVisibility(View.VISIBLE);
+                fab.show();
                 draw_save.setVisibility(View.GONE);
                 cancel.setVisibility(View.GONE);
                 undo_back.setVisibility(View.GONE);
