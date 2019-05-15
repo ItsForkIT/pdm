@@ -41,234 +41,209 @@ import java.util.List;
 
 import static com.disarm.surakshit.pdm.DisarmConnect.DCService.phoneVal;
 
-public class MLocation
-{
-	public static LocationManager lm;
-	static Context context_con;
-	public static boolean isGPS = false;
 
-	@SuppressLint("MissingPermission")
-	public static void subscribe(Context context)
-	{
-		context_con=context;
-		lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+public class MLocation {
+    public static LocationManager lm;
+    static Context context_con;
+    public static boolean isGPS = false;
 
-		boolean gps_enabled = false;
-		try
-		{
-			gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
-		} catch (Exception ex)
-		{
-			ex.printStackTrace();
-		}
-		boolean network_enabled = false;
-		try
-		{
-			network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-		} catch (Exception ex)
-		{
-			ex.printStackTrace();
-		}
+    @SuppressLint("MissingPermission")
+    public static void subscribe(Context context) {
+        context_con = context;
+        lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
 
-		if (gps_enabled)
-		{
-			lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListenerGps);
-		}
+        boolean gps_enabled = false;
+        try {
+            gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        boolean network_enabled = false;
+        try {
+            network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
 
-		if (network_enabled)
-		{
-			lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListenerNetwork);
-		}
-	}
+        if (gps_enabled) {
+            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListenerGps);
+        }
 
-	public static void unsubscribe(Context context)
-	{
-		if (lm != null)
-		{
-			lm.removeUpdates(locationListenerGps);
-			lm.removeUpdates(locationListenerNetwork);
-		}
-	}
+        if (network_enabled) {
+            lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListenerNetwork);
+        }
+    }
 
-	public static Location getLocation(Context context)
-	{
-		if (lastGpsLocation != null)
-		{
-			//unsubscribe();
-			return lastGpsLocation;
-		} else if (lastNetworkLocation != null)
-		{
-			//unsubscribe();
-			return lastNetworkLocation;
-		} else
-		{
-			//unsubscribe();
-			return getLastChanceLocation(context);
-		}
-	}
+    public static void unsubscribe(Context context) {
+        if (lm != null) {
+            lm.removeUpdates(locationListenerGps);
+            lm.removeUpdates(locationListenerNetwork);
+        }
+    }
 
-	@SuppressLint("MissingPermission")
-	private static Location getLastChanceLocation(Context ctx)
-	{
-		LocationManager lm = (LocationManager) ctx.getSystemService(Context.LOCATION_SERVICE);
-		List<String> providers = lm.getProviders(true);
+    public static Location getLocation(Context context) {
+        if (lastGpsLocation != null) {
+            //unsubscribe();
+            return lastGpsLocation;
+        } else if (lastNetworkLocation != null) {
+            //unsubscribe();
+            return lastNetworkLocation;
+        } else {
+            //unsubscribe();
+            return getLastChanceLocation(context);
+        }
+    }
 
-		// Loop over the array backwards, and if you get an accurate location,
-		// then break out the loop
-		Location l = null;
+    @SuppressLint("MissingPermission")
+    private static Location getLastChanceLocation(Context ctx) {
+        LocationManager lm = (LocationManager) ctx.getSystemService(Context.LOCATION_SERVICE);
+        List<String> providers = lm.getProviders(true);
 
-		for (int i = providers.size() - 1; i >= 0; i--)
-		{
-			l = lm.getLastKnownLocation(providers.get(i));
-			if (l != null)
-				break;
-		}
-		return l;
-	}
+        // Loop over the array backwards, and if you get an accurate location,
+        // then break out the loop
+        Location l = null;
 
-	private static Location lastGpsLocation			= null;
-	private static Location lastNetworkLocation		= null;
-	private static String TAG = "MLocation";
-	private static LocationListener locationListenerGps		= new LocationListener()
-															{
-																public void onLocationChanged(Location location)
-																{
-																	LocChangeExecute(location);
-																	//lm.removeUpdates(this);
-																	//lm.removeUpdates(locationListenerGps);
+        for (int i = providers.size() - 1; i >= 0; i--) {
+            l = lm.getLastKnownLocation(providers.get(i));
+            if (l != null)
+                break;
+        }
+        return l;
+    }
 
-																	lastGpsLocation = location;
-																	isGPS = true;
-																}
+    private static Location lastGpsLocation = null;
+    private static Location lastNetworkLocation = null;
+    private static String TAG = "MLocation";
+    private static LocationListener locationListenerGps = new LocationListener() {
+        public void onLocationChanged(Location location) {
+            LocChangeExecute(location);
+            //lm.removeUpdates(this);
+            //lm.removeUpdates(locationListenerGps);
 
-																public void onProviderDisabled(String provider)
-																{
-																	isGPS = false;
-																	// called if/when the GPS is disabled in settings
-																	Toast.makeText(context_con, "GPS disabled", Toast.LENGTH_LONG).show();
+            lastGpsLocation = location;
+            isGPS = true;
+        }
 
-																}
+        public void onProviderDisabled(String provider) {
+            isGPS = false;
+            // called if/when the GPS is disabled in settings
+            Toast.makeText(context_con, "GPS disabled", Toast.LENGTH_LONG).show();
 
-																public void onProviderEnabled(String provider)
-																{
-																	Toast.makeText(context_con, "GPS enabled", Toast.LENGTH_LONG).show();
-																}
+        }
 
-																public void onStatusChanged(String provider,
-																		int status, Bundle extras)
-																{
-																	// called upon GPS status changes
-																	switch (status) {
-																		case LocationProvider.OUT_OF_SERVICE:
-																			//Toast.makeText(context_con, "Status changed: out of service", Toast.LENGTH_LONG).show();
-																			Log.v(TAG,"Status changed: out of service");
-																			isGPS = false;
-																			break;
-																		case LocationProvider.TEMPORARILY_UNAVAILABLE:
-																			//Toast.makeText(context_con, "Status changed: temporarily unavailable", Toast.LENGTH_LONG).show();
-																			Log.v(TAG,"Status changed: temporarily unavailable");
-																			isGPS = false;
-																			break;
-																		case LocationProvider.AVAILABLE:
-																			//Toast.makeText(context_con, "Status changed: available", Toast.LENGTH_LONG).show();
-																			Log.v(TAG,"Status changed: available");
-																			isGPS = true;
-																			break;
-																	}
-																}
-															};
+        public void onProviderEnabled(String provider) {
+            Toast.makeText(context_con, "GPS enabled", Toast.LENGTH_LONG).show();
+        }
 
-	private static LocationListener locationListenerNetwork	= new LocationListener()
-															{
-																public void onLocationChanged(Location location)
-																{	LocChangeExecute(location);
-																	//lm.removeUpdates(this);
-																	//lm.removeUpdates(locationListenerGps);
+        public void onStatusChanged(String provider,
+                                    int status, Bundle extras) {
+            // called upon GPS status changes
+            switch (status) {
+                case LocationProvider.OUT_OF_SERVICE:
+                    //Toast.makeText(context_con, "Status changed: out of service", Toast.LENGTH_LONG).show();
+                    Log.v(TAG, "Status changed: out of service");
+                    isGPS = false;
+                    break;
+                case LocationProvider.TEMPORARILY_UNAVAILABLE:
+                    //Toast.makeText(context_con, "Status changed: temporarily unavailable", Toast.LENGTH_LONG).show();
+                    Log.v(TAG, "Status changed: temporarily unavailable");
+                    isGPS = false;
+                    break;
+                case LocationProvider.AVAILABLE:
+                    //Toast.makeText(context_con, "Status changed: available", Toast.LENGTH_LONG).show();
+                    Log.v(TAG, "Status changed: available");
+                    isGPS = true;
+                    break;
+            }
+        }
+    };
 
-																	lastNetworkLocation = location;
-																}
+    private static LocationListener locationListenerNetwork = new LocationListener() {
+        public void onLocationChanged(Location location) {
+            LocChangeExecute(location);
+            //lm.removeUpdates(this);
+            //lm.removeUpdates(locationListenerGps);
 
-																public void onProviderDisabled(String provider)
-																{
-																}
+            lastNetworkLocation = location;
+        }
 
-																public void onProviderEnabled(String provider)
-																{
-																}
+        public void onProviderDisabled(String provider) {
+        }
 
-																public void onStatusChanged(String provider,
-																		int status, Bundle extras)
-																{
-																}
-															};
+        public void onProviderEnabled(String provider) {
+        }
 
-	public static void LocChangeExecute(Location location){
-		Logger logger = new Logger();
-		String sCurrentLine;
-		BufferedReader br;
-		FileInputStream in = null;
-		File inFolder, logFile;
-		double latitude, longitude;
-		float speed;
-		Double distance = 0.0, bearing = 0.0;
+        public void onStatusChanged(String provider,
+                                    int status, Bundle extras) {
+        }
+    };
 
-		speed = location.getSpeed();
-		latitude = location.getLatitude();
-		longitude = location.getLongitude();
-		// Calculate from GPS
-		inFolder = Environment.getExternalStoragePublicDirectory("DMS/Working/");
-		File[] foundFiles = inFolder.listFiles(new FilenameFilter() {
-			public boolean accept(File dir, String name) {
+    public static void LocChangeExecute(Location location) {
+        Logger logger = new Logger();
+        String sCurrentLine;
+        BufferedReader br;
+        FileInputStream in = null;
+        File inFolder, logFile;
+        double latitude, longitude;
+        float speed;
+        Double distance = 0.0, bearing = 0.0;
 
-				return name.startsWith("MapDisarm_Log_" + phoneVal);
-			}
-		});
-		if(foundFiles != null && foundFiles.length > 0) {
-			logFile = new File(foundFiles[0].toString());
-			Log.v("LogFile:", foundFiles[0].toString());
-			try {
-				in = new FileInputStream(logFile);
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			}
+        speed = location.getSpeed();
+        latitude = location.getLatitude();
+        longitude = location.getLongitude();
+        // Calculate from GPS
+        inFolder = Environment.getExternalStoragePublicDirectory("DMS/Working/");
+        File[] foundFiles = inFolder.listFiles(new FilenameFilter() {
+            public boolean accept(File dir, String name) {
 
-			String lastLine = "";
+                return name.startsWith("MapDisarm_Log_" + phoneVal);
+            }
+        });
+        if (foundFiles != null && foundFiles.length > 0) {
+            logFile = new File(foundFiles[0].toString());
+            Log.v("LogFile:", foundFiles[0].toString());
+            try {
+                in = new FileInputStream(logFile);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
 
-			br = new BufferedReader(new InputStreamReader(in));
-			try {
-				while ((sCurrentLine = br.readLine()) != null) {
-					lastLine = sCurrentLine;
-				}
-			} catch (Exception e) {
-			}
-			Log.v("LastLine:", lastLine);
-			Log.v("LastLine Location New:", "Lat:" + latitude + "Long:" + longitude);
+            String lastLine = "";
 
-			// Calculate Distance between 2 GPS coordinates
-			distance = LocCalculate.calculateGPSDistance(lastLine.split(",")[0], lastLine.split(",")[1], latitude, longitude);
-			Log.v("Distance :", distance.toString());
+            br = new BufferedReader(new InputStreamReader(in));
+            try {
+                while ((sCurrentLine = br.readLine()) != null) {
+                    lastLine = sCurrentLine;
+                }
+            } catch (Exception e) {
+            }
+            Log.v("LastLine:", lastLine);
+            Log.v("LastLine Location New:", "Lat:" + latitude + "Long:" + longitude);
 
-			if (distance.doubleValue() > 0.00) {
-				bearing = LocCalculate.bearing(lastLine.split(",")[0], lastLine.split(",")[1], latitude, longitude);
+            // Calculate Distance between 2 GPS coordinates
+            distance = LocCalculate.calculateGPSDistance(lastLine.split(",")[0], lastLine.split(",")[1], latitude, longitude);
+            Log.v("Distance :", distance.toString());
 
-				if (bearing > 90.00 && bearing < 270.00) {
-					bearing = Math.abs(180.00 - bearing);
-				} else if (bearing > 270.00) {
-					bearing = Math.abs(360.00 - bearing);
-				}
-				Log.v("Bearing:", bearing.toString());
+            if (distance.doubleValue() > 0.00) {
+                bearing = LocCalculate.bearing(lastLine.split(",")[0], lastLine.split(",")[1], latitude, longitude);
 
-				if (latitude != 0.0 && longitude != 0.0 && bearing.doubleValue() > 0.00) {
-					logger.addRecordToLog(String.valueOf(latitude) + "," + String.valueOf(longitude) + "," + String.valueOf(speed) + "," + String.valueOf(distance) + "," + String.valueOf(bearing));
-				}
-				Log.v("Speed :", Float.toString(speed));
+                if (bearing > 90.00 && bearing < 270.00) {
+                    bearing = Math.abs(180.00 - bearing);
+                } else if (bearing > 270.00) {
+                    bearing = Math.abs(360.00 - bearing);
+                }
+                Log.v("Bearing:", bearing.toString());
 
-			}
+                if (latitude != 0.0 && longitude != 0.0 && bearing.doubleValue() > 0.00) {
+                    logger.addRecordToLog(String.valueOf(latitude) + "," + String.valueOf(longitude) + "," + String.valueOf(speed) + "," + String.valueOf(distance) + "," + String.valueOf(bearing));
+                }
+                Log.v("Speed :", Float.toString(speed));
 
-		}
-		else {
-			logger.addRecordToLog(String.valueOf(latitude) + "," + String.valueOf(longitude) + "," + String.valueOf(speed) + "," + String.valueOf(distance) + "," + String.valueOf(bearing));
+            }
 
-		}
-	}
+        } else {
+            logger.addRecordToLog(String.valueOf(latitude) + "," + String.valueOf(longitude) + "," + String.valueOf(speed) + "," + String.valueOf(distance) + "," + String.valueOf(bearing));
+
+        }
+    }
 }
