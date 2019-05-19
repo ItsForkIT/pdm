@@ -82,7 +82,7 @@ public class SplashActivity extends AppCompatActivity implements View.OnClickLis
         }
 
         if (sp.getString("phone_no",null)!=null){
-            Params.SOURCE_PHONE_NO = sp.getString("phone_no",null);
+            Params.SOURCE_PHONE_NO = sp.getString("phone_no", null);
             Intent i = new Intent(this,RegisterActivity.class);
             startActivity(i);
             finish();

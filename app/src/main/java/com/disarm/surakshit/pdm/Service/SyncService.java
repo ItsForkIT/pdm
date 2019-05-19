@@ -24,7 +24,7 @@ import bishakh.psync.WebServer;
 
 public class SyncService extends Service {
 
-    private static final String BROADCAST_IP = "192.168.43.255";
+    private static final String BROADCAST_IP = "192.168.49.255";
     private static final int PORT = 4446;
     private static final int syncInterval = 5;
     private static final int maxRunningDownloads = 5;

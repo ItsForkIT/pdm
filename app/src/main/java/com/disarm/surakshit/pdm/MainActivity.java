@@ -37,13 +37,14 @@ import com.disarm.surakshit.pdm.DB.DBEntities.Receiver;
 import com.disarm.surakshit.pdm.DB.DBEntities.Receiver_;
 import com.disarm.surakshit.pdm.DB.DBEntities.Sender;
 import com.disarm.surakshit.pdm.DB.DBEntities.Sender_;
-import com.disarm.surakshit.pdm.DisarmConnect.ApManager;
-import com.disarm.surakshit.pdm.DisarmConnect.DCService;
+
 import com.disarm.surakshit.pdm.Encryption.KeyBasedFileProcessor;
 import com.disarm.surakshit.pdm.Fragments.ChatFragment;
 import com.disarm.surakshit.pdm.Fragments.FragmentAdapter;
 import com.disarm.surakshit.pdm.Fragments.MapFragment;
 import com.disarm.surakshit.pdm.Fragments.MergedMapFragment;
+import com.disarm.surakshit.pdm.P2PConnect.ApManager;
+import com.disarm.surakshit.pdm.Service.P2PConnectService;
 import com.disarm.surakshit.pdm.Service.SyncService;
 import com.disarm.surakshit.pdm.Util.DiffUtils;
 import com.disarm.surakshit.pdm.Util.Params;
@@ -83,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
     static HashSet<String> kmlFilesList;
     private boolean gpsService = false;
     public static SyncService syncService;
-    public static DCService myService;
+    public static P2PConnectService myService;
     public static boolean syncServiceBound = false;
     public static boolean myServiceBound = false;
     LocationManager lm;
@@ -660,14 +661,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        //default disarmConnect is off
-        boolean startConnect = preferences.getBoolean("disarmConnect", false);
+        //default p2pConnect is off
+        boolean startConnect = preferences.getBoolean("P2PConnect", false);
         boolean isXOB = preferences.getBoolean("xob_switch", false);
         if (!isXOB) {
             if (startConnect) {
-                final Intent dcServiceIntent = new Intent(getApplicationContext(), DCService.class);
-                bindService(dcServiceIntent, myServiceConnection, Context.BIND_AUTO_CREATE);
-                startService(dcServiceIntent);
+                final Intent p2pServiceIntent = new Intent(getApplicationContext(), P2PConnectService.class);
+                bindService(p2pServiceIntent, myServiceConnection, Context.BIND_AUTO_CREATE);
+                startService(p2pServiceIntent);
 
             }
         } else {
@@ -732,7 +733,7 @@ public class MainActivity extends AppCompatActivity {
     private void unbindAllService() {
         unbindSyncService();
 
-        final Intent myServiceIntent = new Intent(getApplicationContext(), DCService.class);
+        final Intent myServiceIntent = new Intent(getApplicationContext(), P2PConnectService.class);
         if (myServiceBound) {
             unbindService(myServiceConnection);
         }
@@ -771,7 +772,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onServiceConnected(ComponentName className,
                                        IBinder service) {
-            DCService.MyServiceBinder binder = (DCService.MyServiceBinder) service;
+            P2PConnectService.P2PConnectServiceBinder binder = (P2PConnectService.P2PConnectServiceBinder) service;
             myService = binder.getService();
             myServiceBound = true;
         }

@@ -1,15 +1,10 @@
-package com.disarm.surakshit.pdm.DisarmConnect;
-
-/**
- * Created by sanna on 2/12/15.
- */
+package com.disarm.surakshit.pdm.P2PConnect;
 
 import android.content.Context;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.util.Log;
-
 
 import com.disarm.surakshit.pdm.Util.Params;
 
@@ -18,6 +13,7 @@ import java.lang.reflect.Method;
 public class ApManager {
 
     private static final String TAG = "AP Creation";
+
     //check whether wifi hotspot on or off
     public static boolean isApOn(Context context) {
         WifiManager wifimanager = (WifiManager) context.getApplicationContext().getSystemService(context.WIFI_SERVICE);
@@ -25,8 +21,8 @@ public class ApManager {
             Method method = wifimanager.getClass().getDeclaredMethod("isWifiApEnabled");
             method.setAccessible(true);
             return (Boolean) method.invoke(wifimanager);
+        } catch (Throwable ignored) {
         }
-        catch (Throwable ignored) {}
         return false;
     }
 
@@ -37,7 +33,7 @@ public class ApManager {
         WifiConfiguration wificonfiguration = null;
         try {
             // if WiFi is on, turn it off
-            if(isApOn(context)) {
+            if (isApOn(context)) {
                 wifimanager.setWifiEnabled(false);
             }
             //Change Name of the Created Hotspot
@@ -46,16 +42,6 @@ public class ApManager {
 
                 WifiConfiguration wifiConfig = (WifiConfiguration) getConfigMethod.invoke(wifimanager);
                 //wifiConfig.getClass().getField("apChannel").setInt(wifiConfig, 6);
-                Log.v("ApManager", "Best Available Channel:" + DCService.bestAvailableChannel);
-
-                // Channel Allocation
-
-                if (Build.VERSION.SDK_INT > 22) {
-                    // Created hotspot in the best available channel
-                    wifiConfig.getClass().getField("apChannel").setInt(wifiConfig, DCService.bestAvailableChannel);
-                } else {
-                    wifiConfig.getClass().getField("channel").setInt(wifiConfig, DCService.bestAvailableChannel);
-                }
 
                 wifiConfig.allowedAuthAlgorithms.clear();
                 wifiConfig.allowedGroupCiphers.clear();
@@ -75,19 +61,16 @@ public class ApManager {
                 Method setWifiApMethod = wifimanager.getClass().getMethod("setWifiApEnabled", WifiConfiguration.class, boolean.class);
                 boolean apstatus = (Boolean) setWifiApMethod.invoke(wifimanager, wifiConfig, true);
                 //Log.v("GetAPCOnfig:" + getConfigMethod.toString() + ",setWifiApMethod : " + setWifiApMethod.toString());
-                Log.v("WifiConfig: " , wifiConfig.toString());
-            }
-            catch (Exception e) {
+                Log.v("WifiConfig: ", wifiConfig.toString());
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             Method method = wifimanager.getClass().getMethod("setWifiApEnabled", WifiConfiguration.class, boolean.class);
             method.invoke(wifimanager, wificonfiguration, !isApOn(context));
             return true;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return false;
     }
-
 }

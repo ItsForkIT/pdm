@@ -30,6 +30,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.disarm.surakshit.pdm.Logger;
+import com.disarm.surakshit.pdm.Util.Params;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -38,9 +39,6 @@ import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.InputStreamReader;
 import java.util.List;
-
-import static com.disarm.surakshit.pdm.DisarmConnect.DCService.phoneVal;
-
 
 public class MLocation {
     public static LocationManager lm;
@@ -196,7 +194,7 @@ public class MLocation {
         File[] foundFiles = inFolder.listFiles(new FilenameFilter() {
             public boolean accept(File dir, String name) {
 
-                return name.startsWith("MapDisarm_Log_" + phoneVal);
+                return name.startsWith("MapDisarm_Log_" + Params.SOURCE_PHONE_NO);
             }
         });
         if (foundFiles != null && foundFiles.length > 0) {
